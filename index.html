@@ -23595,7 +23595,7 @@ function renderMomentumScanInfographicV3762(scan){
   scanTextV3762(ctx,"前8名圖片戰報",42,105,18,900,"#dbeafe");
   fitScanTextV3762(
     ctx,
-    `V40｜正式版｜快篩合格 ${scan.phase1Eligible||0}｜請求結束 ${scan.done||0}｜有效 ${scan.successCount||0}｜未完成 ${scan.pending||0}`,
+    `${V40_RELEASE_LABEL}｜快篩合格 ${scan.phase1Eligible||0}｜請求結束 ${scan.done||0}｜有效 ${scan.successCount||0}｜未完成 ${scan.pending||0}`,
     42,132,1068,15,11,800,"#dbeafe"
   );
   scanTextV3762(ctx,`產生時間 ${scan.createdAt}（台灣時間）`,42,158,14,750,"#dbeafe");
@@ -24017,8 +24017,10 @@ async function downloadMomentumAllCandidatesImageV377715(){
       throw new Error(`全部選股圖片產生不完整：候選 ${audit.expected} 檔｜實際畫出 ${audit.renderedCount} 檔｜最後一檔 ${audit.actualLast||"無"}`);
     }
     const stamp=String(scan.createdAt||taipeiStampV3762()).replace(/\D/g,"").slice(0,12)||"latest";
-    const filename=sanitizeFilenameV3328(`石頭少爺的ABC飆股_主動式主升掃描_全部正式候選_${stamp}_V40_正式版_R1_連線完整性修正.png`);
-    await showInfographicPreviewV3328(canvas,filename,`石頭少爺的ABC飆股｜主動式主升掃描｜全部正式候選圖片戰報｜${audit.renderedCount}檔`);
+    const scopeLabel=scan.qualityPass===true?"全部正式候選":"已分析候選_資料未完整";
+    const scopeTitle=scan.qualityPass===true?"全部正式候選圖片戰報":"本次已分析候選｜資料未完整";
+    const filename=sanitizeFilenameV3328(`石頭少爺的ABC飆股_主動式主升掃描_${scopeLabel}_${stamp}_V40_正式版_R1_連線完整性修正.png`);
+    await showInfographicPreviewV3328(canvas,filename,`石頭少爺的ABC飆股｜主動式主升掃描｜${scopeTitle}｜${audit.renderedCount}檔`);
     if(msg){msg.style.color="var(--green)";msg.textContent=`✅ 全部選股圖片報告已產生｜候選 ${audit.expected} 檔｜實際列出 ${audit.renderedCount} 檔｜數量一致。`;}
   }catch(e){
     console.error(e);
@@ -24056,11 +24058,13 @@ async function downloadMomentumAllCandidatesImageWatermarkV377716(){
     drawMomentumImageWatermarkV377716(canvas,"all");
 
     const stamp=String(scan.createdAt||taipeiStampV3762()).replace(/\D/g,"").slice(0,12)||"latest";
-    const filename=sanitizeFilenameV3328(`石頭少爺的ABC飆股_主動式主升掃描_全部正式候選_防盜浮水印版_${stamp}_V40_正式版_R1_連線完整性修正.png`);
+    const scopeLabel=scan.qualityPass===true?"全部正式候選":"已分析候選_資料未完整";
+    const scopeTitle=scan.qualityPass===true?"全部正式候選圖片戰報":"本次已分析候選｜資料未完整";
+    const filename=sanitizeFilenameV3328(`石頭少爺的ABC飆股_主動式主升掃描_${scopeLabel}_防盜浮水印版_${stamp}_V40_正式版_R1_連線完整性修正.png`);
     await showInfographicPreviewV3328(
       canvas,
       filename,
-      `石頭少爺的ABC飆股｜主動式主升掃描｜全部正式候選圖片戰報｜防盜浮水印版｜${audit.renderedCount}檔`
+      `石頭少爺的ABC飆股｜主動式主升掃描｜${scopeTitle}｜防盜浮水印版｜${audit.renderedCount}檔`
     );
     if(msg){
       msg.style.color="var(--green)";
@@ -27792,8 +27796,10 @@ async function downloadDayTradeAllCandidatesImageV1(withWatermark=false){
     if(rendered.length!==lastDayTradeScanDataV1.candidates.length)throw new Error(`圖片輸出數量不一致：候選${lastDayTradeScanDataV1.candidates.length}｜畫出${rendered.length}`);
     if(withWatermark)drawMomentumImageWatermarkV377716(canvas,"all");
     const stamp=String(lastDayTradeScanDataV1.createdAt||"").replace(/\D/g,"").slice(0,12)||"latest",suffix=withWatermark?"_防盜浮水印版":"";
-    const filename=sanitizeFilenameV3328(`石頭少爺的ABC飆股_明日當沖盤前適配_全部正式候選${suffix}_${stamp}_V40_正式版_R1_連線完整性修正.png`);
-    await showInfographicPreviewV3328(canvas,filename,`石頭少爺的ABC飆股｜明日當沖盤前適配｜全部正式候選｜${rendered.length}檔${withWatermark?"｜防盜浮水印版":""}`);
+    const scopeLabel=lastDayTradeScanDataV1.qualityPass===true?"全部正式候選":"已分析候選_資料未完整";
+    const scopeTitle=lastDayTradeScanDataV1.qualityPass===true?"全部正式候選":"本次已分析候選｜資料未完整";
+    const filename=sanitizeFilenameV3328(`石頭少爺的ABC飆股_明日當沖盤前適配_${scopeLabel}${suffix}_${stamp}_V40_正式版_R1_連線完整性修正.png`);
+    await showInfographicPreviewV3328(canvas,filename,`石頭少爺的ABC飆股｜明日當沖盤前適配｜${scopeTitle}｜${rendered.length}檔${withWatermark?"｜防盜浮水印版":""}`);
     if(msg){msg.style.color="var(--green)";msg.textContent=`✅ 全部當沖候選圖片已產生｜${rendered.length}檔。`;}
   }catch(e){if(msg){msg.style.color="var(--red)";msg.textContent=`❌ ${e?.message||"全部圖片產生失敗"}`;}}
   finally{if(btn){btn.disabled=false;btn.textContent=original;}}
@@ -27872,8 +27878,10 @@ async function copyDayTradeAllCandidatesImageV377727(withWatermark=false){
     if(withWatermark)drawMomentumImageWatermarkV377716(canvas,"all");
     const stamp=String(lastDayTradeScanDataV1.createdAt||"").replace(/\D/g,"").slice(0,12)||"latest";
     const suffix=withWatermark?"_防盜浮水印版":"";
-    const filename=sanitizeFilenameV3328(`石頭少爺的ABC飆股_明日當沖盤前適配_全部正式候選${suffix}_${stamp}_V40_正式版_R1_連線完整性修正.png`);
-    const title=`石頭少爺的ABC飆股｜明日當沖盤前適配｜全部正式候選｜${rendered.length}檔${withWatermark?"｜防盜浮水印版":""}`;
+    const scopeLabel=lastDayTradeScanDataV1.qualityPass===true?"全部正式候選":"已分析候選_資料未完整";
+    const scopeTitle=lastDayTradeScanDataV1.qualityPass===true?"全部正式候選":"本次已分析候選｜資料未完整";
+    const filename=sanitizeFilenameV3328(`石頭少爺的ABC飆股_明日當沖盤前適配_${scopeLabel}${suffix}_${stamp}_V40_正式版_R1_連線完整性修正.png`);
+    const title=`石頭少爺的ABC飆股｜明日當沖盤前適配｜${scopeTitle}｜${rendered.length}檔${withWatermark?"｜防盜浮水印版":""}`;
     const r=await dayTradeCopyCanvasPngV377727(canvas,filename,title);
     if(msg){
       if(r.copied){msg.style.color="var(--green)";msg.textContent=withWatermark?`✅ 已複製全部當沖選股圖片報告（防盜浮水印版）｜${rendered.length}檔。`:`✅ 已複製全部當沖選股圖片報告｜${rendered.length}檔。`;}
