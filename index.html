@@ -1,4 +1,4 @@
-<!-- 石頭少爺 Agent V43 正式版｜R6 新循環與量能口徑一致版：新B未形成時隱藏近端盈虧比、依價位排序防守層級，並標明3日與20日量能的不同基準；正式排序、ABC／N字與三週期分數公式不變。 -->
+<!-- 石頭少爺 Agent V44 正式版｜R1 教材整合實作版：以獨立判讀層加入教材交易流程、標準KD背離、3根收復、突破／假突破與L2參數架構；沿用R6顯示修正，正式排序、Pivot、Swing Chain、ABC／N字與三週期分數公式不變。 -->
 <!DOCTYPE html>
 
 <html lang="zh-TW">
@@ -9,7 +9,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>石頭少爺 Agent V43 正式版｜R6 新循環與量能口徑一致版｜月線波段＋費波那契 N字</title>
+<title>石頭少爺 Agent V44 正式版｜R1 教材整合實作版｜月線波段＋費波那契 N字</title>
 
 <style>
 
@@ -946,7 +946,7 @@ img,canvas,svg{max-width:100%;height:auto}
 
     <p>月線波段條件判斷＋固定倍數目標價＋費波那契 N字分析＋主升動能式掃描強勢股</p>
 
-    <span class="version-pill">石頭少爺 Agent V43 正式版｜R6 新循環與量能口徑一致版｜個股、大盤、主升、當沖、短波段與長波段功能完整保留</span>
+    <span class="version-pill">石頭少爺 Agent V44 正式版｜R1 教材整合實作版｜個股、大盤、主升、當沖、短波段與長波段功能完整保留</span>
 
   </div>
 
@@ -1053,7 +1053,7 @@ img,canvas,svg{max-width:100%;height:auto}
           <div id="momentumHeroTitle" class="momentum-hero-title">🚀 主動式主升掃描｜候選排行</div>
           <div id="momentumMeta" class="meta">-</div>
         </div>
-        <div class="meta" style="text-align:right">石頭少爺 Agent V43 正式版｜R6 新循環與量能口徑一致版<br>三週期盤後適配、近端進場檢查與主升三榜功能完整保留</div>
+        <div class="meta" style="text-align:right">石頭少爺 Agent V44 正式版｜R1 教材整合實作版<br>三週期盤後適配、近端進場檢查與主升三榜功能完整保留</div>
       </div>
       <div class="momentum-reminder">📌 判讀原則：排名是「主升型態相似度／位置品質」篩選，不是上漲保證。盈虧比是有效上下關卡的動態價差比，不是勝率；高檔延伸、RSI過熱或MA20乖離過大會另外警示。</div>
       <div class="momentum-summary-grid">
@@ -1095,7 +1095,7 @@ img,canvas,svg{max-width:100%;height:auto}
           <div id="dayTradeMeta" class="meta">-</div>
         </div>
         <div class="meta" style="text-align:right">
-          石頭少爺 Agent V43 正式版｜R6 新循環與量能口徑一致版<br>
+          石頭少爺 Agent V44 正式版｜R1 教材整合實作版<br>
           當沖掃描排序分與三週期適配分分開呈現，不混合計算
         </div>
       </div>
@@ -1151,7 +1151,7 @@ img,canvas,svg{max-width:100%;height:auto}
           <div id="marketChange" class="market-index-change flat">-</div>
         </div>
         <div style="text-align:right">
-          <div class="meta"><strong>石頭少爺 Agent V43 正式版｜R6 新循環與量能口徑一致版</strong></div>
+          <div class="meta"><strong>石頭少爺 Agent V44 正式版｜R1 教材整合實作版</strong></div>
           <div id="marketDate" class="meta">-</div>
           <div id="marketSource" class="meta">-</div>
         </div>
@@ -1562,7 +1562,7 @@ img,canvas,svg{max-width:100%;height:auto}
   </div>
 </div>
 
-<footer class="footer"><strong>石頭少爺 Agent V43 正式版｜R6 新循環與量能口徑一致版</strong><br>個股主動查詢、大盤分析、主升三榜、明日當沖、短波段、長波段、關鍵券商、ABC／N字結構與圖片／文字報告功能完整保留。<br>技術分析僅供研究與決策參考，不構成投資建議；所有分數都是條件評估，不是上漲機率。</footer>
+<footer class="footer"><strong>石頭少爺 Agent V44 正式版｜R1 教材整合實作版</strong><br>個股主動查詢、大盤分析、主升三榜、明日當沖、短波段、長波段、關鍵券商、ABC／N字結構與圖片／文字報告功能完整保留。<br>技術分析僅供研究與決策參考，不構成投資建議；所有分數都是條件評估，不是上漲機率。</footer>
 
 <script>
 // V40｜三週期盤後適配度＋Decision Layer整合版。Worker分數為主，前端舊公式保留fallback；不使用盤中假資料。
@@ -1810,7 +1810,7 @@ img,canvas,svg{max-width:100%;height:auto}
 // 不新增艾略特1～5浪或ABC修正浪計數。
 // ========================================================================
 
-const V40_RELEASE_LABEL="石頭少爺 Agent V43 正式版｜R6 新循環與量能口徑一致版";
+const V40_RELEASE_LABEL="石頭少爺 Agent V44 正式版｜R1 教材整合實作版";
 const API_BASE_URL="https://shitou-agent-fib-api.d318426.workers.dev";
 
 // V40：延續 GIS-KY 英文名稱修正；新增「戰術頸線突破」與「Fib B正式突破」角色隔離，避免B尚未突破卻被寫成支撐。
@@ -4116,12 +4116,12 @@ function plainLanguageV40(value){
   return text
     .replace(/上市市場\s*官方資料/g,"上市市場官方資料")
     .replace(/上櫃市場\s*官方資料/g,"上櫃市場官方資料")
-    .replace(/(?:石頭少爺 Agent\s*)?V4[0123](?:\s*R\d+)?\s*[｜|]\s*正式版/g,V40_RELEASE_LABEL)
+    .replace(/(?:石頭少爺 Agent\s*)?V4[01234](?:\s*R\d+)?\s*[｜|]\s*正式版/g,V40_RELEASE_LABEL)
     .replace(/(?:石頭少爺 Agent V43 正式版｜R[3456] [^｜\n<]+)(?:\s*[｜|]\s*石頭少爺 Agent V43 正式版｜R[3456] [^｜\n<]+)+/g,V40_RELEASE_LABEL)
     // 舊寫法只吃掉 R1；R2/R3 會留下原尾碼，造成「R2｜R2」重複。
     // 現在把任一 R 版的一個版本說明片段完整正規化成唯一正式標籤。
-    .replace(/石頭少爺 Agent V40 正式版(?:\s*｜\s*R\d+(?:\s+[^｜\n<]+)?)?|石頭少爺 Agent V41 正式版(?:\s*｜\s*當沖掃描穩定化＋全個股圖片白話版)?|石頭少爺 Agent V42 正式版(?:\s*｜\s*雙身分燈號＋黃金三價位＋同週期空間比)?|石頭少爺 Agent V42 R1 正式版(?:\s*｜\s*觀察線＋多單建議試單價分流)?|石頭少爺 Agent V43 正式版(?:\s*｜\s*R[23456] [^｜\n<]+)?/g,V40_RELEASE_LABEL)
-    .replace(/(石頭少爺 Agent V43 正式版｜R6 新循環與量能口徑一致版)(?:\s*｜\s*R6 新循環與量能口徑一致版)+/g,"$1")
+    .replace(/石頭少爺 Agent V40 正式版(?:\s*｜\s*R\d+(?:\s+[^｜\n<]+)?)?|石頭少爺 Agent V41 正式版(?:\s*｜\s*當沖掃描穩定化＋全個股圖片白話版)?|石頭少爺 Agent V42 正式版(?:\s*｜\s*雙身分燈號＋黃金三價位＋同週期空間比)?|石頭少爺 Agent V42 R1 正式版(?:\s*｜\s*觀察線＋多單建議試單價分流)?|石頭少爺 Agent V43 正式版(?:\s*｜\s*R[23456] [^｜\n<]+)?|石頭少爺 Agent V44 正式版(?:\s*｜\s*R1 教材整合實作版)?/g,V40_RELEASE_LABEL)
+    .replace(/(石頭少爺 Agent V44 正式版｜R1 教材整合實作版)(?:\s*[｜|]\s*\1)+/g,"$1")
     .replace(/&#x20;|&nbsp;/gi," ")
     .replace(/[｜|]\s*[｜|]/g,"｜");
 }
@@ -22572,7 +22572,7 @@ async function generateStockInfographicV3328(withWatermark=false){
     if(withWatermark)applyAntiTheftWatermarkV3761(canvas,"stock");
     const d=String(lastReportData.closeDate||"").replace(/\D/g,"").slice(0,8)||"latest";
     const suffix=withWatermark?"_防盜浮水印版":"";
-    const filename=sanitizeFilenameV3328(`石頭少爺_${lastReportData.name||lastReportData.code}_${lastReportData.code}_個股分析圖${suffix}_${d}_V43_R6_新循環與量能口徑一致版.png`);
+    const filename=sanitizeFilenameV3328(`石頭少爺_${lastReportData.name||lastReportData.code}_${lastReportData.code}_個股分析圖${suffix}_${d}_V44_R1_教材整合實作版.png`);
     await showInfographicPreviewV3328(canvas,filename,`${formatStockNameWithCode(lastReportData.name,lastReportData.code)} 個股分析圖${withWatermark?"｜防盜浮水印版":""}`);
     message.style.color="var(--green)";message.textContent=withWatermark?"✅ 個股防盜浮水印版已產生，可預覽、儲存 PNG 或直接分享。":"✅ 個股分析圖已產生，可預覽、儲存 PNG 或直接分享。";
   }catch(err){console.error("個股分析圖產生失敗：",err);message.style.color="var(--red)";message.textContent=`❌ 個股分析圖產生失敗：${err?.message||"未知錯誤"}`;}
@@ -22591,7 +22591,7 @@ async function generateMarketInfographicV3328(withWatermark=false){
     if(withWatermark)applyAntiTheftWatermarkV3761(canvas,"market");
     const d=String(lastMarketReportData.closeDate||"").replace(/\D/g,"").slice(0,8)||"latest";
     const suffix=withWatermark?"_防盜浮水印版":"";
-    const filename=`石頭少爺_TAIEX_大盤分析圖${suffix}_${d}_V43_R6_新循環與量能口徑一致版.png`;
+    const filename=`石頭少爺_TAIEX_大盤分析圖${suffix}_${d}_V44_R1_教材整合實作版.png`;
     await showInfographicPreviewV3328(canvas,filename,`臺灣加權股價指數（TAIEX）大盤分析圖${withWatermark?"｜防盜浮水印版":""}`);
     message.style.color="var(--green)";message.textContent=withWatermark?"✅ 大盤防盜浮水印版已產生，可預覽、儲存 PNG 或直接分享。":"✅ 大盤分析圖已產生，可預覽、儲存 PNG 或直接分享。";
   }catch(err){console.error("大盤分析圖產生失敗：",err);message.style.color="var(--red)";message.textContent=`❌ 大盤分析圖產生失敗：${err?.message||"未知錯誤"}`;}
@@ -23096,7 +23096,7 @@ function downloadReplayResearchV39B7(){
   if(!lastReplayResearchV39B7)return;
   const blob=new Blob([JSON.stringify(lastReplayResearchV39B7,null,2)],{type:"application/json;charset=utf-8"});
   const url=URL.createObjectURL(blob),a=document.createElement("a"),stamp=new Date().toISOString().replace(/[:.]/g,"-");
-  a.href=url;a.download=`V43_R6_新循環與量能口徑一致版_歷史回看_${String(lastReplayResearchV39B7.stock||"stock")}_${stamp}.json`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+  a.href=url;a.download=`V44_R1_教材整合實作版_歷史回看_${String(lastReplayResearchV39B7.stock||"stock")}_${stamp}.json`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
 
 function waitMsV3742(ms){
@@ -24184,7 +24184,7 @@ async function generateMomentumScanImageV3762(withWatermark=false){
     const canvas=renderMomentumScanInfographicV3762(lastMomentumScanDataV3762);
     if(withWatermark)drawMomentumImageWatermarkV377716(canvas,"top8");
     const t=taipeiTimePartsV3762(),d=`${t.year}${t.month}${t.day}`,suffix=withWatermark?"_防盜浮水印版":"";
-    const filename=sanitizeFilenameV3328(`石頭少爺的ABC飆股_前8名圖片戰報${suffix}_${d}_V43_R6_新循環與量能口徑一致版.png`);
+    const filename=sanitizeFilenameV3328(`石頭少爺的ABC飆股_前8名圖片戰報${suffix}_${d}_V44_R1_教材整合實作版.png`);
     const phase=momentumReportPhaseV37771(lastMomentumScanDataV3762.createdAt);
     await showInfographicPreviewV3328(canvas,filename,`石頭少爺的ABC飆股｜主動式主升掃描｜前8名圖片戰報${withWatermark?"｜防盜浮水印版":""}`);
     msg.style.color="var(--green)";msg.textContent=withWatermark?"✅ 主升動能掃描防盜浮水印版已產生。":"✅ 主升動能掃描原版已產生。";
@@ -24417,7 +24417,7 @@ async function downloadMomentumAllCandidatesImageV377715(){
     const stamp=String(scan.createdAt||taipeiStampV3762()).replace(/\D/g,"").slice(0,12)||"latest";
     const scopeLabel=scan.qualityPass===true?"全部正式候選":"已分析候選_資料未完整";
     const scopeTitle=scan.qualityPass===true?"全部正式候選圖片戰報":"本次已分析候選｜資料未完整";
-    const filename=sanitizeFilenameV3328(`石頭少爺的ABC飆股_主動式主升掃描_${scopeLabel}_${stamp}_V43_R6_新循環與量能口徑一致版.png`);
+    const filename=sanitizeFilenameV3328(`石頭少爺的ABC飆股_主動式主升掃描_${scopeLabel}_${stamp}_V44_R1_教材整合實作版.png`);
     await showInfographicPreviewV3328(canvas,filename,`石頭少爺的ABC飆股｜主動式主升掃描｜${scopeTitle}｜${audit.renderedCount}檔`);
     if(msg){msg.style.color="var(--green)";msg.textContent=`✅ 全部選股圖片報告已產生｜候選 ${audit.expected} 檔｜實際列出 ${audit.renderedCount} 檔｜數量一致。`;}
   }catch(e){
@@ -24458,7 +24458,7 @@ async function downloadMomentumAllCandidatesImageWatermarkV377716(){
     const stamp=String(scan.createdAt||taipeiStampV3762()).replace(/\D/g,"").slice(0,12)||"latest";
     const scopeLabel=scan.qualityPass===true?"全部正式候選":"已分析候選_資料未完整";
     const scopeTitle=scan.qualityPass===true?"全部正式候選圖片戰報":"本次已分析候選｜資料未完整";
-    const filename=sanitizeFilenameV3328(`石頭少爺的ABC飆股_主動式主升掃描_${scopeLabel}_防盜浮水印版_${stamp}_V43_R6_新循環與量能口徑一致版.png`);
+    const filename=sanitizeFilenameV3328(`石頭少爺的ABC飆股_主動式主升掃描_${scopeLabel}_防盜浮水印版_${stamp}_V44_R1_教材整合實作版.png`);
     await showInfographicPreviewV3328(
       canvas,
       filename,
@@ -26724,7 +26724,7 @@ function downloadMomentumFullReportV377713(){
   const url=URL.createObjectURL(blob);
   const a=document.createElement("a");
   a.href=url;
-  a.download="主動式主升掃描_完整詳細戰報_"+stamp+"_V43_R6_新循環與量能口徑一致版.txt";
+  a.download="主動式主升掃描_完整詳細戰報_"+stamp+"_V44_R1_教材整合實作版.txt";
   document.body.appendChild(a);
   a.click();
   a.remove();
@@ -28155,7 +28155,7 @@ function downloadDayTradeFullReportV1(){
   const blob=new Blob(["\uFEFF"+text],{type:"text/plain;charset=utf-8"});
   const a=document.createElement("a");a.href=URL.createObjectURL(blob);
   const stamp=String(lastDayTradeScanDataV1.createdAt||"").replace(/\D/g,"").slice(0,12)||"latest";
-  a.download=`明日當沖盤前適配_已檢查突破警訊_完整文字戰報_${stamp}_V43_R6_新循環與量能口徑一致版.txt`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1500);
+  a.download=`明日當沖盤前適配_已檢查突破警訊_完整文字戰報_${stamp}_V44_R1_教材整合實作版.txt`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1500);
   if(msg){msg.style.color="var(--green)";msg.textContent="✅ 已下載當沖完整詳細TXT。";}
 }
 
@@ -28243,7 +28243,7 @@ async function generateDayTradeImageV1(withWatermark=false){
     const canvas=renderDayTradeInfographicV1(lastDayTradeScanDataV1);
     if(withWatermark)drawMomentumImageWatermarkV377716(canvas,"top8");
     const stamp=String(lastDayTradeScanDataV1.createdAt||"").replace(/\D/g,"").slice(0,12)||"latest",suffix=withWatermark?"_防盜浮水印版":"";
-    const filename=sanitizeFilenameV3328(`石頭少爺的ABC飆股_明日當沖盤前適配_前8名圖片戰報${suffix}_${stamp}_V43_R6_新循環與量能口徑一致版.png`);
+    const filename=sanitizeFilenameV3328(`石頭少爺的ABC飆股_明日當沖盤前適配_前8名圖片戰報${suffix}_${stamp}_V44_R1_教材整合實作版.png`);
     await showInfographicPreviewV3328(canvas,filename,`石頭少爺的ABC飆股｜明日當沖盤前適配｜前8名圖片戰報${withWatermark?"｜防盜浮水印版":""}`);
     if(msg){msg.style.color="var(--green)";msg.textContent="✅ 當沖前8名圖片報告已產生。";}
   }catch(e){if(msg){msg.style.color="var(--red)";msg.textContent=`❌ 圖片產生失敗：${e?.message||"未知錯誤"}`;}}
@@ -28298,7 +28298,7 @@ async function downloadDayTradeAllCandidatesImageV1(withWatermark=false){
     const stamp=String(lastDayTradeScanDataV1.createdAt||"").replace(/\D/g,"").slice(0,12)||"latest",suffix=withWatermark?"_防盜浮水印版":"";
     const scopeLabel=lastDayTradeScanDataV1.qualityPass===true?"全部正式候選":"已分析候選_資料未完整";
     const scopeTitle=lastDayTradeScanDataV1.qualityPass===true?"全部正式候選":"本次已分析候選｜資料未完整";
-    const filename=sanitizeFilenameV3328(`石頭少爺的ABC飆股_明日當沖盤前適配_${scopeLabel}${suffix}_${stamp}_V43_R6_新循環與量能口徑一致版.png`);
+    const filename=sanitizeFilenameV3328(`石頭少爺的ABC飆股_明日當沖盤前適配_${scopeLabel}${suffix}_${stamp}_V44_R1_教材整合實作版.png`);
     await showInfographicPreviewV3328(canvas,filename,`石頭少爺的ABC飆股｜明日當沖盤前適配｜${scopeTitle}｜${rendered.length}檔${withWatermark?"｜防盜浮水印版":""}`);
     if(msg){msg.style.color="var(--green)";msg.textContent=`✅ 全部當沖候選圖片已產生｜${rendered.length}檔。`;}
   }catch(e){if(msg){msg.style.color="var(--red)";msg.textContent=`❌ ${e?.message||"全部圖片產生失敗"}`;}}
@@ -28352,7 +28352,7 @@ async function copyDayTradeTop8ImageV377727(withWatermark=false){
     if(withWatermark)drawMomentumImageWatermarkV377716(canvas,"top8");
     const stamp=String(lastDayTradeScanDataV1.createdAt||"").replace(/\D/g,"").slice(0,12)||"latest";
     const suffix=withWatermark?"_防盜浮水印版":"";
-    const filename=sanitizeFilenameV3328(`石頭少爺的ABC飆股_明日當沖盤前適配_前8名圖片戰報${suffix}_${stamp}_V43_R6_新循環與量能口徑一致版.png`);
+    const filename=sanitizeFilenameV3328(`石頭少爺的ABC飆股_明日當沖盤前適配_前8名圖片戰報${suffix}_${stamp}_V44_R1_教材整合實作版.png`);
     const title=`石頭少爺的ABC飆股｜明日當沖盤前適配｜前8名圖片戰報${withWatermark?"｜防盜浮水印版":""}`;
     const r=await dayTradeCopyCanvasPngV377727(canvas,filename,title);
     if(msg){
@@ -28380,7 +28380,7 @@ async function copyDayTradeAllCandidatesImageV377727(withWatermark=false){
     const suffix=withWatermark?"_防盜浮水印版":"";
     const scopeLabel=lastDayTradeScanDataV1.qualityPass===true?"全部正式候選":"已分析候選_資料未完整";
     const scopeTitle=lastDayTradeScanDataV1.qualityPass===true?"全部正式候選":"本次已分析候選｜資料未完整";
-    const filename=sanitizeFilenameV3328(`石頭少爺的ABC飆股_明日當沖盤前適配_${scopeLabel}${suffix}_${stamp}_V43_R6_新循環與量能口徑一致版.png`);
+    const filename=sanitizeFilenameV3328(`石頭少爺的ABC飆股_明日當沖盤前適配_${scopeLabel}${suffix}_${stamp}_V44_R1_教材整合實作版.png`);
     const title=`石頭少爺的ABC飆股｜明日當沖盤前適配｜${scopeTitle}｜${rendered.length}檔${withWatermark?"｜防盜浮水印版":""}`;
     const r=await dayTradeCopyCanvasPngV377727(canvas,filename,title);
     if(msg){
@@ -28839,6 +28839,285 @@ const v40PresentationObserver=new MutationObserver(records=>{
 });
 upgradeVisibleTextV40(document.body);
 v40PresentationObserver.observe(document.body,{subtree:true,childList:true,characterData:true});
+
+/* ========================================================================
+   教材整合實作候選版｜獨立判讀層（正式版本號於全測試通過後才更新）
+   ------------------------------------------------------------------------
+   Market Context → Setup → Confirmation → Trigger → Risk → Exit
+   只讀取既有資料服務、Pivot／Swing Chain／ABC 與完成日K；不改任何核心公式、
+   API、日期處理、分數或排序。L2 未定義門檻保留 null；L3/L4 只提示。
+   ======================================================================== */
+const TEACHING_PARAMETERS_V44=Object.freeze({
+  significantVolumeRatio:null,
+  maCompressionPct:null,
+  excessiveDeviationPct:null,
+  nearSupportPct:null,
+  highZonePct:null,
+  lowZonePct:null,
+  patternTolerancePct:null,
+  smallGapPct:null,
+  excessiveGapPct:null,
+  marketRegimeThresholds:null
+});
+const TEACHING_PARAMETER_LABELS_V44=Object.freeze({
+  significantVolumeRatio:"明顯放量門檻",
+  maCompressionPct:"均線糾結容許幅度",
+  excessiveDeviationPct:"乖離過大門檻",
+  nearSupportPct:"靠近支撐容許幅度",
+  highZonePct:"高檔區門檻",
+  lowZonePct:"低檔區門檻",
+  patternTolerancePct:"特殊型態容許誤差",
+  smallGapPct:"小幅跳空門檻",
+  excessiveGapPct:"過度跳空門檻",
+  marketRegimeThresholds:"市場多／盤／空分類門檻"
+});
+
+function teachingDateKeyV44(value){
+  const s=String(value??"").trim();
+  const m=s.match(/^(\d{4})[-\/]?(\d{2})[-\/]?(\d{2})/);
+  return m?`${m[1]}-${m[2]}-${m[3]}`:"";
+}
+
+function teachingRawDailyRowsV44(report){
+  const sets=[report?.dailySeries,report?.dailyBars,report?.history?.daily,report?.candles,report?.ohlcv];
+  return sets.find(Array.isArray)||[];
+}
+
+function teachingReadFieldV44(row,names){
+  if(!row||typeof row!=="object"||Array.isArray(row))return null;
+  for(const key of names)if(row[key]!==undefined&&row[key]!==null&&row[key]!=="")return row[key];
+  return null;
+}
+
+function teachingDataSyncV44(report){
+  const bars=normalizeDailyBarsV361(report);
+  if(!bars.length)return {key:"MISSING",icon:"⚪",label:"完成日K資料不足",ok:false};
+  const reportDate=teachingDateKeyV44(report?.closeDate);
+  const barDate=teachingDateKeyV44(bars[bars.length-1]?.date);
+  if(!reportDate||!barDate)return {key:"UNVERIFIED",icon:"🟡",label:"日期格式不足，暫不判定同步",ok:false,reportDate,barDate};
+  if(reportDate!==barDate)return {key:"MISMATCH",icon:"⚠️",label:`報告日期 ${reportDate} 與最後完成日K ${barDate} 不一致`,ok:false,reportDate,barDate};
+  return {key:"SYNCED",icon:"🟢",label:`完成日K已同步至 ${barDate}`,ok:true,reportDate,barDate};
+}
+
+function teachingMaSnapshotV44(report){
+  const snap=report?.decisionLayer?.maSnapshot||report?.structure?.maSnapshot||{};
+  const value=period=>n(snap?.[`ma${period}`]?.value??snap?.[`ma${period}`]??report?.[`dailyMA${period}`]??report?.structure?.[`dailyMA${period}`]?.value);
+  const slope=period=>n(snap?.[`ma${period}`]?.slopePct??snap?.[`ma${period}SlopePct`]??report?.structure?.[`dailyMA${period}`]?.slopePct);
+  const close=n(report?.close),periods=[20,60,120,240];
+  const rows=periods.map(period=>({period,value:value(period),slopePct:slope(period)}));
+  const available=rows.filter(x=>x.value!==null);
+  const above=available.filter(x=>close!==null&&close>x.value).map(x=>x.period);
+  const below=available.filter(x=>close!==null&&close<x.value).map(x=>x.period);
+  const ascending=available.length>=2&&available.every((x,i,a)=>i===0||a[i-1].value>=x.value);
+  return {close,rows,available:available.length,above,below,ascending};
+}
+
+function teachingKdSeriesV44(report){
+  const raw=teachingRawDailyRowsV44(report),bars=normalizeDailyBarsV361(report);
+  const kd=report?.indicators?.kd||report?.technicalIndicators?.kd||report?.kd||{};
+  const ka=Array.isArray(kd?.k)?kd.k:Array.isArray(report?.kdKSeries)?report.kdKSeries:null;
+  const da=Array.isArray(kd?.d)?kd.d:Array.isArray(report?.kdDSeries)?report.kdDSeries:null;
+  return bars.map((bar,i)=>{
+    const row=raw[i];
+    const k=n(teachingReadFieldV44(row,["k","K","kdK","stochK"])??ka?.[i]);
+    const d=n(teachingReadFieldV44(row,["d","D","kdD","stochD"])??da?.[i]);
+    return {index:i,date:teachingDateKeyV44(bar.date),k,d};
+  });
+}
+
+function teachingPivotsV44(report){
+  const sources=[report?.structure?.pivots,report?.structure?.swingChain,report?.pivots,report?.swingChain,report?.fib?.pivots];
+  const raw=sources.find(Array.isArray)||[];
+  const bars=normalizeDailyBarsV361(report);
+  return raw.map((p,order)=>{
+    const typeRaw=String(p?.type??p?.kind??p?.pivotType??"").toLowerCase();
+    const type=/low|bottom|底/.test(typeRaw)?"low":/high|top|高/.test(typeRaw)?"high":null;
+    let index=Number.isInteger(p?.index)?p.index:Number.isInteger(p?.barIndex)?p.barIndex:null;
+    const date=teachingDateKeyV44(p?.date??p?.tradeDate);
+    if(index===null&&date)index=bars.findIndex(x=>teachingDateKeyV44(x.date)===date);
+    const price=n(p?.price??p?.value??(type==="low"?p?.low:p?.high));
+    return {type,index:index>=0?index:null,date,price,order,source:p};
+  }).filter(x=>x.type&&x.index!==null&&x.price!==null).sort((a,b)=>a.index-b.index||a.order-b.order);
+}
+
+function teachingKdCrossAfterV44(kd,startIndex,direction){
+  for(let i=Math.max(1,startIndex);i<kd.length;i++){
+    const prev=kd[i-1],cur=kd[i];
+    if(prev.k===null||prev.d===null||cur.k===null||cur.d===null)continue;
+    if(direction==="up"&&prev.k<=prev.d&&cur.k>cur.d)return cur;
+    if(direction==="down"&&prev.k>=prev.d&&cur.k<cur.d)return cur;
+  }
+  return null;
+}
+
+function teachingStandardDivergenceV44(report){
+  const pivots=teachingPivotsV44(report),kd=teachingKdSeriesV44(report);
+  if(!pivots.length)return {key:"NO_PIVOT",icon:"⚪",label:"價格轉折序列不足，背離暫不判定",status:"unavailable",hardSignal:false};
+  if(!kd.some(x=>x.k!==null&&x.d!==null))return {key:"NO_KD",icon:"⚪",label:"隨機指標 KD 歷史序列不足，背離暫不判定",status:"unavailable",hardSignal:false};
+  const evaluate=(type)=>{
+    const ps=pivots.filter(x=>x.type===type).slice(-2);
+    if(ps.length!==2)return null;
+    const [p1,p2]=ps,k1=kd[p1.index],k2=kd[p2.index];
+    if(!k1||!k2||k1.k===null||k2.k===null)return null;
+    const positive=type==="low"&&p2.price<p1.price&&k2.k>k1.k;
+    const negative=type==="high"&&p2.price>p1.price&&k2.k<k1.k;
+    if(!positive&&!negative)return null;
+    const direction=positive?"up":"down",cross=teachingKdCrossAfterV44(kd,p2.index,direction);
+    const status=cross?"confirmed":"forming";
+    return {key:positive?"POSITIVE":"NEGATIVE",type:positive?"positive":"negative",status,first:p1,second:p2,cross,hardSignal:false};
+  };
+  const candidates=[evaluate("low"),evaluate("high")].filter(Boolean).sort((a,b)=>b.second.index-a.second.index);
+  const hit=candidates[0];
+  if(!hit)return {key:"NONE",icon:"➖",label:"目前沒有標準KD背離",status:"none",hardSignal:false};
+  const positive=hit.type==="positive";
+  return {...hit,icon:hit.status==="confirmed"?(positive?"🟢":"⚠️"):"🟡",label:hit.status==="confirmed"
+    ?(positive?"價格創低，但隨機指標 KD 沒有同步創低，且已出現轉強交叉":"價格創高，但隨機指標 KD 沒有同步創高，且已出現轉弱交叉")
+    :(positive?"價格創低但隨機指標 KD 沒有同步創低；仍等待轉強交叉":"價格創高但隨機指標 KD 沒有同步創高；仍等待轉弱交叉")};
+}
+
+function teachingThreeBarRecoveryV44(report,level){
+  const bars=normalizeDailyBarsV361(report),v=n(level);
+  if(v===null||bars.length<2)return {key:"UNAVAILABLE",icon:"⚪",label:"支撐或完成日K資料不足",status:"unavailable"};
+  let breakIndex=-1;
+  for(let i=1;i<bars.length;i++)if(bars[i-1].close>=v&&bars[i].close<v)breakIndex=i;
+  if(breakIndex<0)return {key:"INTACT",icon:"🟢",label:`尚未出現收盤跌破 ${fmt(v)} 元`,status:"intact",level:v};
+  const after=bars.slice(breakIndex+1,breakIndex+4),recovered=after.find(x=>x.close>=v)||null;
+  if(recovered)return {key:"RECOVERED",icon:"🟢",label:`跌破後已在3根內收盤站回 ${fmt(v)} 元`,status:"recovered",level:v,observed:after.length,date:recovered.date};
+  if(after.length>=3)return {key:"FAILED",icon:"⚠️",label:`跌破後連續3根仍未收盤站回 ${fmt(v)} 元`,status:"failed",level:v,observed:3};
+  return {key:"WAITING",icon:"🟡",label:`已跌破 ${fmt(v)} 元，等待3根收復確認（目前 ${after.length}/3）`,status:"waiting",level:v,observed:after.length};
+}
+
+function teachingBreakoutStateV44(report){
+  const s=currentStrategyStateV321(report),B=n(s?.fib?.B),CDate=teachingDateKeyV44(s?.fib?.CDate??report?.fib?.CDate);
+  const bars=normalizeDailyBarsV361(report);
+  if(B===null)return {key:"NO_B",icon:"⚪",label:"B前高尚未形成，沒有正式突破關卡",status:"unavailable",hardSignal:false};
+  const postCIndex=CDate?bars.findIndex(x=>teachingDateKeyV44(x.date)>CDate):0;
+  if(CDate&&postCIndex<0)return {key:"WAITING",icon:"🟡",label:`C形成後尚無新的完成日K可檢查B＝${fmt(B)} 元`,status:"waiting",B,hardSignal:false};
+  const start=Math.max(0,postCIndex);
+  const breakoutIndex=bars.findIndex((x,i)=>i>=start&&x.close>B);
+  if(breakoutIndex<0)return {key:"WAITING",icon:"🟡",label:`等待完整日K收盤突破B＝${fmt(B)} 元`,status:"waiting",B,hardSignal:false};
+  const post=bars.slice(breakoutIndex+1,breakoutIndex+4),failed=post.find(x=>x.close<B)||null;
+  if(failed)return {key:"FALSE_BREAKOUT",icon:"⚠️",label:`突破B後3根內收盤跌回 ${fmt(B)} 元下方，列入假突破警戒`,status:"failed",B,breakoutDate:bars[breakoutIndex].date,failedDate:failed.date,hardSignal:false};
+  if(post.length>=3&&post.every(x=>x.close>=B))return {key:"THREE_CONFIRMED",icon:"🟢",label:`已收盤突破B＝${fmt(B)} 元，且完成3根站穩確認`,status:"confirmed",B,breakoutDate:bars[breakoutIndex].date,hardSignal:false};
+  return {key:"TRIGGERED",icon:"🟡",label:`已出現完整日K收盤突破B＝${fmt(B)} 元；3根站穩 ${post.length}/3`,status:"triggered",B,breakoutDate:bars[breakoutIndex].date,hardSignal:false};
+}
+
+function teachingVolumePriceV44(report){
+  const bars=normalizeDailyBarsV361(report);
+  if(bars.length<2)return {key:"UNAVAILABLE",icon:"⚪",label:"量價資料不足",status:"unavailable",hardSignal:false};
+  const a=bars[bars.length-2],b=bars[bars.length-1],price=b.close-a.close,volume=b.volume-a.volume;
+  let key="FLAT",label="價格或成交量變化不明顯";
+  if(price>0&&volume>0){key="UP_EXPAND";label="價格上漲、成交量同步增加";}
+  else if(price>0&&volume<0){key="UP_SHRINK";label="價格上漲，但成交量比前一根縮小";}
+  else if(price<0&&volume>0){key="DOWN_EXPAND";label="價格下跌、成交量同步增加";}
+  else if(price<0&&volume<0){key="DOWN_SHRINK";label="價格下跌、成交量同步縮小";}
+  const phase=marketPhaseEngineV360(report);
+  const ranging=/盤整|整理/.test(String(phase?.label||""));
+  return {key,icon:key==="UP_EXPAND"?"🟢":key==="DOWN_EXPAND"?"⚠️":"🟡",label,status:"observed",ranging,weightHint:ranging?"盤整階段只作輔助，不放大單日量價意義":"趨勢階段可配合價格結構判讀",hardSignal:false};
+}
+
+function teachingIndicatorSignalsV44(report){
+  const raw=teachingRawDailyRowsV44(report),kd=teachingKdSeriesV44(report);
+  const last=kd[kd.length-1],prev=kd[kd.length-2];
+  let kdState="資料不足";
+  if(last&&prev&&last.k!==null&&last.d!==null&&prev.k!==null&&prev.d!==null){
+    if(prev.k<=prev.d&&last.k>last.d)kdState="出現轉強交叉";
+    else if(prev.k>=prev.d&&last.k<last.d)kdState="出現轉弱交叉";
+    else kdState=last.k>=last.d?"K值仍在D值上方":"K值仍在D值下方";
+  }
+  const histValues=raw.map(row=>n(teachingReadFieldV44(row,["macdHistogram","macdHist","histogram","osc"]))).filter(x=>x!==null);
+  let macdState="資料不足";
+  if(histValues.length>=2){
+    const a=histValues[histValues.length-2],b=histValues[histValues.length-1];
+    if(a<0&&b>a)macdState="綠柱縮短，空方動能減弱";
+    else if(a>0&&b<a)macdState="紅柱縮短，多方動能減弱";
+    else if(b>a)macdState="柱體增加";else if(b<a)macdState="柱體減少";else macdState="柱體持平";
+  }
+  const row=raw[raw.length-1]||{},close=n(report?.close);
+  const upper=n(teachingReadFieldV44(row,["bollUpper","bbUpper","upperBand"]));
+  const middle=n(teachingReadFieldV44(row,["bollMiddle","bbMiddle","middleBand"]));
+  const lower=n(teachingReadFieldV44(row,["bollLower","bbLower","lowerBand"]));
+  let bollingerState="資料不足";
+  if(close!==null&&upper!==null&&middle!==null&&lower!==null){
+    bollingerState=close>=upper?"價格在布林上軌附近或其上":close<middle?"價格在布林中軌下方":close>=middle?"價格在布林中軌上方":"布林位置待確認";
+  }
+  const rsi=n(report?.dailyRsi5??report?.dailyRsi),adx=n(report?.adx??report?.technicalIndicators?.adx);
+  return {kd:kdState,macd:macdState,bollinger:bollingerState,rsi,adx,hardSignal:false,note:"指標只作確認與風險提示，不單獨產生買進訊號。"};
+}
+
+function teachingTradeFlowV44(report){
+  const sync=teachingDataSyncV44(report),ma=teachingMaSnapshotV44(report),divergence=teachingStandardDivergenceV44(report),breakout=teachingBreakoutStateV44(report),volume=teachingVolumePriceV44(report),indicators=teachingIndicatorSignalsV44(report);
+  const s=currentStrategyStateV321(report),nStatus=getNStatusV326(report,s),defense=dynamicDefenseStackV370(report,s),resistance=dynamicResistanceStackV370(report,s);
+  const firstDefense=defense?.first?.level??null,recovery=teachingThreeBarRecoveryV44(report,firstDefense);
+  let stage="OBSERVE",stageLabel="觀察";
+  if(nStatus==="failed"){stage="INVALID";stageLabel="失效";}
+  else if(breakout.status==="failed"||recovery.status==="failed"){stage="WEAKENING";stageLabel="轉弱";}
+  else if(breakout.status==="confirmed"||breakout.status==="triggered"){stage="FORMAL_TRIGGER";stageLabel="正式觸發";}
+  else if(nStatus==="abc_ready"){stage="WAIT_CONFIRM";stageLabel="等待確認";}
+  else if(s?.tacticalActive){stage="CAN_TEST";stageLabel="可以試單評估";}
+  if(!sync.ok){stage="OBSERVE";stageLabel=sync.key==="MISMATCH"?"觀察／資料待同步":"觀察／資料待補齊";}
+  const setup=nStatus==="confirmed"?"ABC／N字已完成":nStatus==="abc_ready"?"A、B、C已形成":nStatus==="forming"?"型態仍在建立":"新結構尚未建立";
+  const context=ma.available?`現價相對可用均線：站上 ${ma.above.join("、")||"無"} 日線；站下 ${ma.below.join("、")||"無"} 日線`:"多均線資料不足";
+  const confirmation=[breakout.label,divergence.label,volume.label].join("｜");
+  const risk=firstDefense!==null?`${recovery.label}；下一層依既有防守順序管理`:"尚無可驗證的正式防守價";
+  const exit=resistance?.first?`先觀察 ${fmt(resistance.first.level)} 元（${resistance.first.role}）；到價不等於必須全部出場`:"上方正式關卡待建立";
+  return {stage,stageLabel,sync,marketContext:context,setup,confirmation,trigger:breakout.label,risk,exit,ma,divergence,breakout,volume,recovery,indicators,hardSignal:false};
+}
+
+function teachingIntegrationV44(report,parameters=TEACHING_PARAMETERS_V44){
+  const flow=teachingTradeFlowV44(report);
+  const pending=Object.entries(parameters).filter(([,v])=>v===null).map(([key])=>key);
+  const pattern=report?.structure?.pattern||report?.pattern||null;
+  return {
+    version:"TEACHING-INTEGRATION-CANDIDATE",
+    flow,
+    l1:{ma:flow.ma,indicators:flow.indicators,divergence:flow.divergence,threeBarRecovery:flow.recovery,breakout:flow.breakout,volumePrice:flow.volume,dateSync:flow.sync},
+    l2:{parameters,pending,status:pending.length?"等待參數／不得自行套用教材案例數字":"參數已提供"},
+    l3:{detected:!!pattern,hint:pattern?`偵測到型態候選「${pattern.name||pattern.label||"未命名"}」；仍需人工確認轉折點與頸線序列。`:"複合型態只做候選偵測；目前不硬命名W、M、頭肩、三角或箱型。",hardSignal:false},
+    l4:{hint:"紀律、FOMO、交易風格、主力意圖與題材敘事保留人工判讀，不納入硬性買賣訊號。",hardSignal:false}
+  };
+}
+
+function buildTeachingIntegrationLinesV44(report){
+  const x=teachingIntegrationV44(report),f=x.flow;
+  return [
+    "【🧭 教材整合交易流程｜背景 → 型態 → 確認 → 觸發 → 風險 → 出場】",
+    `${f.sync.icon} 資料檢查：${f.sync.label}`,
+    `① 市場背景：${f.marketContext}`,
+    `② 型態條件：${f.setup}`,
+    `③ 確認條件：${f.confirmation}`,
+    `④ 進場階段：${f.stageLabel}｜${f.trigger}`,
+    `⑤ 風險控制：${f.risk}`,
+    `⑥ 出場管理：${f.exit}`,
+    "📌 觀察價只代表開始檢查，不是建議買進價；任何單一指標都不會直接變成買進訊號。",
+    `🟡 待定參數：${x.l2.pending.length?x.l2.pending.map(k=>TEACHING_PARAMETER_LABELS_V44[k]||k).join("、"):"無"}｜未設定前不啟用對應硬門檻。`,
+    `🟠 人工確認：${x.l3.hint}`,
+    `🔴 人工判讀：${x.l4.hint}`
+  ];
+}
+
+const buildReportText_V44_TEACHING_BASE=buildReportText;
+buildReportText=function(report){
+  const base=buildReportText_V44_TEACHING_BASE(report);
+  if(!report)return base;
+  return cleanCopiedReportTextV45(`${base}\n\n━━━━━━━━━━━━━━━━━━\n\n${buildTeachingIntegrationLinesV44(report).join("\n")}`);
+};
+
+const renderTradeabilityPanelV44TeachingBase=renderTradeabilityPanelV377733;
+renderTradeabilityPanelV377733=function(report){
+  renderTradeabilityPanelV44TeachingBase(report);
+  const root=document.getElementById("tradeabilityPanel");
+  if(!root||!report)return;
+  let card=document.getElementById("teachingTradeFlowV44");
+  if(!card){
+    card=document.createElement("div");
+    card.id="teachingTradeFlowV44";
+    card.className="rule";
+    card.style.cssText="margin-top:12px;white-space:pre-wrap;line-height:1.75;text-align:left;overflow-wrap:anywhere";
+    root.appendChild(card);
+  }
+  card.textContent=buildTeachingIntegrationLinesV44(report).join("\n");
+};
 
 </script>
 
