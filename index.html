@@ -1,4 +1,4 @@
-<!-- 石頭少爺 Agent V45 正式版｜R1 OBV＋CMF量價資金確認版：新增 OBV＋CMF 量價資金確認、假突破過濾、資金背離與量價共振判讀；原始排序分、Pivot、Swing Chain、ABC／N字與三週期分數公式不變。 -->
+<!-- 石頭少爺 Agent V45 正式版｜R2 量價資金語意一致版：新增 OBV＋CMF 量價資金確認、假突破過濾、資金背離與量價共振判讀；原始排序分、Pivot、Swing Chain、ABC／N字與三週期分數公式不變。 -->
 <!DOCTYPE html>
 
 <html lang="zh-TW">
@@ -9,7 +9,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>石頭少爺 Agent V45 正式版｜R1 OBV＋CMF量價資金確認版｜月線波段＋費波那契 N字</title>
+<title>石頭少爺 Agent V45 正式版｜R2 量價資金語意一致版｜月線波段＋費波那契 N字</title>
 
 <style>
 
@@ -946,7 +946,7 @@ img,canvas,svg{max-width:100%;height:auto}
 
     <p>月線波段條件判斷＋固定倍數目標價＋費波那契 N字分析＋主升動能式掃描強勢股</p>
 
-    <span class="version-pill">石頭少爺 Agent V45 正式版｜R1 OBV＋CMF量價資金確認版｜既有功能與原始分數公式完整保留</span>
+    <span class="version-pill">石頭少爺 Agent V45 正式版｜R2 量價資金語意一致版｜既有功能與原始分數公式完整保留</span>
 
   </div>
 
@@ -1053,7 +1053,7 @@ img,canvas,svg{max-width:100%;height:auto}
           <div id="momentumHeroTitle" class="momentum-hero-title">🚀 主動式主升掃描｜候選排行</div>
           <div id="momentumMeta" class="meta">-</div>
         </div>
-        <div class="meta" style="text-align:right">石頭少爺 Agent V45 正式版｜R1 OBV＋CMF量價資金確認版<br>盤後量價資金二次確認；三週期原始分數完整保留</div>
+        <div class="meta" style="text-align:right">石頭少爺 Agent V45 正式版｜R2 量價資金語意一致版<br>盤後量價資金二次確認；三週期原始分數完整保留</div>
       </div>
       <div class="momentum-reminder">📌 判讀原則：排名是「主升型態相似度／位置品質」篩選，不是上漲保證。盈虧比是有效上下關卡的動態價差比，不是勝率；高檔延伸、RSI過熱或MA20乖離過大會另外警示。</div>
       <div class="momentum-summary-grid">
@@ -1095,7 +1095,7 @@ img,canvas,svg{max-width:100%;height:auto}
           <div id="dayTradeMeta" class="meta">-</div>
         </div>
         <div class="meta" style="text-align:right">
-          石頭少爺 Agent V45 正式版｜R1 OBV＋CMF量價資金確認版<br>
+          石頭少爺 Agent V45 正式版｜R2 量價資金語意一致版<br>
           當沖掃描排序分與三週期適配分分開呈現，不混合計算
         </div>
       </div>
@@ -1151,7 +1151,7 @@ img,canvas,svg{max-width:100%;height:auto}
           <div id="marketChange" class="market-index-change flat">-</div>
         </div>
         <div style="text-align:right">
-          <div class="meta"><strong>石頭少爺 Agent V45 正式版｜R1 OBV＋CMF量價資金確認版</strong></div>
+          <div class="meta"><strong>石頭少爺 Agent V45 正式版｜R2 量價資金語意一致版</strong></div>
           <div id="marketDate" class="meta">-</div>
           <div id="marketSource" class="meta">-</div>
         </div>
@@ -1562,7 +1562,7 @@ img,canvas,svg{max-width:100%;height:auto}
   </div>
 </div>
 
-<footer class="footer"><strong>石頭少爺 Agent V45 正式版｜R1 OBV＋CMF量價資金確認版</strong><br>新增 OBV＋CMF 量價資金確認、假突破過濾、資金背離與量價共振判讀。既有選股、ABC／N字、Pivot、Swing Chain、突破品質與原始分數公式完整保留。<br>技術分析僅供研究與決策參考，不構成投資建議；所有分數都是條件評估，不是勝率或上漲機率。</footer>
+<footer class="footer"><strong>石頭少爺 Agent V45 正式版｜R2 量價資金語意一致版</strong><br>新增 OBV＋CMF 量價資金確認、假突破過濾、資金背離與量價共振判讀；修正低分、資金流出、CMF混合方向與高檔先行轉強的語意一致性。既有選股、ABC／N字、Pivot、Swing Chain、突破品質與原始分數公式完整保留。<br>技術分析僅供研究與決策參考，不構成投資建議；所有分數都是條件評估，不是勝率或上漲機率。</footer>
 
 <script>
 // V40｜三週期盤後適配度＋Decision Layer整合版。Worker分數為主，前端舊公式保留fallback；不使用盤中假資料。
@@ -1810,7 +1810,7 @@ img,canvas,svg{max-width:100%;height:auto}
 // 不新增艾略特1～5浪或ABC修正浪計數。
 // ========================================================================
 
-const V40_RELEASE_LABEL="石頭少爺 Agent V45 正式版｜R1 OBV＋CMF量價資金確認版";
+const V40_RELEASE_LABEL="石頭少爺 Agent V45 正式版｜R2 量價資金語意一致版";
 const API_BASE_URL="https://shitou-agent-fib-api.d318426.workers.dev";
 
 // V40：延續 GIS-KY 英文名稱修正；新增「戰術頸線突破」與「Fib B正式突破」角色隔離，避免B尚未突破卻被寫成支撐。
@@ -22585,7 +22585,7 @@ async function generateStockInfographicV3328(withWatermark=false){
     if(withWatermark)applyAntiTheftWatermarkV3761(canvas,"stock");
     const d=String(lastReportData.closeDate||"").replace(/\D/g,"").slice(0,8)||"latest";
     const suffix=withWatermark?"_防盜浮水印版":"";
-    const filename=sanitizeFilenameV3328(`石頭少爺_${lastReportData.name||lastReportData.code}_${lastReportData.code}_個股分析圖${suffix}_${d}_V45_R1_OBV_CMF量價資金確認版.png`);
+    const filename=sanitizeFilenameV3328(`石頭少爺_${lastReportData.name||lastReportData.code}_${lastReportData.code}_個股分析圖${suffix}_${d}_V45_R2_量價資金語意一致版.png`);
     await showInfographicPreviewV3328(canvas,filename,`${formatStockNameWithCode(lastReportData.name,lastReportData.code)} 個股分析圖${withWatermark?"｜防盜浮水印版":""}`);
     message.style.color="var(--green)";message.textContent=withWatermark?"✅ 個股防盜浮水印版已產生，可預覽、儲存 PNG 或直接分享。":"✅ 個股分析圖已產生，可預覽、儲存 PNG 或直接分享。";
   }catch(err){console.error("個股分析圖產生失敗：",err);message.style.color="var(--red)";message.textContent=`❌ 個股分析圖產生失敗：${err?.message||"未知錯誤"}`;}
@@ -22604,7 +22604,7 @@ async function generateMarketInfographicV3328(withWatermark=false){
     if(withWatermark)applyAntiTheftWatermarkV3761(canvas,"market");
     const d=String(lastMarketReportData.closeDate||"").replace(/\D/g,"").slice(0,8)||"latest";
     const suffix=withWatermark?"_防盜浮水印版":"";
-    const filename=`石頭少爺_TAIEX_大盤分析圖${suffix}_${d}_V45_R1_OBV_CMF量價資金確認版.png`;
+    const filename=`石頭少爺_TAIEX_大盤分析圖${suffix}_${d}_V45_R2_量價資金語意一致版.png`;
     await showInfographicPreviewV3328(canvas,filename,`臺灣加權股價指數（TAIEX）大盤分析圖${withWatermark?"｜防盜浮水印版":""}`);
     message.style.color="var(--green)";message.textContent=withWatermark?"✅ 大盤防盜浮水印版已產生，可預覽、儲存 PNG 或直接分享。":"✅ 大盤分析圖已產生，可預覽、儲存 PNG 或直接分享。";
   }catch(err){console.error("大盤分析圖產生失敗：",err);message.style.color="var(--red)";message.textContent=`❌ 大盤分析圖產生失敗：${err?.message||"未知錯誤"}`;}
@@ -23109,7 +23109,7 @@ function downloadReplayResearchV39B7(){
   if(!lastReplayResearchV39B7)return;
   const blob=new Blob([JSON.stringify(lastReplayResearchV39B7,null,2)],{type:"application/json;charset=utf-8"});
   const url=URL.createObjectURL(blob),a=document.createElement("a"),stamp=new Date().toISOString().replace(/[:.]/g,"-");
-  a.href=url;a.download=`V45_R1_OBV_CMF量價資金確認版_歷史回看_${String(lastReplayResearchV39B7.stock||"stock")}_${stamp}.json`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+  a.href=url;a.download=`V45_R2_量價資金語意一致版_歷史回看_${String(lastReplayResearchV39B7.stock||"stock")}_${stamp}.json`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
 
 function waitMsV3742(ms){
@@ -24197,7 +24197,7 @@ async function generateMomentumScanImageV3762(withWatermark=false){
     const canvas=renderMomentumScanInfographicV3762(lastMomentumScanDataV3762);
     if(withWatermark)drawMomentumImageWatermarkV377716(canvas,"top8");
     const t=taipeiTimePartsV3762(),d=`${t.year}${t.month}${t.day}`,suffix=withWatermark?"_防盜浮水印版":"";
-    const filename=sanitizeFilenameV3328(`石頭少爺的ABC飆股_前8名圖片戰報${suffix}_${d}_V45_R1_OBV_CMF量價資金確認版.png`);
+    const filename=sanitizeFilenameV3328(`石頭少爺的ABC飆股_前8名圖片戰報${suffix}_${d}_V45_R2_量價資金語意一致版.png`);
     const phase=momentumReportPhaseV37771(lastMomentumScanDataV3762.createdAt);
     await showInfographicPreviewV3328(canvas,filename,`石頭少爺的ABC飆股｜主動式主升掃描｜前8名圖片戰報${withWatermark?"｜防盜浮水印版":""}`);
     msg.style.color="var(--green)";msg.textContent=withWatermark?"✅ 主升動能掃描防盜浮水印版已產生。":"✅ 主升動能掃描原版已產生。";
@@ -24430,7 +24430,7 @@ async function downloadMomentumAllCandidatesImageV377715(){
     const stamp=String(scan.createdAt||taipeiStampV3762()).replace(/\D/g,"").slice(0,12)||"latest";
     const scopeLabel=scan.qualityPass===true?"全部正式候選":"已分析候選_資料未完整";
     const scopeTitle=scan.qualityPass===true?"全部正式候選圖片戰報":"本次已分析候選｜資料未完整";
-    const filename=sanitizeFilenameV3328(`石頭少爺的ABC飆股_主動式主升掃描_${scopeLabel}_${stamp}_V45_R1_OBV_CMF量價資金確認版.png`);
+    const filename=sanitizeFilenameV3328(`石頭少爺的ABC飆股_主動式主升掃描_${scopeLabel}_${stamp}_V45_R2_量價資金語意一致版.png`);
     await showInfographicPreviewV3328(canvas,filename,`石頭少爺的ABC飆股｜主動式主升掃描｜${scopeTitle}｜${audit.renderedCount}檔`);
     if(msg){msg.style.color="var(--green)";msg.textContent=`✅ 全部選股圖片報告已產生｜候選 ${audit.expected} 檔｜實際列出 ${audit.renderedCount} 檔｜數量一致。`;}
   }catch(e){
@@ -24471,7 +24471,7 @@ async function downloadMomentumAllCandidatesImageWatermarkV377716(){
     const stamp=String(scan.createdAt||taipeiStampV3762()).replace(/\D/g,"").slice(0,12)||"latest";
     const scopeLabel=scan.qualityPass===true?"全部正式候選":"已分析候選_資料未完整";
     const scopeTitle=scan.qualityPass===true?"全部正式候選圖片戰報":"本次已分析候選｜資料未完整";
-    const filename=sanitizeFilenameV3328(`石頭少爺的ABC飆股_主動式主升掃描_${scopeLabel}_防盜浮水印版_${stamp}_V45_R1_OBV_CMF量價資金確認版.png`);
+    const filename=sanitizeFilenameV3328(`石頭少爺的ABC飆股_主動式主升掃描_${scopeLabel}_防盜浮水印版_${stamp}_V45_R2_量價資金語意一致版.png`);
     await showInfographicPreviewV3328(
       canvas,
       filename,
@@ -26738,7 +26738,7 @@ function downloadMomentumFullReportV377713(){
   const url=URL.createObjectURL(blob);
   const a=document.createElement("a");
   a.href=url;
-  a.download="主動式主升掃描_完整詳細戰報_"+stamp+"_V45_R1_OBV_CMF量價資金確認版.txt";
+  a.download="主動式主升掃描_完整詳細戰報_"+stamp+"_V45_R2_量價資金語意一致版.txt";
   document.body.appendChild(a);
   a.click();
   a.remove();
@@ -28170,7 +28170,7 @@ function downloadDayTradeFullReportV1(){
   const blob=new Blob(["\uFEFF"+text],{type:"text/plain;charset=utf-8"});
   const a=document.createElement("a");a.href=URL.createObjectURL(blob);
   const stamp=String(lastDayTradeScanDataV1.createdAt||"").replace(/\D/g,"").slice(0,12)||"latest";
-  a.download=`明日當沖盤前適配_已檢查突破警訊_完整文字戰報_${stamp}_V45_R1_OBV_CMF量價資金確認版.txt`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1500);
+  a.download=`明日當沖盤前適配_已檢查突破警訊_完整文字戰報_${stamp}_V45_R2_量價資金語意一致版.txt`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1500);
   if(msg){msg.style.color="var(--green)";msg.textContent="✅ 已下載當沖完整詳細TXT。";}
 }
 
@@ -28258,7 +28258,7 @@ async function generateDayTradeImageV1(withWatermark=false){
     const canvas=renderDayTradeInfographicV1(lastDayTradeScanDataV1);
     if(withWatermark)drawMomentumImageWatermarkV377716(canvas,"top8");
     const stamp=String(lastDayTradeScanDataV1.createdAt||"").replace(/\D/g,"").slice(0,12)||"latest",suffix=withWatermark?"_防盜浮水印版":"";
-    const filename=sanitizeFilenameV3328(`石頭少爺的ABC飆股_明日當沖盤前適配_前8名圖片戰報${suffix}_${stamp}_V45_R1_OBV_CMF量價資金確認版.png`);
+    const filename=sanitizeFilenameV3328(`石頭少爺的ABC飆股_明日當沖盤前適配_前8名圖片戰報${suffix}_${stamp}_V45_R2_量價資金語意一致版.png`);
     await showInfographicPreviewV3328(canvas,filename,`石頭少爺的ABC飆股｜明日當沖盤前適配｜前8名圖片戰報${withWatermark?"｜防盜浮水印版":""}`);
     if(msg){msg.style.color="var(--green)";msg.textContent="✅ 當沖前8名圖片報告已產生。";}
   }catch(e){if(msg){msg.style.color="var(--red)";msg.textContent=`❌ 圖片產生失敗：${e?.message||"未知錯誤"}`;}}
@@ -28313,7 +28313,7 @@ async function downloadDayTradeAllCandidatesImageV1(withWatermark=false){
     const stamp=String(lastDayTradeScanDataV1.createdAt||"").replace(/\D/g,"").slice(0,12)||"latest",suffix=withWatermark?"_防盜浮水印版":"";
     const scopeLabel=lastDayTradeScanDataV1.qualityPass===true?"全部正式候選":"已分析候選_資料未完整";
     const scopeTitle=lastDayTradeScanDataV1.qualityPass===true?"全部正式候選":"本次已分析候選｜資料未完整";
-    const filename=sanitizeFilenameV3328(`石頭少爺的ABC飆股_明日當沖盤前適配_${scopeLabel}${suffix}_${stamp}_V45_R1_OBV_CMF量價資金確認版.png`);
+    const filename=sanitizeFilenameV3328(`石頭少爺的ABC飆股_明日當沖盤前適配_${scopeLabel}${suffix}_${stamp}_V45_R2_量價資金語意一致版.png`);
     await showInfographicPreviewV3328(canvas,filename,`石頭少爺的ABC飆股｜明日當沖盤前適配｜${scopeTitle}｜${rendered.length}檔${withWatermark?"｜防盜浮水印版":""}`);
     if(msg){msg.style.color="var(--green)";msg.textContent=`✅ 全部當沖候選圖片已產生｜${rendered.length}檔。`;}
   }catch(e){if(msg){msg.style.color="var(--red)";msg.textContent=`❌ ${e?.message||"全部圖片產生失敗"}`;}}
@@ -28367,7 +28367,7 @@ async function copyDayTradeTop8ImageV377727(withWatermark=false){
     if(withWatermark)drawMomentumImageWatermarkV377716(canvas,"top8");
     const stamp=String(lastDayTradeScanDataV1.createdAt||"").replace(/\D/g,"").slice(0,12)||"latest";
     const suffix=withWatermark?"_防盜浮水印版":"";
-    const filename=sanitizeFilenameV3328(`石頭少爺的ABC飆股_明日當沖盤前適配_前8名圖片戰報${suffix}_${stamp}_V45_R1_OBV_CMF量價資金確認版.png`);
+    const filename=sanitizeFilenameV3328(`石頭少爺的ABC飆股_明日當沖盤前適配_前8名圖片戰報${suffix}_${stamp}_V45_R2_量價資金語意一致版.png`);
     const title=`石頭少爺的ABC飆股｜明日當沖盤前適配｜前8名圖片戰報${withWatermark?"｜防盜浮水印版":""}`;
     const r=await dayTradeCopyCanvasPngV377727(canvas,filename,title);
     if(msg){
@@ -28395,7 +28395,7 @@ async function copyDayTradeAllCandidatesImageV377727(withWatermark=false){
     const suffix=withWatermark?"_防盜浮水印版":"";
     const scopeLabel=lastDayTradeScanDataV1.qualityPass===true?"全部正式候選":"已分析候選_資料未完整";
     const scopeTitle=lastDayTradeScanDataV1.qualityPass===true?"全部正式候選":"本次已分析候選｜資料未完整";
-    const filename=sanitizeFilenameV3328(`石頭少爺的ABC飆股_明日當沖盤前適配_${scopeLabel}${suffix}_${stamp}_V45_R1_OBV_CMF量價資金確認版.png`);
+    const filename=sanitizeFilenameV3328(`石頭少爺的ABC飆股_明日當沖盤前適配_${scopeLabel}${suffix}_${stamp}_V45_R2_量價資金語意一致版.png`);
     const title=`石頭少爺的ABC飆股｜明日當沖盤前適配｜${scopeTitle}｜${rendered.length}檔${withWatermark?"｜防盜浮水印版":""}`;
     const r=await dayTradeCopyCanvasPngV377727(canvas,filename,title);
     if(msg){
@@ -29119,7 +29119,7 @@ function teachingIntegrationV44(report,parameters=TEACHING_PARAMETERS_V44){
   const pending=Object.entries(parameters).filter(([,v])=>v===null).map(([key])=>key);
   const pattern=report?.structure?.pattern||report?.pattern||null;
   return {
-    version:"TEACHING-INTEGRATION-V45-R1",
+    version:"TEACHING-INTEGRATION-V45-R2",
     flow,
     l1:{ma:flow.ma,indicators:flow.indicators,divergence:flow.divergence,threeBarRecovery:flow.recovery,breakout:flow.breakout,volumePrice:flow.volume,dateSync:flow.sync},
     l2:{parameters,pending,status:pending.length?"等待參數／不得自行套用教材案例數字":"參數已提供"},
@@ -29461,14 +29461,14 @@ buildTeachingIntegrationLinesV44=function(report){
 };
 
 // ========================================================================
-// V45 R1｜OBV＋CMF 量價資金確認模組
+// V45 R2｜OBV＋CMF 量價資金語意一致模組
 // - 只讀取既有、已完成的 daily OHLCV，不新增任何下載或 API 呼叫。
 // - 以 WeakMap 每份報告只計算一次，個股、圖片、當沖與主升掃描共用結果。
 // - 不改任何既有正式分數；Money Flow 只作第二階段同分帶排序與風險標記。
 // ========================================================================
-const MONEY_FLOW_MODEL_V45="OBV_CMF_MONEY_FLOW_CONFIRMATION_V1";
+const MONEY_FLOW_MODEL_V45="OBV_CMF_MONEY_FLOW_CONFIRMATION_V2";
 const MONEY_FLOW_CACHE_V45=new WeakMap();
-const MONEY_FLOW_CHANGELOG_V45="新增 OBV＋CMF 量價資金確認、假突破過濾、資金背離與量價共振判讀。";
+const MONEY_FLOW_CHANGELOG_V45="新增 OBV＋CMF 量價資金確認、假突破過濾、資金背離與量價共振判讀；修正低分、資金流出、CMF混合方向與高檔先行轉強的語意一致性。";
 
 function mfFiniteV45(value){
   const x=Number(value);
@@ -29572,12 +29572,26 @@ function cmfLevelV45(value){
   return {key:"STRONG_OUT",label:"強勢資金流出",icon:"🔴"};
 }
 
+function cmfDirectionV45(slope3,slope5){
+  const s3=mfFiniteV45(slope3),s5=mfFiniteV45(slope5),eps=0.001;
+  const d3=s3===null?0:s3>eps?1:s3<-eps?-1:0;
+  const d5=s5===null?0:s5>eps?1:s5<-eps?-1:0;
+  if(d3>0&&d5>0)return {key:"UP",icon:"↑",label:"持續增加",short:"增加"};
+  if(d3<0&&d5<0)return {key:"DOWN",icon:"↓",label:"持續下降",short:"下降"};
+  if(d3<0&&d5>0)return {key:"PULLBACK",icon:"↕",label:"短線回落，但5日趨勢仍向上",short:"短線回落"};
+  if(d3>0&&d5<0)return {key:"REBOUND",icon:"↕",label:"短線回升，但5日趨勢仍偏下",short:"短線回升"};
+  if(d5>0)return {key:"UP",icon:"↑",label:"5日趨勢增加",short:"增加"};
+  if(d5<0)return {key:"DOWN",icon:"↓",label:"5日趨勢下降",short:"下降"};
+  return {key:"FLAT",icon:"→",label:"大致持平",short:"持平"};
+}
+
 function breakoutMoneyConfirmationV45(context){
-  const c=context||{},priceBreakout=c.priceBreakout===true,obvHigh=c.obvNewHigh20===true,cmf=mfFiniteV45(c.cmf20),slope=mfFiniteV45(c.cmfSlope5),volumeRatio=mfFiniteV45(c.volumeRatio20);
+  const c=context||{},priceBreakout=c.priceBreakout===true,obvHigh=c.obvNewHigh20===true,cmf=mfFiniteV45(c.cmf20),slope=mfFiniteV45(c.cmfSlope5),volumeRatio=mfFiniteV45(c.volumeRatio20),score=mfFiniteV45(c.moneyFlowScore),positionGapPct=mfFiniteV45(c.positionGapPct);
   const highRisk=priceBreakout&&!obvHigh&&slope!==null&&slope<0&&volumeRatio!==null&&volumeRatio<1;
   const highAlert=priceBreakout&&!obvHigh&&cmf!==null&&cmf<0;
   const confirmed=priceBreakout&&obvHigh&&cmf!==null&&cmf>0.05&&slope!==null&&slope>0&&volumeRatio!==null&&volumeRatio>=1.5;
   const early=!priceBreakout&&obvHigh&&cmf!==null&&cmf>0;
+  const highPosition=c.highPosition===true||(positionGapPct!==null&&positionGapPct>=8);
   const obvStrong=obvHigh||c.obvAboveMa20===true||(mfFiniteV45(c.obvDelta10)??0)>0;
   const cmfStrong=cmf!==null&&cmf>=0.05&&slope!==null&&slope>0;
   const volumeStrong=volumeRatio!==null&&volumeRatio>=1.5;
@@ -29585,11 +29599,15 @@ function breakoutMoneyConfirmationV45(context){
   if(highAlert)return {key:"HIGH_FALSE_ALERT",icon:"⚠️",label:"高度假突破警訊",rankPenalty:2,plain:"股價雖然創高，但量價累積沒有同步創高，20日資金流又在零軸下方；需提高假突破警覺。"};
   if(confirmed&&obvStrong&&cmfStrong&&volumeStrong)return {key:"RESONANCE",icon:"🟢",label:"量價資金共振｜突破有資金確認",rankPenalty:0,plain:"這次突破不只是價格往上，成交量累積與資金流也同步增強，突破品質較完整。"};
   if(confirmed)return {key:"BREAKOUT_CONFIRMED",icon:"🟢",label:"突破有資金確認",rankPenalty:0,plain:"這次突破有成交量、量價累積與資金流共同支持；仍須搭配趨勢、結構與風險條件。"};
-  if(early)return {key:"EARLY_POSITION",icon:"🟢",label:"資金提前卡位",rankPenalty:0,plain:"價格還沒有正式突破，但成交量累積與資金流已提前轉強，可列入較高優先觀察。"};
+  if(early&&highPosition)return {key:"EARLY_BUT_HIGH",icon:"🟡",label:"資金先行轉強，但目前位置偏高",rankPenalty:0,plain:"成交量累積與資金流已先轉強，但股價和20日均線距離偏大；這是資金支持訊號，不是低風險卡位點，先避免追價。"};
+  if(early)return {key:"EARLY_POSITION",icon:"🟢",label:"資金提前卡位",rankPenalty:0,plain:"價格還沒有正式突破，位置也未明顯過度延伸；成交量累積與資金流已提前轉強，可列入較高優先觀察。"};
   if(obvStrong&&!cmfStrong)return {key:"OBV_ONLY",icon:"🟡",label:"量能增加，但資金品質尚未確認",rankPenalty:0,plain:"成交量累積正在增強，但收盤位置所反映的買盤品質還沒有完全跟上。"};
   if(cmfStrong&&!obvStrong)return {key:"CMF_ONLY",icon:"🟡",label:"近期買盤品質改善，但累積量能尚未突破",rankPenalty:0,plain:"最近買盤開始改善，但整體成交量累積還沒有形成明顯突破。"};
   if(obvStrong&&cmfStrong&&volumeStrong)return {key:"RESONANCE",icon:"🟢",label:"量價資金共振",rankPenalty:0,plain:"成交量、量價累積與收盤位置資金流同步偏強，資金確認較完整。"};
-  return {key:"NEUTRAL",icon:"🟡",label:"資金普通",rankPenalty:0,plain:"目前量價資金訊號尚未形成一致方向；不單靠單日成交量或單一資金指標下結論。"};
+  if(cmf!==null&&cmf<=-0.15&&score!==null&&score<45)return {key:"STRONG_OUTFLOW",icon:"🔴",label:"資金流出明顯",rankPenalty:1,plain:"量價累積偏弱，20日資金流也明顯位於零軸下方；目前以資金流出看待，不把量縮或單日反彈誤判為轉強。"};
+  if(score!==null&&score<45)return {key:"FUNDS_WEAK",icon:"🔴",label:"資金結構偏弱",rankPenalty:1,plain:"量價累積、收盤位置資金流與成交量尚未形成支持；目前資金確認偏弱，先等待指標改善。"};
+  if(score!==null&&score<60)return {key:"NOT_ENOUGH",icon:"🟠",label:"資金確認不足",rankPenalty:0,plain:"目前有零星資金訊號，但彼此還未形成一致支持；先等待量價累積與資金流同步改善。"};
+  return {key:"NEUTRAL",icon:"🟡",label:"資金普通偏多",rankPenalty:0,plain:"目前量價資金略偏多，但還沒有形成更高等級的共振或突破確認；仍要搭配價格結構與風險條件。"};
 }
 
 function moneyFlowConfirmationComputeV45(report){
@@ -29630,14 +29648,15 @@ function moneyFlowConfirmationComputeV45(report){
     const dayTradeMoneyFlowScore=mfClampV45((obvScore/40)*45+(cmfScore/40)*35+volumeScore,0,100);
     const obvGrade=obvLeadsPrice?"A":priceObvSyncHigh?"B":divergence.obvNegative?"D":priceRise5!==null&&priceRise5>0&&!obvNewHigh20&&Math.abs((obvDelta5??0)/(avgVolume20||1))<1?"C":obvScore>=28?"STRONG":obvScore>=16?"NORMAL":"WEAK";
     const obvLabel=({A:"A級｜資金可能提前進場",B:"B級｜價格與量價累積同步創高",C:"C級｜價格上漲但量價累積橫盤",D:"D級｜價格創高但量價累積未創高",STRONG:"強勢",NORMAL:"普通",WEAK:"弱勢"})[obvGrade];
-    const cmfDirection=(cmfSlope5??0)>0.001?{key:"UP",icon:"↑",label:"增加"}:(cmfSlope5??0)<-0.001?{key:"DOWN",icon:"↓",label:"下降"}:{key:"FLAT",icon:"→",label:"持平"};
-    const confirmation=breakoutMoneyConfirmationV45({priceBreakout,obvNewHigh20,obvAboveMa20,obvDelta10,cmf20,cmfSlope5,volumeRatio20});
     const level=moneyFlowLevelV45(moneyFlowScore),cmfLevel=cmfLevelV45(cmf20);
+    const cmfDirection=cmfDirectionV45(cmfSlope3,cmfSlope5);
+    const closeMa20=mfMeanV45(bars.slice(-20).map(x=>x.close)),positionGapPct=closeMa20&&closeMa20>0?mfSafeDivideV45((bars[last].close-closeMa20)*100,closeMa20):null;
+    const confirmation=breakoutMoneyConfirmationV45({priceBreakout,obvNewHigh20,obvAboveMa20,obvDelta10,cmf20,cmfSlope5,volumeRatio20,moneyFlowScore,positionGapPct,highPosition:positionGapPct!==null&&positionGapPct>=8});
     const result={available:true,modelId:MONEY_FLOW_MODEL_V45,dataTiming:"POST_CLOSE",barsCount:bars.length,lastDate:bars[last].date??report?.closeDate??null,
       obv:{value:obv,change5Pct:obvChange5Pct,change10Pct:obvChange10Pct,delta5:obvDelta5,delta10:obvDelta10,high20:obvHigh20,low20:obvLow20,ma20:obvMa20,newHigh20:obvNewHigh20,aboveMa20:obvAboveMa20,leadsPrice:obvLeadsPrice,syncHigh:priceObvSyncHigh,positiveDivergence:divergence.obvPositive,negativeDivergence:divergence.obvNegative,noticeablyDown:obvNoticeablyDown,grade:obvGrade,label:obvLabel,score:obvScore},
       cmf:{cmf5,cmf10,cmf20,slope3:cmfSlope3,slope5:cmfSlope5,aboveZero:cmfAboveZero,crossedPositive:cmfCrossedPositive,increasing3:cmfIncreasing3,positiveStreak:cmfPositiveStreak,maintainsPositive:cmfPositiveStreak>=5,positiveDivergence:divergence.cmfPositive,negativeDivergence:divergence.cmfNegative,direction:cmfDirection,level:cmfLevel,score:cmfScore},
       volume:{today:bars[last].volume,avg5:avgVolume5,avg20:avgVolume20,ratio20:volumeRatio20,avg5Above20:avgVolume5!==null&&avgVolume20!==null&&avgVolume5>avgVolume20,breakoutAbovePrevious5:breakoutVolumeAbove5,score:volumeScore},
-      price:{breakout20:priceBreakout,priorHigh20,change5Pct:priceRise5},divergence,confirmation,moneyFlowScore,dayTradeMoneyFlowScore,level,scoreSemantic:"CONDITION_SCORE_NOT_WIN_RATE",rankingOnly:true,affectsOriginalScores:false};
+      price:{breakout20:priceBreakout,priorHigh20,change5Pct:priceRise5,ma20:closeMa20,positionGapPct},divergence,confirmation,moneyFlowScore,dayTradeMoneyFlowScore,level,scoreSemantic:"CONDITION_SCORE_NOT_WIN_RATE",rankingOnly:true,affectsOriginalScores:false};
     if(globalThis?.STONE_AGENT_DEBUG===true)console.debug("[V45 量價資金測試]",{code:report?.stock||report?.code,score:moneyFlowScore,dayTradeScore:dayTradeMoneyFlowScore,confirmation:confirmation.key,bars:bars.length});
     return result;
   }catch(error){
@@ -29658,6 +29677,10 @@ function moneyFlowPlainReadingV45(mf){
   if(mf.level.key==="HIGH_CONFIRM"||mf.level.key==="SUPPORTED")return `目前量價資金支持較完整。OBV（量價累積線）${mf.obv.newHigh20?"已創20日新高":"維持在20日均線上方"}，CMF（收盤位置資金流）為${fmt(mf.cmf.cmf20,3)}且方向${mf.cmf.direction.label}。`;
   return `目前量價資金確認為「${mf.level.label}」。OBV（量價累積線）屬${mf.obv.label}，CMF（收盤位置資金流）為 ${fmt(mf.cmf.cmf20,3)}、方向${mf.cmf.direction.label}；仍須搭配趨勢、ABC、均線、漲跌力道與風險條件。`;
 }
+function moneyFlowSummaryLineV45(mf){
+  if(!mf?.available)return "💰 量價資金：資料不足，暫不評分；不影響原本結構判讀。";
+  return `💰 量價資金：${fmt(mf.moneyFlowScore,0)}／100｜${mf.confirmation.icon}${mf.confirmation.label}｜只作第二層確認，不是勝率。`;
+}
 function buildMoneyFlowRadarTextV45(report){
   const mf=moneyFlowConfirmationV45(report);
   const lines=["💰【量價資金雷達｜最近完整交易日】"];
@@ -29668,7 +29691,8 @@ function buildMoneyFlowRadarTextV45(report){
   lines.push(`CMF方向：${mf.cmf.direction.icon}${mf.cmf.direction.label}｜近3日斜率 ${mf.cmf.slope3===null?"-":fmt(mf.cmf.slope3,4)}｜近5日斜率 ${mf.cmf.slope5===null?"-":fmt(mf.cmf.slope5,4)}｜${mf.cmf.aboveZero?"站上0軸":"位於0軸下方"}${mf.cmf.crossedPositive?"｜近期由負轉正":""}｜連續正值 ${mf.cmf.positiveStreak} 日`);
   lines.push(`成交量：今日量／20日均量 ${mf.volume.ratio20===null?"-":fmt(mf.volume.ratio20,2)+"倍"}｜近5日均量${mf.volume.avg5Above20?"高於":"未高於"}20日均量`);
   lines.push(`量價資金確認分：${fmt(mf.moneyFlowScore,0)}／100（條件確認分，不是勝率或上漲機率）`);
-  lines.push(`判定：${mf.confirmation.icon}${mf.confirmation.label}｜${mf.level.icon}${mf.level.label}`);
+  lines.push(`主要判定：${mf.confirmation.icon}${mf.confirmation.label}`);
+  if(mf.confirmation.label!==mf.level.label)lines.push(`分數等級：${mf.level.icon}${mf.level.label}｜此行只說明分數區間，不與主要判定並列下結論。`);
   lines.push("【白話判讀】");lines.push(moneyFlowPlainReadingV45(mf));
   lines.push("📌 本模組只作第二層資金確認、假突破過濾與同分帶觀察排序；不能單獨決定買進。所有資料均截至最近完整交易日，不含盤中即時資訊。");
   return lines.join("\n");
@@ -29737,10 +29761,13 @@ buildMomentumScanTextReportV3763=function(scan){
 
 const buildReportTextV45MoneyFlowBase=buildReportText;
 buildReportText=function(report){
-  const base=buildReportTextV45MoneyFlowBase(report),radar=buildMoneyFlowRadarTextV45(report);
+  let base=buildReportTextV45MoneyFlowBase(report);const mf=moneyFlowConfirmationV45(report),radar=buildMoneyFlowRadarTextV45(report),summary=moneyFlowSummaryLineV45(mf);
+  base=base.replaceAll("⑤【核心證據｜不要只看一個指標】",`⑤【核心證據｜不要只看一個指標】\n${summary}`);
+  base=base.replace("【🧠 核心證據｜多證據技術結構判讀】\n━━━━━━━━━━━━━━━━━━",`【🧠 核心證據｜多證據技術結構判讀】\n━━━━━━━━━━━━━━━━━━\n\n${summary}`);
+  base=base.replaceAll("【🌟 小白懶人包｜3秒看懂】\n━━━━━━━━━━━━━━━━━━",`【🌟 小白懶人包｜3秒看懂】\n━━━━━━━━━━━━━━━━━━\n\n${summary}`);
   const marker="【🧩 第二層｜ABC／N字：這檔現在走到哪一步？】",index=base.indexOf(marker);
   if(index<0)return `${base}\n\n━━━━━━━━━━━━━━━━━━\n${radar}`;
-  return `${base.slice(0,index)}💰【第二層｜量價資金確認】\n━━━━━━━━━━━━━━━━━━\n\n${radar}\n\n━━━━━━━━━━━━━━━━━━\n${base.slice(index)}`;
+  return `${base.slice(0,index)}💰【資金驗證層｜量價資金確認】\n━━━━━━━━━━━━━━━━━━\n\n${radar}\n\n━━━━━━━━━━━━━━━━━━\n${base.slice(index)}`;
 };
 
 </script>
