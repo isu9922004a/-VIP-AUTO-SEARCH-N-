@@ -30265,7 +30265,27 @@ buildReportText=function(report){
 // ========================================================================
 const R422_SCORE_BLOCKED_LABEL="分數條件可觀察｜操作閘門未通過";
 function currentDayVolumeDirectionV422(report){
-  const key=String(teachingVolumePriceV44(report)?.key||"");
+  // R4.2.2 runtime hotfix：本函式只能讀取原始逐日資料。
+  // 禁止呼叫 teachingVolumePriceV44／marketPhaseEngineV360／volumePriceEvidenceV340，
+  // 否則會形成「量價證據 → 當日量價 → 市場階段 → 量價證據」的遞迴鏈。
+  const bars=normalizeDailyBarsV361(report);
+  if(!Array.isArray(bars)||bars.length<2){
+    return {key:"UNAVAILABLE",down:false,shrink:false};
+  }
+  const previous=bars[bars.length-2]||{};
+  const latest=bars[bars.length-1]||{};
+  const previousClose=n(previous.close),latestClose=n(latest.close);
+  const previousVolume=n(previous.volume),latestVolume=n(latest.volume);
+  if(previousClose===null||latestClose===null||previousVolume===null||latestVolume===null){
+    return {key:"UNAVAILABLE",down:false,shrink:false};
+  }
+  const priceChange=latestClose-previousClose;
+  const volumeChange=latestVolume-previousVolume;
+  let key="FLAT";
+  if(priceChange>0&&volumeChange>0)key="UP_EXPAND";
+  else if(priceChange>0&&volumeChange<0)key="UP_SHRINK";
+  else if(priceChange<0&&volumeChange>0)key="DOWN_EXPAND";
+  else if(priceChange<0&&volumeChange<0)key="DOWN_SHRINK";
   return {key,down:key==="DOWN_SHRINK"||key==="DOWN_EXPAND",shrink:key==="DOWN_SHRINK"||key==="UP_SHRINK"};
 }
 function weakMoneyWarningV422(x){
