@@ -1,4 +1,4 @@
-<!-- 石頭少爺 Agent V45 正式版｜R4.2.2 當前狀態語意收尾正式版：歷史證據與目前操作階段分離；資料→修復→ABC結構→位置／空間→資金→執行；原始排序分、Pivot、Swing Chain、ABC／N字與三週期分數公式不變。 -->
+<!-- 石頭少爺 Agent V46 正式版｜R5.1.0 雙模式個股圖片報告升級版：保留新手簡易圖，恢復專業完整圖，兩者均支援防盜浮水印；原始排序分、Pivot、Swing Chain、ABC／N字與三週期分數公式不變。 -->
 <!DOCTYPE html>
 
 <html lang="zh-TW">
@@ -9,7 +9,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>石頭少爺 Agent V45 正式版｜R4.2.2 當前狀態語意收尾正式版｜月線波段＋費波那契 N字</title>
+<title>石頭少爺 Agent V46 正式版｜R5.1.0 雙模式個股圖片報告升級版</title>
 
 <style>
 
@@ -910,6 +910,61 @@ table{width:100%;table-layout:fixed}
 td,th{overflow-wrap:anywhere;word-break:break-word}
 img,canvas,svg{max-width:100%;height:auto}
 
+/* V46 R5.1.0｜雙模式個股圖片報告＋新手作戰中心。只調整顯示層，不改既有公式與計算結果。 */
+html{font-size:16px}
+body{font-size:1rem;line-height:1.72}
+button,input,select{font:inherit}
+.btn,.mini-btn,.copy-btn,.image-save-link,.image-share-btn{min-height:48px;white-space:normal;line-height:1.4}
+.stock-image-generator-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:14px;width:100%}
+.stock-image-generator-card{border:1px solid #d7dee9;border-radius:16px;padding:15px;background:#f8fafc;min-width:0}
+.stock-image-generator-card[data-mode="beginner"]{border-top:4px solid #3272b8}
+.stock-image-generator-card[data-mode="professional"]{border-top:4px solid #7652a4}
+.stock-image-generator-title{font-size:1.06rem;font-weight:950;line-height:1.45;color:#17243a;margin-bottom:5px}
+.stock-image-generator-note{font-size:.92rem;line-height:1.6;color:#59687b;margin-bottom:12px}
+.stock-image-generator-actions{display:grid;grid-template-columns:minmax(0,1fr);gap:8px}
+body.dark .stock-image-generator-card{background:#182236;border-color:#35445c}
+body.dark .stock-image-generator-title{color:#f2f5f9}
+body.dark .stock-image-generator-note{color:#cbd5e1}
+.v46-command-center{display:grid;gap:16px}
+.v46-command-center *{box-sizing:border-box;min-width:0}
+.v46-hero{border:1px solid #d7dee9;border-left:7px solid #64748b;border-radius:18px;padding:20px;background:linear-gradient(135deg,#f8fafc 0%,#eef2f7 100%);overflow:hidden}
+.v46-hero[data-tone="green"]{border-left-color:#16834a;background:linear-gradient(135deg,#f4fbf7,#eaf7ef)}
+.v46-hero[data-tone="orange"]{border-left-color:#c87812;background:linear-gradient(135deg,#fffaf0,#fff4df)}
+.v46-hero[data-tone="red"]{border-left-color:#a83a43;background:linear-gradient(135deg,#fff7f7,#fbecee)}
+.v46-hero[data-tone="white"]{border-left-color:#64748b;background:#f8fafc}
+.v46-eyebrow{font-size:1rem;font-weight:850;color:#475569;margin-bottom:8px}
+.v46-state-row{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.v46-state{font-size:clamp(1.55rem,4vw,1.9rem);line-height:1.28;font-weight:950;color:#14233b;overflow-wrap:anywhere}
+.v46-light{display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:9px 14px;font-size:1rem;font-weight:900;background:#fff;border:1px solid currentColor}
+.v46-light[data-tone="green"]{color:#137143}.v46-light[data-tone="orange"]{color:#a85c00}.v46-light[data-tone="red"]{color:#9f2632}.v46-light[data-tone="white"]{color:#526174}
+.v46-conclusion{margin-top:14px;font-size:clamp(1.15rem,3vw,1.3rem);line-height:1.62;font-weight:850;color:#203047}
+.v46-reason{margin-top:10px;padding-top:10px;border-top:1px solid rgba(70,88,112,.18);font-size:1.06rem;line-height:1.68;color:#35445a;overflow-wrap:anywhere}
+.v46-snapshot{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.v46-snapshot-card,.v46-audience-card,.v46-risk-card,.v46-level-card{border:1px solid #d9e0ea;border-radius:16px;background:#fff;padding:16px;overflow:hidden}
+.v46-snapshot-card .k,.v46-level-card .k{font-size:.95rem;color:#5c6879;font-weight:800;line-height:1.45}
+.v46-snapshot-card .v{margin-top:6px;font-size:1.16rem;line-height:1.5;font-weight:900;color:#17243a;overflow-wrap:anywhere}
+.v46-audience-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.v46-audience-card h3,.v46-risk-card h3{font-size:clamp(1.24rem,3vw,1.45rem);line-height:1.35;margin:0 0 12px;color:#17243a}
+.v46-answer{font-size:1.12rem;line-height:1.55;font-weight:900;margin-bottom:10px;color:#24344c}
+.v46-audience-card ul,.v46-risk-card ul{margin:0;padding-left:1.3em}
+.v46-audience-card li,.v46-risk-card li{font-size:1rem;line-height:1.7;margin:6px 0;overflow-wrap:anywhere}
+.v46-levels{border:1px solid #d7dee9;border-radius:18px;padding:18px;background:#f8fafc}
+.v46-section-title{font-size:clamp(1.28rem,3vw,1.52rem);line-height:1.35;font-weight:950;color:#17243a;margin-bottom:14px}
+.v46-level-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.v46-level-card{border-top:4px solid #8491a5}
+.v46-level-card[data-role="current"]{border-top-color:#c83b45}.v46-level-card[data-role="observe"]{border-top-color:#3272b8}.v46-level-card[data-role="probe"]{border-top-color:#c87917}.v46-level-card[data-role="confirm"]{border-top-color:#25804f}.v46-level-card[data-role="support"]{border-top-color:#268b83}.v46-level-card[data-role="defense"],.v46-level-card[data-role="invalid"]{border-top-color:#922d3a}.v46-level-card[data-role="resistance"]{border-top-color:#7652a4}.v46-level-card[data-role="target"]{border-top-color:#5555a5}
+.v46-price{font-size:clamp(1.55rem,4vw,2rem);line-height:1.2;font-weight:950;margin:8px 0;color:#22314a;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.v46-level-card[data-role="current"] .v46-price{color:#bd2d38}.v46-level-card[data-role="observe"] .v46-price{color:#2869aa}.v46-level-card[data-role="probe"] .v46-price{color:#ad630b}.v46-level-card[data-role="confirm"] .v46-price{color:#187044}.v46-level-card[data-role="support"] .v46-price{color:#1d786f}.v46-level-card[data-role="defense"] .v46-price,.v46-level-card[data-role="invalid"] .v46-price{color:#8f2634}.v46-level-card[data-role="resistance"] .v46-price{color:#67428f}.v46-level-card[data-role="target"] .v46-price{color:#46469a}
+.v46-note{font-size:.96rem;line-height:1.62;color:#536176;overflow-wrap:anywhere}
+.v46-technical{border:1px solid #d8dee8;border-radius:16px;background:#fff;padding:14px 16px}
+.v46-technical summary{cursor:pointer;font-size:1.05rem;line-height:1.5;font-weight:900;color:#26364e}
+.v46-family-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}
+.v46-family{border-radius:12px;background:#f4f7fb;padding:12px;font-size:.96rem;line-height:1.62;color:#39485d;overflow-wrap:anywhere}
+.v46-engine-note{margin-top:12px;padding:12px;border-radius:12px;background:#edf3f8;font-size:.95rem;line-height:1.65;color:#40516a}
+body.dark .v46-hero,body.dark .v46-levels,body.dark .v46-snapshot-card,body.dark .v46-audience-card,body.dark .v46-risk-card,body.dark .v46-level-card,body.dark .v46-technical{background:#182236;border-color:#35445c;color:#e8edf5}
+body.dark .v46-state,body.dark .v46-conclusion,body.dark .v46-snapshot-card .v,body.dark .v46-audience-card h3,body.dark .v46-risk-card h3,body.dark .v46-section-title,body.dark .v46-answer,body.dark .v46-technical summary{color:#f2f5f9}
+body.dark .v46-reason,body.dark .v46-note,body.dark .v46-family{color:#d2dae7}body.dark .v46-family,body.dark .v46-engine-note{background:#202d43;color:#d8e0eb}
+
 @media(max-width:600px){
   .container{width:100%;padding-left:10px;padding-right:10px}
   .panel{padding:14px 12px;border-radius:14px}
@@ -926,6 +981,15 @@ img,canvas,svg{max-width:100%;height:auto}
   .momentum-name{font-size:clamp(1.15rem,5.5vw,1.45rem)}
   .momentum-badges{width:100%;justify-content:flex-start}
   .tradeability-primary{font-size:1.3rem}.tradeability-card .v{font-size:1.35rem}
+  body{font-size:1.0625rem}
+  .v46-command-center{gap:12px}.v46-hero,.v46-levels{padding:16px 14px;border-radius:15px}
+  .v46-snapshot,.v46-audience-grid,.v46-level-grid,.v46-family-grid{grid-template-columns:minmax(0,1fr)}
+  .v46-state{font-size:1.65rem}.v46-conclusion{font-size:1.2rem}.v46-reason{font-size:1.05rem}
+  .v46-price{font-size:1.75rem}.v46-level-card,.v46-audience-card,.v46-risk-card{padding:15px}
+  .v46-audience-card li,.v46-risk-card li,.v46-note{font-size:1rem}
+  .stock-top{gap:10px;flex-wrap:wrap}.stock-name{font-size:1.6rem;overflow-wrap:anywhere}
+  .panel,.card,.rule,.tradeability-factor,.momentum-card{overflow-wrap:anywhere;word-break:break-word}
+  .stock-image-generator-grid{grid-template-columns:minmax(0,1fr);gap:10px}
 }
 @media(max-width:390px){
   .momentum-summary-grid,.daytrade-summary-grid,.momentum-metrics{grid-template-columns:minmax(0,1fr)!important}
@@ -946,7 +1010,7 @@ img,canvas,svg{max-width:100%;height:auto}
 
     <p>月線波段條件判斷＋固定倍數目標價＋費波那契 N字分析＋主升動能式掃描強勢股</p>
 
-    <span class="version-pill">石頭少爺 Agent V45 正式版｜R4.2.2 當前狀態語意收尾正式版｜既有功能與原始分數公式完整保留</span>
+    <span class="version-pill">石頭少爺 Agent V46 正式版｜R5.1.0 雙模式個股圖片報告升級版｜既有功能與原始分數公式完整保留</span>
 
   </div>
 
@@ -1053,7 +1117,7 @@ img,canvas,svg{max-width:100%;height:auto}
           <div id="momentumHeroTitle" class="momentum-hero-title">🚀 主動式主升掃描｜候選排行</div>
           <div id="momentumMeta" class="meta">-</div>
         </div>
-        <div class="meta" style="text-align:right">石頭少爺 Agent V45 正式版｜R4.2.2 當前狀態語意收尾正式版<br>盤後量價資金二次確認；三週期原始分數完整保留</div>
+        <div class="meta" style="text-align:right">石頭少爺 Agent V46 正式版｜R5.1.0 雙模式個股圖片報告升級版<br>盤後量價資金二次確認；三週期原始分數完整保留</div>
       </div>
       <div class="momentum-reminder">📌 判讀原則：排名是「主升型態相似度／位置品質」篩選，不是上漲保證。盈虧比是有效上下關卡的動態價差比，不是勝率；高檔延伸、RSI過熱或MA20乖離過大會另外警示。</div>
       <div class="momentum-summary-grid">
@@ -1095,7 +1159,7 @@ img,canvas,svg{max-width:100%;height:auto}
           <div id="dayTradeMeta" class="meta">-</div>
         </div>
         <div class="meta" style="text-align:right">
-          石頭少爺 Agent V45 正式版｜R4.2.2 當前狀態語意收尾正式版<br>
+          石頭少爺 Agent V46 正式版｜R5.1.0 雙模式個股圖片報告升級版<br>
           當沖掃描排序分與三週期適配分分開呈現，不混合計算
         </div>
       </div>
@@ -1151,7 +1215,7 @@ img,canvas,svg{max-width:100%;height:auto}
           <div id="marketChange" class="market-index-change flat">-</div>
         </div>
         <div style="text-align:right">
-          <div class="meta"><strong>石頭少爺 Agent V45 正式版｜R4.2.2 當前狀態語意收尾正式版</strong></div>
+          <div class="meta"><strong>石頭少爺 Agent V46 正式版｜R5.1.0 雙模式個股圖片報告升級版</strong></div>
           <div id="marketDate" class="meta">-</div>
           <div id="marketSource" class="meta">-</div>
         </div>
@@ -1244,6 +1308,71 @@ img,canvas,svg{max-width:100%;height:auto}
 
       <div id="status" class="status">-</div>
 
+    </section>
+
+    <section id="beginnerCommandCenterV46" class="panel v46-command-center" aria-label="新手作戰中心">
+      <div id="v46Hero" class="v46-hero" data-tone="white">
+        <div class="v46-eyebrow">第一層｜先看現在該怎麼做</div>
+        <div class="v46-state-row">
+          <div id="v46State" class="v46-state">等待查詢結果</div>
+          <div id="v46Light" class="v46-light" data-tone="white">⚪ 資料準備中</div>
+        </div>
+        <div id="v46Conclusion" class="v46-conclusion">查詢後會在這裡顯示一句話結論。</div>
+        <div id="v46Reason" class="v46-reason"><strong>主要原因：</strong>尚未取得個股資料。</div>
+      </div>
+
+      <div class="v46-snapshot" aria-label="目前判讀摘要">
+        <div class="v46-snapshot-card"><div class="k">現在的行情方向</div><div id="v46Bias" class="v">-</div></div>
+        <div class="v46-snapshot-card"><div class="k">現在是否適合執行</div><div id="v46Execution" class="v">-</div></div>
+        <div class="v46-snapshot-card"><div class="k">突破目前走到哪裡</div><div id="v46Breakout" class="v">-</div></div>
+      </div>
+
+      <div class="v46-audience-grid">
+        <article class="v46-audience-card">
+          <h3>👤 我現在沒有持股</h3>
+          <div id="v46NoStockAnswer" class="v46-answer">-</div>
+          <ul>
+            <li id="v46NoStockWait">-</li>
+            <li id="v46NoStockProbe">-</li>
+            <li id="v46NoStockChase">-</li>
+          </ul>
+        </article>
+        <article class="v46-audience-card">
+          <h3>💼 我已經有持股</h3>
+          <div id="v46HasStockAnswer" class="v46-answer">-</div>
+          <ul>
+            <li id="v46HasStockAdd">-</li>
+            <li id="v46HasStockDefense">-</li>
+            <li id="v46HasStockAlert">-</li>
+          </ul>
+        </article>
+      </div>
+
+      <section class="v46-levels" aria-labelledby="v46LevelsTitle">
+        <div id="v46LevelsTitle" class="v46-section-title">今日關鍵價位</div>
+        <div class="v46-level-grid">
+          <div class="v46-level-card" data-role="current"><div class="k">現價</div><div id="v46PriceCurrent" class="v46-price">-</div><div class="v46-note">這是最近一個完整交易日的收盤價。</div></div>
+          <div class="v46-level-card" data-role="observe"><div class="k">空手開始注意</div><div id="v46PriceObserve" class="v46-price">-</div><div id="v46NoteObserve" class="v46-note">到這裡才開始看，不代表直接買。</div></div>
+          <div class="v46-level-card" data-role="probe"><div class="k">積極型試單條件</div><div id="v46PriceProbe" class="v46-price">-</div><div id="v46NoteProbe" class="v46-note">價格真的突破，而且沒有馬上跌回去，才算符合條件。</div></div>
+          <div class="v46-level-card" data-role="confirm"><div class="k">保守型確認</div><div id="v46PriceConfirm" class="v46-price">-</div><div id="v46NoteConfirm" class="v46-note">等完整一天收盤仍站在上面，確認程度比較高。</div></div>
+          <div class="v46-level-card" data-role="support"><div class="k">第一支撐</div><div id="v46PriceSupport" class="v46-price">-</div><div class="v46-note">回檔時先看這個區間能不能守住。</div></div>
+          <div class="v46-level-card" data-role="defense"><div class="k">核心防守</div><div id="v46PriceDefense" class="v46-price">-</div><div class="v46-note">跌破這裡，代表原本看多理由開始明顯變差。</div></div>
+          <div class="v46-level-card" data-role="invalid"><div class="k">⚠️ 結構失效</div><div id="v46PriceInvalid" class="v46-price">-</div><div class="v46-note">完整跌破後，原本看多條件視為失效，不再硬撐。</div></div>
+          <div class="v46-level-card" data-role="resistance"><div class="k">第一壓力</div><div id="v46PriceResistance" class="v46-price">-</div><div class="v46-note">到這裡要看能不能真正突破，不是自動買進。</div></div>
+          <div class="v46-level-card" data-role="target"><div class="k">下一目標</div><div id="v46PriceTarget" class="v46-price">-</div><div class="v46-note">只有前面條件繼續成立時，才保留這個目標。</div></div>
+        </div>
+      </section>
+
+      <article class="v46-risk-card">
+        <h3>⚠️ 現在最需要注意</h3>
+        <ul id="v46RiskList"><li>查詢後會顯示目前風險與下一步。</li></ul>
+      </article>
+
+      <details class="v46-technical">
+        <summary>第二、三層｜為什麼？展開看技術資料</summary>
+        <div id="v46EvidenceFamilies" class="v46-family-grid"></div>
+        <div id="v46EvidenceNote" class="v46-engine-note">RSI、KD、MACD 與移動平均線很多都來自價格，這裡會合併成同一組力道證據，不重複計票。</div>
+      </details>
     </section>
 
     <section id="tradeabilityPanel" class="panel tradeability-panel">
@@ -1532,8 +1661,24 @@ img,canvas,svg{max-width:100%;height:auto}
 
         <button id="copyReportButton" class="copy-btn" type="button" onclick="copyReport()">📋 一鍵複製報告</button>
         <button id="copyNewbieButton" class="copy-btn newbie-copy-btn" type="button" onclick="copyNewbieSection()">📖 新手看這邊</button>
-        <button id="generateStockImageButton" class="copy-btn image-btn" type="button" onclick="generateStockInfographicV3328(false)">🖼️ 生成個股分析圖</button>
-        <button id="generateStockWatermarkImageButton" class="copy-btn watermark-image-btn" type="button" onclick="generateStockInfographicV3328(true)">🛡️ 生成個股分析圖（防盜浮水印）</button>
+        <div class="stock-image-generator-grid">
+          <div class="stock-image-generator-card" data-mode="beginner">
+            <div class="stock-image-generator-title">新手簡易版｜先看結論與關鍵價位</div>
+            <div class="stock-image-generator-note">大字、短句、空手／持股分流，適合手機快速查看。</div>
+            <div class="stock-image-generator-actions">
+              <button id="generateStockBeginnerImageButton" class="copy-btn image-btn" type="button" onclick="generateStockBeginnerInfographicV51(false)">🖼️ 生成新手簡易個股圖片分析報告</button>
+              <button id="generateStockBeginnerWatermarkImageButton" class="copy-btn watermark-image-btn" type="button" onclick="generateStockBeginnerInfographicV51(true)">🛡️ 生成新手簡易個股圖片分析報告（防盜浮水印）</button>
+            </div>
+          </div>
+          <div class="stock-image-generator-card" data-mode="professional">
+            <div class="stock-image-generator-title">專業完整版｜K線、ABC、分數與完整價位</div>
+            <div class="stock-image-generator-note">保留完整技術資料，結論與操作說明同步改成白話。</div>
+            <div class="stock-image-generator-actions">
+              <button id="generateStockProfessionalImageButton" class="copy-btn image-btn" type="button" onclick="generateStockProfessionalInfographicV51(false)">🖼️ 生成專業個股圖片分析報告</button>
+              <button id="generateStockProfessionalWatermarkImageButton" class="copy-btn watermark-image-btn" type="button" onclick="generateStockProfessionalInfographicV51(true)">🛡️ 生成專業個股圖片分析報告（防盜浮水印）</button>
+            </div>
+          </div>
+        </div>
 
       </div>
 
@@ -1558,11 +1703,11 @@ img,canvas,svg{max-width:100%;height:auto}
       <a id="imageDownloadLink" class="image-save-link" href="#" download>💾 儲存 PNG</a>
       <button id="imageShareButton" class="image-share-btn" type="button" onclick="shareInfographicV3328()">📤 分享圖片</button>
     </div>
-    <div id="imagePreviewNote" class="image-preview-note">圖片由目前分析資料產生。長文字會自動換行、調整字級；若仍超過欄位空間，會以「…」省略，完整內容請查看網頁或複製文字報告。股票名稱省略時仍保留代號。個股圖片為1152×2048，大盤圖片為1024×1536；可另選防盜浮水印版本。</div>
+    <div id="imagePreviewNote" class="image-preview-note">圖片由目前分析資料產生。新手簡易版為1152×2048；專業完整版為1152×2506。兩種版本皆可另外生成防盜浮水印版。</div>
   </div>
 </div>
 
-<footer class="footer"><strong>石頭少爺 Agent V45 正式版｜R4.2.2 當前狀態語意收尾正式版</strong><br>歷史突破證據與目前操作階段分離；操作閘門統一依資料、修復、ABC結構、位置／空間、資金、執行的順序判斷。既有選股、ABC／N字、Pivot、Swing Chain、突破品質與原始分數公式完整保留。<br>技術分析僅供研究與決策參考，不構成投資建議；所有分數都是條件評估，不是勝率或上漲機率。</footer>
+<footer class="footer"><strong>石頭少爺 Agent V46 正式版｜R5.1.0 雙模式個股圖片報告升級版</strong><br>新手簡易版與專業完整版共用同一份分析結果；教材證據只作信心程度、行情背景、風險與階段說明，是否可執行仍統一經過既有共用進場檢查。<br>技術分析僅供研究與決策參考，不構成投資建議；所有分數都是條件評估，不是勝率或上漲機率。</footer>
 
 <script>
 // V40｜三週期盤後適配度＋Decision Layer整合版。Worker分數為主，前端舊公式保留fallback；不使用盤中假資料。
@@ -1810,7 +1955,7 @@ img,canvas,svg{max-width:100%;height:auto}
 // 不新增艾略特1～5浪或ABC修正浪計數。
 // ========================================================================
 
-const V40_RELEASE_LABEL="石頭少爺 Agent V45 正式版｜R4.2.2 當前狀態語意收尾正式版";
+const V40_RELEASE_LABEL="石頭少爺 Agent V46 正式版｜R5.1.0 雙模式個股圖片報告升級版";
 const API_BASE_URL="https://shitou-agent-fib-api.d318426.workers.dev";
 
 // V40：延續 GIS-KY 英文名稱修正；新增「戰術頸線突破」與「Fib B正式突破」角色隔離，避免B尚未突破卻被寫成支撐。
@@ -22068,12 +22213,12 @@ function renderStockInfographicV3328(report){
   ctx.restore();
 
   // ===== V43：原評分位置順延，分數與公式不變 =====
-  drawFitSingleLineStrictV3661(ctx,"D. 七項條件分｜盤前分數觀察資格，不代表操作閘門通過",24,2154,1552,{maxSize:29,minSize:20,weight:950,color:P.navy});
+  drawFitSingleLineStrictV3661(ctx,"D. 七項條件分｜盤前分數只供觀察，不代表現在可以執行",24,2154,1552,{maxSize:29,minSize:20,weight:950,color:P.navy});
   const cardsX=24,cardsY=2184,gap=12,cw=(1552-gap*3)/4,ch=160,rowGap=12;
   if(st.tradeability){
     const td=st.tradeability.dayTradePreMarket||{},ts=st.tradeability.shortSwing||{},tl=st.tradeability.longSwing||{};
     const gateR422=executionContextV45R4(st);
-    const scoreLabelR422=x=>gateR422.executionAllowed?plainDecisionScoreV377735("fit",x).label:"分數條件可觀察｜操作閘門未通過";
+    const scoreLabelR422=x=>gateR422.executionAllowed?plainDecisionScoreV377735("fit",x).label:"分數可觀察｜目前不可執行";
     const dl=st.decisionLayer||{};
     const tone=x=>x?.key==="PRIORITY"?"orange":x?.key==="ACTIONABLE"?"green":x?.key==="WATCH"?"blue":"red";
     drawMetricCardV3328(ctx,cardsX,cardsY,cw,ch,"明天適不適合當沖｜越高越符合",scoreLabelR422(td),plainDecisionScoreV377735("fit",td).raw,tone(td));
@@ -22085,7 +22230,7 @@ function renderStockInfographicV3328(report){
     drawMetricCardV3328(ctx,cardsX,cardsY2,cw,ch,"現在適不適合找買點｜越高越符合",plainDecisionScoreV377735("entry",dl.entryQuality).label,plainDecisionScoreV377735("entry",dl.entryQuality).raw,"blue");
     const meat=n(dl?.remainingOpportunity?.upsidePct);
     if(!gateR422.executionAllowed){
-      drawMetricCardV3328(ctx,cardsX+cw+gap,cardsY2,cw,ch,"目前操作閘門未通過",gateR422.primaryBlocker?.label||"目前不可執行","壓力距離與空間比只留在進階價格地圖，不作進場許可","red");
+      drawMetricCardV3328(ctx,cardsX+cw+gap,cardsY2,cw,ch,"目前仍不適合執行",gateR422.primaryBlocker?.label||"目前不可執行","壓力距離與空間比只留在進階價格地圖，不作進場許可","red");
     }else{
       drawMetricCardV3328(ctx,cardsX+cw+gap,cardsY2,cw,ch,"離下一個壓力還有多遠",meat===null?"尚未確認":`約 ${fmt(meat,1)}%`,"還有空間不代表一定會漲到；仍要看最近支撐與可能賺賠","green");
     }
@@ -22583,7 +22728,7 @@ async function shareInfographicV3328(){
 async function generateStockInfographicV3328(withWatermark=false){
   const buttonId=withWatermark?"generateStockWatermarkImageButton":"generateStockImageButton";
   const button=document.getElementById(buttonId),message=document.getElementById("copyMessage");
-  if(!lastReportData){message.style.color="var(--red)";message.textContent="請先完成個股分析，再生成個股分析圖。";return;}
+  if(!lastReportData){message.style.color="var(--red)";message.textContent="請先完成個股分析，再生成新手交易作戰地圖。";return;}
   const original=button.textContent;button.disabled=true;button.textContent=withWatermark?"🛡️ 浮水印圖片產生中...":"🖼️ 圖片產生中...";
   message.style.color="var(--blue)";message.textContent=withWatermark?"正在產生防盜浮水印版個股 PNG...":"正在把目前個股分析整理成 PNG 圖片...";
   try{
@@ -22592,10 +22737,10 @@ async function generateStockInfographicV3328(withWatermark=false){
     if(withWatermark)applyAntiTheftWatermarkV3761(canvas,"stock");
     const d=String(lastReportData.closeDate||"").replace(/\D/g,"").slice(0,8)||"latest";
     const suffix=withWatermark?"_防盜浮水印版":"";
-    const filename=sanitizeFilenameV3328(`石頭少爺_${lastReportData.name||lastReportData.code}_${lastReportData.code}_個股分析圖${suffix}_${d}_V45_R4.2.2_當前狀態語意收尾正式版.png`);
-    await showInfographicPreviewV3328(canvas,filename,`${formatStockNameWithCode(lastReportData.name,lastReportData.code)} 個股分析圖${withWatermark?"｜防盜浮水印版":""}`);
-    message.style.color="var(--green)";message.textContent=withWatermark?"✅ 個股防盜浮水印版已產生，可預覽、儲存 PNG 或直接分享。":"✅ 個股分析圖已產生，可預覽、儲存 PNG 或直接分享。";
-  }catch(err){console.error("個股分析圖產生失敗：",err);message.style.color="var(--red)";message.textContent=`❌ 個股分析圖產生失敗：${err?.message||"未知錯誤"}`;}
+    const filename=sanitizeFilenameV3328(`石頭少爺_${lastReportData.name||lastReportData.code}_${lastReportData.code}_交易作戰地圖${suffix}_${d}_V46_R5.1.0_雙模式圖片版.png`);
+    await showInfographicPreviewV3328(canvas,filename,`${formatStockNameWithCode(lastReportData.name,lastReportData.code)} 新手交易作戰地圖${withWatermark?"｜防盜浮水印版":""}`);
+    message.style.color="var(--green)";message.textContent=withWatermark?"✅ 作戰地圖防盜浮水印版已產生，可預覽、儲存 PNG 或直接分享。":"✅ 新手交易作戰地圖已產生，可預覽、儲存 PNG 或直接分享。";
+  }catch(err){console.error("作戰地圖產生失敗：",err);message.style.color="var(--red)";message.textContent=`❌ 作戰地圖產生失敗：${err?.message||"未知錯誤"}`;}
   finally{button.disabled=false;button.textContent=original;}
 }
 
@@ -22611,7 +22756,7 @@ async function generateMarketInfographicV3328(withWatermark=false){
     if(withWatermark)applyAntiTheftWatermarkV3761(canvas,"market");
     const d=String(lastMarketReportData.closeDate||"").replace(/\D/g,"").slice(0,8)||"latest";
     const suffix=withWatermark?"_防盜浮水印版":"";
-    const filename=`石頭少爺_TAIEX_大盤分析圖${suffix}_${d}_V45_R4.2.2_當前狀態語意收尾正式版.png`;
+    const filename=`石頭少爺_TAIEX_大盤分析圖${suffix}_${d}_V46_R5.1.0_雙模式圖片版.png`;
     await showInfographicPreviewV3328(canvas,filename,`臺灣加權股價指數（TAIEX）大盤分析圖${withWatermark?"｜防盜浮水印版":""}`);
     message.style.color="var(--green)";message.textContent=withWatermark?"✅ 大盤防盜浮水印版已產生，可預覽、儲存 PNG 或直接分享。":"✅ 大盤分析圖已產生，可預覽、儲存 PNG 或直接分享。";
   }catch(err){console.error("大盤分析圖產生失敗：",err);message.style.color="var(--red)";message.textContent=`❌ 大盤分析圖產生失敗：${err?.message||"未知錯誤"}`;}
@@ -23116,7 +23261,7 @@ function downloadReplayResearchV39B7(){
   if(!lastReplayResearchV39B7)return;
   const blob=new Blob([JSON.stringify(lastReplayResearchV39B7,null,2)],{type:"application/json;charset=utf-8"});
   const url=URL.createObjectURL(blob),a=document.createElement("a"),stamp=new Date().toISOString().replace(/[:.]/g,"-");
-  a.href=url;a.download=`V45_R4.2.2_當前狀態語意收尾正式版_歷史回看_${String(lastReplayResearchV39B7.stock||"stock")}_${stamp}.json`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+  a.href=url;a.download=`V46_R5.1.0_雙模式圖片版_歷史回看_${String(lastReplayResearchV39B7.stock||"stock")}_${stamp}.json`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
 
 function waitMsV3742(ms){
@@ -23447,6 +23592,8 @@ async function analyzeStock(){
     }
 
     renderFib(fib,close);
+
+    renderBeginnerCommandCenterV46(lastReportData);
 
     result.style.display="block";
 
@@ -24204,7 +24351,7 @@ async function generateMomentumScanImageV3762(withWatermark=false){
     const canvas=renderMomentumScanInfographicV3762(lastMomentumScanDataV3762);
     if(withWatermark)drawMomentumImageWatermarkV377716(canvas,"top8");
     const t=taipeiTimePartsV3762(),d=`${t.year}${t.month}${t.day}`,suffix=withWatermark?"_防盜浮水印版":"";
-    const filename=sanitizeFilenameV3328(`石頭少爺的ABC飆股_前8名圖片戰報${suffix}_${d}_V45_R4.2.2_當前狀態語意收尾正式版.png`);
+    const filename=sanitizeFilenameV3328(`石頭少爺的ABC飆股_前8名圖片戰報${suffix}_${d}_V46_R5.1.0_雙模式圖片版.png`);
     const phase=momentumReportPhaseV37771(lastMomentumScanDataV3762.createdAt);
     await showInfographicPreviewV3328(canvas,filename,`石頭少爺的ABC飆股｜主動式主升掃描｜前8名圖片戰報${withWatermark?"｜防盜浮水印版":""}`);
     msg.style.color="var(--green)";msg.textContent=withWatermark?"✅ 主升動能掃描防盜浮水印版已產生。":"✅ 主升動能掃描原版已產生。";
@@ -24437,7 +24584,7 @@ async function downloadMomentumAllCandidatesImageV377715(){
     const stamp=String(scan.createdAt||taipeiStampV3762()).replace(/\D/g,"").slice(0,12)||"latest";
     const scopeLabel=scan.qualityPass===true?"全部正式候選":"已分析候選_資料未完整";
     const scopeTitle=scan.qualityPass===true?"全部正式候選圖片戰報":"本次已分析候選｜資料未完整";
-    const filename=sanitizeFilenameV3328(`石頭少爺的ABC飆股_主動式主升掃描_${scopeLabel}_${stamp}_V45_R4.2.2_當前狀態語意收尾正式版.png`);
+    const filename=sanitizeFilenameV3328(`石頭少爺的ABC飆股_主動式主升掃描_${scopeLabel}_${stamp}_V46_R5.1.0_雙模式圖片版.png`);
     await showInfographicPreviewV3328(canvas,filename,`石頭少爺的ABC飆股｜主動式主升掃描｜${scopeTitle}｜${audit.renderedCount}檔`);
     if(msg){msg.style.color="var(--green)";msg.textContent=`✅ 全部選股圖片報告已產生｜候選 ${audit.expected} 檔｜實際列出 ${audit.renderedCount} 檔｜數量一致。`;}
   }catch(e){
@@ -24478,7 +24625,7 @@ async function downloadMomentumAllCandidatesImageWatermarkV377716(){
     const stamp=String(scan.createdAt||taipeiStampV3762()).replace(/\D/g,"").slice(0,12)||"latest";
     const scopeLabel=scan.qualityPass===true?"全部正式候選":"已分析候選_資料未完整";
     const scopeTitle=scan.qualityPass===true?"全部正式候選圖片戰報":"本次已分析候選｜資料未完整";
-    const filename=sanitizeFilenameV3328(`石頭少爺的ABC飆股_主動式主升掃描_${scopeLabel}_防盜浮水印版_${stamp}_V45_R4.2.2_當前狀態語意收尾正式版.png`);
+    const filename=sanitizeFilenameV3328(`石頭少爺的ABC飆股_主動式主升掃描_${scopeLabel}_防盜浮水印版_${stamp}_V46_R5.1.0_雙模式圖片版.png`);
     await showInfographicPreviewV3328(
       canvas,
       filename,
@@ -26745,7 +26892,7 @@ function downloadMomentumFullReportV377713(){
   const url=URL.createObjectURL(blob);
   const a=document.createElement("a");
   a.href=url;
-  a.download="主動式主升掃描_完整詳細戰報_"+stamp+"_V45_R4.2.2_當前狀態語意收尾正式版.txt";
+  a.download="主動式主升掃描_完整詳細戰報_"+stamp+"_V46_R5.1.0_雙模式圖片版.txt";
   document.body.appendChild(a);
   a.click();
   a.remove();
@@ -28177,7 +28324,7 @@ function downloadDayTradeFullReportV1(){
   const blob=new Blob(["\uFEFF"+text],{type:"text/plain;charset=utf-8"});
   const a=document.createElement("a");a.href=URL.createObjectURL(blob);
   const stamp=String(lastDayTradeScanDataV1.createdAt||"").replace(/\D/g,"").slice(0,12)||"latest";
-  a.download=`明日當沖盤前適配_已檢查突破警訊_完整文字戰報_${stamp}_V45_R4.2.2_當前狀態語意收尾正式版.txt`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1500);
+  a.download=`明日當沖盤前適配_已檢查突破警訊_完整文字戰報_${stamp}_V46_R5.1.0_雙模式圖片版.txt`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1500);
   if(msg){msg.style.color="var(--green)";msg.textContent="✅ 已下載當沖完整詳細TXT。";}
 }
 
@@ -28265,7 +28412,7 @@ async function generateDayTradeImageV1(withWatermark=false){
     const canvas=renderDayTradeInfographicV1(lastDayTradeScanDataV1);
     if(withWatermark)drawMomentumImageWatermarkV377716(canvas,"top8");
     const stamp=String(lastDayTradeScanDataV1.createdAt||"").replace(/\D/g,"").slice(0,12)||"latest",suffix=withWatermark?"_防盜浮水印版":"";
-    const filename=sanitizeFilenameV3328(`石頭少爺的ABC飆股_明日當沖盤前適配_前8名圖片戰報${suffix}_${stamp}_V45_R4.2.2_當前狀態語意收尾正式版.png`);
+    const filename=sanitizeFilenameV3328(`石頭少爺的ABC飆股_明日當沖盤前適配_前8名圖片戰報${suffix}_${stamp}_V46_R5.1.0_雙模式圖片版.png`);
     await showInfographicPreviewV3328(canvas,filename,`石頭少爺的ABC飆股｜明日當沖盤前適配｜前8名圖片戰報${withWatermark?"｜防盜浮水印版":""}`);
     if(msg){msg.style.color="var(--green)";msg.textContent="✅ 當沖前8名圖片報告已產生。";}
   }catch(e){if(msg){msg.style.color="var(--red)";msg.textContent=`❌ 圖片產生失敗：${e?.message||"未知錯誤"}`;}}
@@ -28320,7 +28467,7 @@ async function downloadDayTradeAllCandidatesImageV1(withWatermark=false){
     const stamp=String(lastDayTradeScanDataV1.createdAt||"").replace(/\D/g,"").slice(0,12)||"latest",suffix=withWatermark?"_防盜浮水印版":"";
     const scopeLabel=lastDayTradeScanDataV1.qualityPass===true?"全部正式候選":"已分析候選_資料未完整";
     const scopeTitle=lastDayTradeScanDataV1.qualityPass===true?"全部正式候選":"本次已分析候選｜資料未完整";
-    const filename=sanitizeFilenameV3328(`石頭少爺的ABC飆股_明日當沖盤前適配_${scopeLabel}${suffix}_${stamp}_V45_R4.2.2_當前狀態語意收尾正式版.png`);
+    const filename=sanitizeFilenameV3328(`石頭少爺的ABC飆股_明日當沖盤前適配_${scopeLabel}${suffix}_${stamp}_V46_R5.1.0_雙模式圖片版.png`);
     await showInfographicPreviewV3328(canvas,filename,`石頭少爺的ABC飆股｜明日當沖盤前適配｜${scopeTitle}｜${rendered.length}檔${withWatermark?"｜防盜浮水印版":""}`);
     if(msg){msg.style.color="var(--green)";msg.textContent=`✅ 全部當沖候選圖片已產生｜${rendered.length}檔。`;}
   }catch(e){if(msg){msg.style.color="var(--red)";msg.textContent=`❌ ${e?.message||"全部圖片產生失敗"}`;}}
@@ -28374,7 +28521,7 @@ async function copyDayTradeTop8ImageV377727(withWatermark=false){
     if(withWatermark)drawMomentumImageWatermarkV377716(canvas,"top8");
     const stamp=String(lastDayTradeScanDataV1.createdAt||"").replace(/\D/g,"").slice(0,12)||"latest";
     const suffix=withWatermark?"_防盜浮水印版":"";
-    const filename=sanitizeFilenameV3328(`石頭少爺的ABC飆股_明日當沖盤前適配_前8名圖片戰報${suffix}_${stamp}_V45_R4.2.2_當前狀態語意收尾正式版.png`);
+    const filename=sanitizeFilenameV3328(`石頭少爺的ABC飆股_明日當沖盤前適配_前8名圖片戰報${suffix}_${stamp}_V46_R5.1.0_雙模式圖片版.png`);
     const title=`石頭少爺的ABC飆股｜明日當沖盤前適配｜前8名圖片戰報${withWatermark?"｜防盜浮水印版":""}`;
     const r=await dayTradeCopyCanvasPngV377727(canvas,filename,title);
     if(msg){
@@ -28402,7 +28549,7 @@ async function copyDayTradeAllCandidatesImageV377727(withWatermark=false){
     const suffix=withWatermark?"_防盜浮水印版":"";
     const scopeLabel=lastDayTradeScanDataV1.qualityPass===true?"全部正式候選":"已分析候選_資料未完整";
     const scopeTitle=lastDayTradeScanDataV1.qualityPass===true?"全部正式候選":"本次已分析候選｜資料未完整";
-    const filename=sanitizeFilenameV3328(`石頭少爺的ABC飆股_明日當沖盤前適配_${scopeLabel}${suffix}_${stamp}_V45_R4.2.2_當前狀態語意收尾正式版.png`);
+    const filename=sanitizeFilenameV3328(`石頭少爺的ABC飆股_明日當沖盤前適配_${scopeLabel}${suffix}_${stamp}_V46_R5.1.0_雙模式圖片版.png`);
     const title=`石頭少爺的ABC飆股｜明日當沖盤前適配｜${scopeTitle}｜${rendered.length}檔${withWatermark?"｜防盜浮水印版":""}`;
     const r=await dayTradeCopyCanvasPngV377727(canvas,filename,title);
     if(msg){
@@ -29130,7 +29277,7 @@ function teachingIntegrationV44(report,parameters=TEACHING_PARAMETERS_V44){
   const pending=Object.entries(parameters).filter(([,v])=>v===null).map(([key])=>key);
   const pattern=report?.structure?.pattern||report?.pattern||null;
   return {
-    version:"TEACHING-INTEGRATION-V45-R4.2.2",
+    version:"TEACHING-INTEGRATION-V46-R5.1.0",
     flow,
     l1:{ma:flow.ma,indicators:flow.indicators,divergence:flow.divergence,threeBarRecovery:flow.recovery,breakout:flow.breakout,volumePrice:flow.volume,dateSync:flow.sync},
     l2:{parameters,pending,status:pending.length?"等待參數／不得自行套用教材案例數字":"參數已提供"},
@@ -30460,6 +30607,339 @@ buildReportText=function(report){
   if(!x.executionAllowed&&!out.includes("【近端價格結構試算】價格結構試算｜目前操作閘門未通過｜不可直接執行"))out=out.replace("【多維狀態】","【近端價格結構試算】價格結構試算｜目前操作閘門未通過｜不可直接執行\n【多維狀態】");
   return out;
 };
+
+// ========================================================================
+// V46 R5.1.0｜全教材知識整合＋雙模式個股圖片報告層
+// 本層只讀取既有結果，不改 ABC、N字、Pivot、Swing、Fib、月線、三週期分數、
+// RSI、OBV、CMF、支撐壓力、原有價位與共用操作檢查。教材訊號永遠不能單獨開啟執行。
+// ========================================================================
+const V46_RELEASE_LABEL="石頭少爺 Agent V46 正式版｜R5.1.0 雙模式個股圖片報告升級版";
+const V46_EDUCATION_CACHE=new WeakMap();
+const V46_CONTEXT_CACHE=new WeakMap();
+
+function v46Finite(value){if(value===null||value===undefined||value==="")return null;const x=Number(value);return Number.isFinite(x)?x:null;}
+function v46First(...values){for(const value of values){const x=v46Finite(value);if(x!==null)return x;}return null;}
+function v46SafeText(value){
+  let text=String(value??"資料不足");
+  const map=[
+    [/executionAllowed/gi,"現在是否適合執行"],[/primaryBlocker/gi,"現在不能進場的主要原因"],[/secondaryBlock(?:er|ers)?/gi,"另外還要注意"],
+    [/Breakout Lifecycle/gi,"突破過程"],[/Position Lifecycle/gi,"部位階段"],[/execution gate/gi,"共用進場檢查"],[/Action Gate/gi,"進場檢查"],[/操作閘門|執行閘門/g,"共用進場檢查"],
+    [/state machine/gi,"狀態流程"],[/component score/gi,"單項條件分數"],[/confidence normalization/gi,"信心程度校正"],
+    [/undefined state/gi,"尚未建立狀態"],[/dataset insufficient/gi,"資料還不夠完整，暫時無法可靠判斷"],[/regime mismatch/gi,"大盤環境與這檔股票目前的方向不一致"],
+    [/\bfallback\b/gi,"備援方式"],[/\bruntime\b/gi,"執行期間"],[/\bBOS\b/g,"突破前一個重要高點／跌破前一個重要低點"],
+    [/\bRetest\b/gi,"突破後回來測試原本壓力區"],[/\bConfluence\b/gi,"多個重要條件集中在同一價格附近"],[/\bMomentum\b/gi,"上漲／下跌力道"],
+    [/\bRegime\b/gi,"行情環境"],[/MA Slope/gi,"移動平均線正在往上／往下"],[/Bullish Divergence/gi,"股價創低，但下跌力道沒有跟著變弱"],
+    [/Bearish Divergence/gi,"股價創高，但上漲力道沒有跟上"],[/\bDivergence\b/gi,"價格與力道走向不一致"],[/\bRR\b/g,"預期報酬與可能損失的比例"]
+  ];
+  map.forEach(([pattern,label])=>{text=text.replace(pattern,label);});
+  return text;
+}
+
+function v46Context(report){
+  if(report&&V46_CONTEXT_CACHE.has(report))return V46_CONTEXT_CACHE.get(report);
+  let x;
+  try{x=executionContextV45R4(report);}catch(_){x={report,dataInvalid:true,executionAllowed:false,primaryBlocker:{label:"資料還不夠完整"},secondaryBlockers:[],historicalBreakoutEvidence:{},currentExecutionPhase:{label:"資料不足"}};}
+  let st;
+  try{st=stockInfographicStateV3328(report);}catch(_){
+    const s=currentStrategyStateV321(report);
+    st={report,s,close:v46Finite(report?.close),A:v46Finite(s?.fib?.A),B:v46Finite(s?.fib?.B),C:v46Finite(s?.fib?.C),nStatus:getNStatusV326(report,s),nPhase:getNPhaseV326(report,s,getNStatusV326(report,s)),rsi:v46First(report?.dailyRsi5,report?.dailyRsi)};
+  }
+  const context={report,x,st};
+  if(report&&typeof report==="object")V46_CONTEXT_CACHE.set(report,context);
+  return context;
+}
+
+function patternLifecycleState(report,context=null){
+  const {x}=context||v46Context(report);
+  if(x.dataInvalid)return {key:"UNAVAILABLE",tone:"white",label:"資料還不足，先不判定型態"};
+  if(x.failed)return {key:"FAILED",tone:"red",label:"原本結構已失效，等待重新建立"};
+  if(x.waitA)return {key:"WAIT_A",tone:"white",label:"新的起漲轉折點尚未建立"};
+  if(x.waitB)return {key:"WAIT_B",tone:"orange",label:"已有起漲點，等待前波高點形成"};
+  if(x.waitC)return {key:"WAIT_C",tone:"orange",label:"已有前波高點，等待有效回檔低點"};
+  if(x.nStatus==="abc_ready")return {key:"READY",tone:"orange",label:"起漲、前高與回檔低點已完整，還在等正式突破"};
+  if(x.nStatus==="confirmed")return {key:"CONFIRMED",tone:"green",label:"完整結構已確認，接下來看回測與延伸"};
+  return {key:"FORMING",tone:"orange",label:"結構還在形成，不提前追價"};
+}
+
+function v46ClassifyBreakoutSnapshot(snapshot){
+  const B=v46Finite(snapshot?.B),close=v46Finite(snapshot?.close),high=v46Finite(snapshot?.high),low=v46Finite(snapshot?.low),phase=String(snapshot?.phase||"").toUpperCase();
+  const historical=snapshot?.historical===true,failed=snapshot?.failed===true;
+  if(B===null||close===null)return {key:"NOT_TESTED",tone:"white",label:"尚未測試壓力"};
+  if(failed||(historical&&close<B))return {key:"FAILED_BREAKOUT",tone:"red",label:"突破失敗、跌回原區間"};
+  if(phase==="WEAKENING")return {key:"RETESTING",tone:"orange",label:"突破後正在回測，結構已轉弱"};
+  if(phase==="RETESTING"){
+    if(low!==null&&low<=B*1.015&&close>=B)return {key:"RETEST_HELD",tone:"green",label:"回測成功守住"};
+    return {key:"RETESTING",tone:"orange",label:"突破後正在回測"};
+  }
+  if(phase==="EXTENDING"&&historical&&close>B)return {key:"CONTINUATION",tone:"green",label:"突破後繼續上攻"};
+  if(close>B)return {key:"CLOSE_CONFIRMED",tone:"green",label:"收盤確認突破"};
+  if(high!==null&&high>B&&close<=B)return {key:"INTRADAY_BREAK",tone:"orange",label:"盤中一度突破，不代表可以買進"};
+  if(close>=B*.985||high!==null&&high>=B*.995)return {key:"TESTING",tone:"orange",label:"正在挑戰壓力"};
+  return {key:"NOT_TESTED",tone:"white",label:"尚未測試壓力"};
+}
+
+function breakoutLifecycleState(report,context=null){
+  const {x,st}=context||v46Context(report);
+  return v46ClassifyBreakoutSnapshot({B:x.B??st?.B,close:report?.close??st?.close,high:report?.dailyHigh,low:report?.dailyLow,phase:x.nPhase,historical:x.historicalBreakoutEvidence?.breakoutConfirmed===true,failed:x.failed});
+}
+
+function volumeContextState(report,context=null){
+  const {x}=context||v46Context(report),mf=x.mf||{};
+  if(mf.available!==true)return {key:"UNAVAILABLE",tone:"white",label:"成交量與資金資料還不夠完整",family:"VOLUME_FUNDS"};
+  const score=v46Finite(mf.moneyFlowScore),weak=x.moneyWeak===true;
+  return {key:weak?"WEAK":"SUPPORTIVE",tone:weak?"orange":"green",score,label:weak?`成交量與資金流還沒有配合${score===null?"":`（${fmt(score,0)}／100）`}`:`成交量與資金流目前有配合${score===null?"":`（${fmt(score,0)}／100）`}`,family:"VOLUME_FUNDS"};
+}
+
+function momentumContextState(report,context=null){
+  const {st}=context||v46Context(report),rows=Array.isArray(report?.dailySeries)?report.dailySeries:[],sources=[];
+  const rsi=v46First(report?.dailyRsi5,report?.dailyRsi,st?.rsi);if(rsi!==null)sources.push("RSI");
+  if(rows.some(row=>v46First(row?.k,row?.kdK,row?.stochK)!==null))sources.push("KD");
+  if(rows.some(row=>v46First(row?.macdHistogram,row?.macdHist,row?.histogram,row?.osc)!==null))sources.push("MACD");
+  if(v46First(st?.s?.maCtx?.value,report?.structure?.dailyMA20?.value)!==null)sources.push("移動平均線");
+  let label="價格力道資料還不足";
+  if(rsi!==null)label=rsi>=85?"近期上漲力道偏熱，追價風險提高":rsi>=55?"近期上漲力道偏強":rsi<=35?"近期下跌力道偏強":"近期力道沒有明顯偏向";
+  return {key:rsi===null?"UNAVAILABLE":rsi>=85?"OVERHEATED":rsi>=55?"UP":rsi<=35?"DOWN":"NEUTRAL",tone:rsi===null?"white":rsi>=85?"orange":rsi>=55?"green":rsi<=35?"red":"white",label,sources,family:"PRICE_MOMENTUM",independentVotes:sources.length?1:0,note:"這些工具大多來自價格，合併為一組力道證據，不重複計票。"};
+}
+
+function maDeductionState(report,context=null){
+  const raw=report?.maDeduction||report?.decisionLayer?.maDeduction||{},label=v46SafeText(raw?.plainText??raw?.label??raw?.summary??"移動平均線更新資料不足");
+  return {key:raw?.key||"UNAVAILABLE",tone:/不利|向下|轉弱/.test(label)?"red":/有利|向上|支持/.test(label)?"green":"white",label,family:"PRICE_MOMENTUM",canEnableExecution:false};
+}
+
+function multiTimeframeState(report){
+  const t=report?.tradeability||report?.decisionLayer?.tradeability||{};
+  const read=(keys)=>{for(const key of keys){const value=v46First(t?.[key]?.score,t?.[key],report?.[key]);if(value!==null)return value;}return null;};
+  const values={day:read(["dayTrade","dayTradeScore","day"]),short:read(["shortSwing","shortSwingScore","short"]),long:read(["longSwing","longSwingScore","long"])};
+  const available=Object.values(values).filter(v=>v!==null);
+  return {key:available.length?"AVAILABLE":"UNAVAILABLE",tone:"white",values,label:available.length?`三種操作週期的原始分數已保留；分數是背景條件，不是進場許可。`:"三種操作週期的資料尚不完整。",canEnableExecution:false};
+}
+
+function supportResistanceConfluence(report,context=null){
+  const {x,st}=context||v46Context(report);let plan={};
+  try{plan=buildPreMarketEntryPlanV43(st)||{};}catch(_){}
+  let defense={layers:[],first:null},resistance={layers:[],first:null};
+  try{defense=dynamicDefenseStackV370(report,st?.s)||defense;}catch(_){}
+  try{resistance=dynamicResistanceStackV370(report,st?.s)||resistance;}catch(_){}
+  const close=v46First(report?.close,st?.close),firstSupport=v46First(plan?.tacticalSupport?.value,defense?.first?.level),supportLow=firstSupport===null?null:normalizeTradablePrice(firstSupport*.995,"stop"),supportHigh=firstSupport===null?null:normalizeTradablePrice(firstSupport*1.005,"nearest");
+  const formalDefense=(defense?.layers||[]).find(item=>!item?.candidate&&v46Finite(item?.level)!==null&&Math.abs(item.level-firstSupport)>1e-8);
+  const coreDefense=v46First(formalDefense?.level,firstSupport,x.C,x.A),invalid=v46First(x.C,x.A,coreDefense);
+  const firstResistance=v46First(plan?.firstBarrier?.low,resistance?.first?.level,x.B),nextTarget=v46First(plan?.nextTarget?.value,(resistance?.layers||[])[1]?.level,st?.fib?.target1618);
+  return {key:"READY",tone:"white",close,observation:v46First(plan?.observation?.value,x.B),probe:plan?.aggressive?.available?v46Finite(plan?.aggressive?.value):null,confirmation:v46First(plan?.conservative?.threshold,x.B),supportLow,supportHigh,coreDefense,invalid,firstResistance,nextTarget,plan,defense,resistance,label:"關鍵價位來自原有結構、支撐壓力與目標價，只重新整理顯示。"};
+}
+
+function positionLifecycleState(report,context=null){
+  const {x}=context||v46Context(report);
+  if(x.dataInvalid)return {key:"WATCH",tone:"white",label:"先觀察，不急著買",holderLabel:"資料不足，先降低部位決策強度"};
+  if(x.failed)return {key:"EXIT",tone:"red",label:"原本看多條件已失效",holderLabel:"原本看多條件已失效，應優先處理風險"};
+  if(x.positionBlocked&&x.repairRequired)return {key:"REDUCE",tone:"red",label:"風險升高，可考慮減碼",holderLabel:"先停止加碼，並評估降低風險"};
+  if(!x.executionAllowed&&x.nStatus==="confirmed")return {key:"NO_MORE_ADD",tone:"orange",label:"可以續抱，但先不要再加碼",holderLabel:"續抱觀察，現在先不加碼"};
+  if(x.executionAllowed&&["RETESTING","EXTENDING"].includes(x.nPhase))return {key:"ADD_ALLOWED",tone:"green",label:"條件良好，可考慮分批執行",holderLabel:"條件良好，才可考慮分批加碼"};
+  if(x.executionAllowed)return {key:"CONFIRMED",tone:"green",label:"已完成確認",holderLabel:"續抱觀察"};
+  if(x.nStatus==="abc_ready")return {key:"PROBE_READY",tone:"orange",label:"接近試單條件",holderLabel:"續抱觀察，等待突破確認"};
+  return {key:"WATCH",tone:"orange",label:"先觀察，不急著買",holderLabel:"續抱觀察，先不主動加碼"};
+}
+
+function decisionRiskState(report,context=null){
+  const {x}=context||v46Context(report),primary=v46SafeText(x?.primaryBlocker?.label||"現在還沒有足夠證據"),secondary=(x?.secondaryBlockers||[]).map(item=>v46SafeText(item?.label)).filter(Boolean);
+  if(x.dataInvalid)return {key:"UNKNOWN",tone:"white",icon:"⚪",status:"資料不足，暫時無法可靠判斷",executionAllowed:false,primary,secondary};
+  if(x.failed)return {key:"STOP",tone:"red",icon:"🔴",status:"現在先不要進場",executionAllowed:false,primary,secondary};
+  if(x.executionAllowed)return {key:"READY",tone:"green",icon:"🟢",status:"條件良好，可以開始觀察進場",executionAllowed:true,primary:"原有共用進場檢查已通過，仍需依盤中價格與成交量分批執行。",secondary};
+  const highRisk=x.positionBlocked||x.strongOutflow;
+  return {key:highRisk?"AVOID":"WAIT",tone:highRisk?"red":"orange",icon:highRisk?"🔴":"🟠",status:highRisk?"現在先不要進場":"可以繼續觀察，但先不要追",executionAllowed:false,primary,secondary};
+}
+
+function exitManagementState(report,context=null,levels=null){
+  const {x}=context||v46Context(report),map=levels||supportResistanceConfluence(report,context);
+  if(x.failed)return {key:"EXIT",tone:"red",label:"原本看多條件已失效，不再以續抱觀察處理。",defense:map.invalid};
+  if(x.repairRequired)return {key:"REDUCE",tone:"red",label:`價格正在轉弱，先停止加碼${map.coreDefense===null?"，並重新檢查防守":"；核心防守約在 "+fmt(map.coreDefense)+" 元"}。`,defense:map.coreDefense};
+  if(x.moneyWeak)return {key:"NO_MORE_ADD",tone:"orange",label:"價格結構可繼續觀察，但資金還沒有配合，先不再加碼。",defense:map.coreDefense};
+  return {key:"HOLD",tone:"green",label:"原本結構還有效，按支撐與防守價續抱觀察。",defense:map.coreDefense};
+}
+
+function evidenceEngine(report,context=null){
+  const ctx=context||v46Context(report),pattern=patternLifecycleState(report,ctx),breakout=breakoutLifecycleState(report,ctx),volume=volumeContextState(report,ctx),momentum=momentumContextState(report,ctx),ma=maDeductionState(report,ctx),timeframes=multiTimeframeState(report);
+  const families=[
+    {key:"STRUCTURE",title:"價格結構",label:`${pattern.label}；${breakout.label}`,sources:["ABC／N字","前波高低點","突破過程"],vote:1},
+    {key:"PRICE_MOMENTUM",title:"價格力道",label:momentum.label,sources:momentum.sources,vote:momentum.sources.length?1:0},
+    {key:"VOLUME_FUNDS",title:"成交量與資金",label:volume.label,sources:["成交量","OBV","CMF"],vote:volume.key==="UNAVAILABLE"?0:1},
+    {key:"TIMEFRAMES",title:"不同操作週期",label:timeframes.label,sources:["當沖","短波段","長波段"],vote:timeframes.key==="UNAVAILABLE"?0:1}
+  ];
+  const rawSignals=families.reduce((sum,f)=>sum+f.sources.length,0),independentFamilies=families.reduce((sum,f)=>sum+f.vote,0);
+  return {families,rawSignals,independentFamilies,confidence:independentFamilies>=4?"證據較完整":independentFamilies>=2?"證據部分一致":"目前證據還不足",note:`${rawSignals} 個資料來源依關聯性合併為 ${independentFamilies} 個證據家族；RSI、KD、MACD 與移動平均線不重複計票。`,canEnableExecution:false,executionAllowed:ctx.x.executionAllowed===true};
+}
+
+function buildEducationLayerV46(report){
+  if(report&&V46_EDUCATION_CACHE.has(report))return V46_EDUCATION_CACHE.get(report);
+  const context=v46Context(report),pattern=patternLifecycleState(report,context),breakout=breakoutLifecycleState(report,context),position=positionLifecycleState(report,context),levels=supportResistanceConfluence(report,context),volume=volumeContextState(report,context),momentum=momentumContextState(report,context),ma=maDeductionState(report,context),timeframes=multiTimeframeState(report),risk=decisionRiskState(report,context),exit=exitManagementState(report,context,levels),evidence=evidenceEngine(report,context);
+  const layer={version:"V46-R5.1.0",evidenceEngine:evidence,patternLifecycleState:pattern,breakoutLifecycleState:breakout,positionLifecycleState:position,supportResistanceConfluence:levels,volumeContextState:volume,momentumContextState:momentum,maDeductionState:ma,multiTimeframeState:timeframes,decisionRiskState:risk,exitManagementState:exit,executionAllowed:context.x.executionAllowed===true,sourceExecutionContext:context.x};
+  if(report&&typeof report==="object")V46_EDUCATION_CACHE.set(report,layer);
+  return layer;
+}
+
+function v46PriceText(value){return v46Finite(value)===null?"尚未建立":`${fmt(value)} 元`;}
+function v46RangeText(low,high){return v46Finite(low)===null?"尚未建立":v46Finite(high)!==null&&Math.abs(high-low)>.0001?`${fmt(low)}～${fmt(high)} 元`:v46PriceText(low);}
+function v46Put(id,value){const el=document.getElementById(id);if(el)el.textContent=v46SafeText(value);}
+function v46SetTone(id,tone){const el=document.getElementById(id);if(el)el.dataset.tone=tone||"white";}
+
+function renderBeginnerCommandCenterV46(report){
+  const layer=buildEducationLayerV46(report),x=layer.sourceExecutionContext,levels=layer.supportResistanceConfluence,risk=layer.decisionRiskState,breakout=layer.breakoutLifecycleState,position=layer.positionLifecycleState;
+  let plain={bias:{label:"目前方向不明"}};try{plain=stockPlainActionV362(x.st)||plain;}catch(_){}
+  const bias=v46SafeText(plain?.bias?.label||"目前方向不明");
+  const bullish=/多|上升|強/.test(bias),failed=x.failed===true;
+  const conclusion=risk.executionAllowed?"主要條件已通過，但仍要等盤中價格與成交量真正配合，並依防守分批執行。":failed?"原本看多條件已失效，先停止進場，已持有者優先處理風險。":bullish?"目前方向仍可能偏強，但現在的進場條件還沒有完成，先等。":"目前證據還不夠一致，先觀察，不急著進場。";
+  v46Put("v46State",`${x.currentExecutionPhase?.label||patternLifecycleState(report).label}`);v46Put("v46Light",`${risk.icon} ${risk.status}`);v46Put("v46Conclusion",conclusion);v46Put("v46Reason",`主要原因：${risk.primary}`);v46SetTone("v46Hero",risk.tone);v46SetTone("v46Light",risk.tone);
+  v46Put("v46Bias",bias);v46Put("v46Execution",risk.executionAllowed?"可以，但要依條件分批":"還不適合");v46Put("v46Breakout",breakout.label);
+  v46Put("v46NoStockAnswer",risk.status);v46Put("v46NoStockWait",`先等：${levels.observation===null?"清楚的結構價位建立":v46PriceText(levels.observation)+"，到附近才開始看"}`);v46Put("v46NoStockProbe",levels.probe===null?`試單條件：目前尚未啟用；${risk.primary}`:`試單條件：突破 ${v46PriceText(levels.probe)} 後沒有馬上跌回，且成交量有配合`);v46Put("v46NoStockChase",`不要追：${x.positionBlocked?"價格離支撐太遠，或停損距離太大":"盤中只是瞬間突破、沒有守住時"}`);
+  v46Put("v46HasStockAnswer",position.holderLabel);v46Put("v46HasStockAdd",`能不能加碼：${risk.executionAllowed?"條件通過後才可分批考慮":"現在先不主動加碼"}`);v46Put("v46HasStockDefense",`防守：${levels.coreDefense===null?"尚未建立可靠價位":v46PriceText(levels.coreDefense)}`);v46Put("v46HasStockAlert",`提高警覺：${layer.exitManagementState.label}`);
+  v46Put("v46PriceCurrent",v46PriceText(levels.close));v46Put("v46PriceObserve",v46PriceText(levels.observation));v46Put("v46PriceProbe",v46PriceText(levels.probe));v46Put("v46PriceConfirm",v46PriceText(levels.confirmation));v46Put("v46PriceSupport",v46RangeText(levels.supportLow,levels.supportHigh));v46Put("v46PriceDefense",v46PriceText(levels.coreDefense));v46Put("v46PriceInvalid",v46PriceText(levels.invalid));v46Put("v46PriceResistance",v46PriceText(levels.firstResistance));v46Put("v46PriceTarget",v46PriceText(levels.nextTarget));
+  v46Put("v46NoteObserve",levels.observation===null?"結構還沒有建立，現在不預設買點。":"到這裡才開始看，不代表直接買。");v46Put("v46NoteProbe",levels.probe===null?"現在不啟用積極型試單，等共用進場檢查通過。":"價格真的突破，而且沒有馬上跌回去，才算符合條件。");
+  const riskItems=[risk.primary,...risk.secondary,layer.volumeContextState.label,layer.momentumContextState.key==="OVERHEATED"?layer.momentumContextState.label:null,`下一步：${x.currentExecutionPhase?.label||"等待更完整證據"}`].filter(Boolean).slice(0,5),riskList=document.getElementById("v46RiskList");
+  if(riskList){riskList.replaceChildren(...riskItems.map(item=>{const li=document.createElement("li");li.textContent=v46SafeText(item);return li;}));}
+  const families=document.getElementById("v46EvidenceFamilies");if(families){families.replaceChildren(...layer.evidenceEngine.families.map(family=>{const div=document.createElement("div");div.className="v46-family";div.textContent=`${family.title}：${family.label}（${family.vote?"合併為一組證據":"資料不足，不計入"}）`;return div;}));}
+  v46Put("v46EvidenceNote",`${layer.evidenceEngine.note} 教材證據只補強信心程度、行情背景、風險與階段；任何單一訊號都不能單獨變成可以進場。`);
+  const center=document.getElementById("beginnerCommandCenterV46");
+  if(center)center.dataset.audit=encodeURIComponent(JSON.stringify({
+    version:V46_RELEASE_LABEL,
+    stock:{name:report?.name,code:report?.code,date:report?.closeDate,close:report?.close},
+    core:{ABC:{A:x.A,B:x.B,C:x.C},nStatus:x.nStatus,nPhase:x.nPhase,monthly:{entry:report?.entry,base:report?.base,latestMonthClose:report?.latestMonthClose,latestMA:report?.latestMA,startMonth:report?.startMonth},threePeriods:report?.tradeability||report?.decisionLayer?.tradeability||null,rsi:report?.dailyRsi,money:layer.volumeContextState,executionAllowed:x.executionAllowed},
+    visible:{state:x.currentExecutionPhase?.label,light:risk.status,primaryReason:risk.primary,nonHolder:document.getElementById("v46NoStockAnswer")?.textContent,holder:document.getElementById("v46HasStockAnswer")?.textContent,prices:{close:levels.close,observation:levels.observation,probe:levels.probe,confirmation:levels.confirmation,supportLow:levels.supportLow,supportHigh:levels.supportHigh,coreDefense:levels.coreDefense,invalid:levels.invalid,firstResistance:levels.firstResistance,nextTarget:levels.nextTarget}}
+  }));
+  return layer;
+}
+
+function buildV46PlainSummary(report){
+  const layer=buildEducationLayerV46(report),x=layer.sourceExecutionContext,L=layer.supportResistanceConfluence,R=layer.decisionRiskState,P=layer.positionLifecycleState;
+  return [V46_RELEASE_LABEL,"","【先看結論｜現在該怎麼做】",`${R.icon} ${R.status}`,`目前階段：${x.currentExecutionPhase?.label||layer.patternLifecycleState.label}`,`主要原因：${R.primary}`,"","【我現在沒有持股】",`${R.executionAllowed?"條件已通過，仍只能依價格與成交量分批執行":"先不進場"}；等待 ${v46PriceText(L.observation)} 附近再看。`,`積極型試單：${L.probe===null?"目前未啟用":v46PriceText(L.probe)+"，突破後不能馬上跌回"}。`,"","【我已經有持股】",P.holderLabel,`核心防守：${v46PriceText(L.coreDefense)}｜結構失效：${v46PriceText(L.invalid)}`,"","【今日關鍵價位】",`現價：${v46PriceText(L.close)}｜空手開始注意：${v46PriceText(L.observation)}｜保守型確認：${v46PriceText(L.confirmation)}`,`第一支撐：${v46RangeText(L.supportLow,L.supportHigh)}｜第一壓力：${v46PriceText(L.firstResistance)}｜下一目標：${v46PriceText(L.nextTarget)}`,"",`證據家族：${layer.evidenceEngine.note}`,"📌 以上教材證據不改原始分數，也不能繞過共用進場檢查。"].join("\n");
+}
+
+const buildReportTextV46Base=buildReportText;
+buildReportText=function(report){return `${buildV46PlainSummary(report)}\n\n━━━━━━━━━━\n【進階完整資料】\n━━━━━━━━━━\n\n${buildReportTextV46Base(report)}`;};
+const buildNewbieLookHereV46Base=buildNewbieLookHereV3318;
+buildNewbieLookHereV3318=function(report,generatedAt=null){return `${buildV46PlainSummary(report)}\n\n${buildNewbieLookHereV46Base(report,generatedAt)}`;};
+const plainLanguageV46Base=plainLanguageV40;
+plainLanguageV40=function(value){return v46SafeText(plainLanguageV46Base(value)).replace(/V45\s*正式版｜R4\.2\.2[^\n｜]*/g,V46_RELEASE_LABEL);};
+
+function v46CanvasRound(ctx,x,y,w,h,r,fill,stroke=null){ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fillStyle=fill;ctx.fill();if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=2;ctx.stroke();}}
+function v46CanvasLines(ctx,text,x,y,w,{size=24,weight=700,color="#23324a",lineHeight=1.45,maxLines=3,align="left"}={}){
+  ctx.font=`${weight} ${size}px "Microsoft JhengHei",Arial,sans-serif`;ctx.fillStyle=color;ctx.textAlign=align;ctx.textBaseline="top";const chars=Array.from(v46SafeText(text)),lines=[];let line="";
+  chars.forEach(char=>{if(char==="\n"){lines.push(line);line="";return;}const test=line+char;if(ctx.measureText(test).width>w&&line){lines.push(line);line=char;}else line=test;});if(line)lines.push(line);
+  const shown=lines.slice(0,maxLines);if(lines.length>maxLines){let last=shown[maxLines-1];while(last&&ctx.measureText(last+"…").width>w)last=last.slice(0,-1);shown[maxLines-1]=last+"…";}
+  shown.forEach((row,i)=>ctx.fillText(row,x,y+i*size*lineHeight));return shown.length*size*lineHeight;
+}
+function v46CanvasPrice(value,rangeHigh=null){return rangeHigh===null?v46PriceText(value):v46RangeText(value,rangeHigh);}
+// R5.1.0｜在 V46 新手圖覆蓋舊入口前，先保留原本的完整專業圖片引擎。
+// 專業版只替換圖片上的說明文字，不改繪圖資料、價位或任何分析計算。
+const renderStockProfessionalBaseV51=renderStockInfographicV3328;
+
+function v51ProfessionalPlainText(value){
+  return v46SafeText(value)
+    .replace(/🧩\s*新手先懂/g,"🧭 專業完整判讀")
+    .replace(/盤前分數觀察資格，不代表共用進場檢查通過/g,"盤前分數只供觀察，不代表現在可以執行")
+    .replace(/分數條件可觀察｜共用進場檢查未通過/g,"分數可列入觀察｜現在仍不適合執行")
+    .replace(/OHLCV(?:\s*Research Gate)?/gi,"歷史量價資料檢查")
+    .replace(/Research Gate/gi,"歷史資料檢查")
+    .replace(/Entry Quality/gi,"進場條件品質")
+    .replace(/Base/g,"起始基準")
+    .replace(/score/gi,"分數");
+}
+
+function renderStockProfessionalInfographicV51(report){
+  const proto=CanvasRenderingContext2D.prototype;
+  const originalFillText=proto.fillText,originalStrokeText=proto.strokeText,originalMeasureText=proto.measureText;
+  const originalStockPlainText=stockImagePlainTextV41;
+  proto.fillText=function(text,...args){return originalFillText.call(this,v51ProfessionalPlainText(text),...args);};
+  proto.strokeText=function(text,...args){return originalStrokeText.call(this,v51ProfessionalPlainText(text),...args);};
+  proto.measureText=function(text){return originalMeasureText.call(this,v51ProfessionalPlainText(text));};
+  stockImagePlainTextV41=function(text){return v51ProfessionalPlainText(originalStockPlainText(text));};
+  try{
+    const canvas=renderStockProfessionalBaseV51(report);
+    canvas.dataset.reportMode="professional";
+    canvas.dataset.language="plain-zh-TW";
+    return canvas;
+  }finally{
+    stockImagePlainTextV41=originalStockPlainText;
+    proto.fillText=originalFillText;proto.strokeText=originalStrokeText;proto.measureText=originalMeasureText;
+  }
+}
+
+function renderStockInfographicV46(report){
+  const layer=buildEducationLayerV46(report),x=layer.sourceExecutionContext,L=layer.supportResistanceConfluence,R=layer.decisionRiskState,P=layer.positionLifecycleState,E=layer.evidenceEngine,canvas=document.createElement("canvas");canvas.width=1152;canvas.height=2048;const c=canvas.getContext("2d");
+  c.fillStyle="#eef3f8";c.fillRect(0,0,1152,2048);c.fillStyle="#10243d";c.fillRect(0,0,1152,150);v46CanvasLines(c,`${report?.name||"股票"}｜${report?.code||"-"}`,52,30,730,{size:42,weight:950,color:"#ffffff",maxLines:1});v46CanvasLines(c,`現價 ${v46PriceText(L.close)}`,1100,34,300,{size:34,weight:950,color:"#ffb4b9",maxLines:1,align:"right"});v46CanvasLines(c,V46_RELEASE_LABEL,52,94,1048,{size:18,weight:700,color:"#cbd7e6",maxLines:1});
+  const palette={green:{bar:"#17804b",fill:"#eef9f2"},orange:{bar:"#c57610",fill:"#fff8ea"},red:{bar:"#9e2f3b",fill:"#fff1f2"},white:{bar:"#637083",fill:"#f8fafc"}},tone=palette[R.tone]||palette.white;
+  v46CanvasRound(c,42,174,1068,246,22,tone.fill,"#cad4df");c.fillStyle=tone.bar;c.fillRect(42,174,12,246);v46CanvasLines(c,`${R.icon} ${R.status}`,78,202,980,{size:38,weight:950,color:tone.bar,maxLines:1});v46CanvasLines(c,` 現在狀態：${x.currentExecutionPhase?.label||layer.patternLifecycleState.label}`,78,262,980,{size:28,weight:900,color:"#14253d",maxLines:2});v46CanvasLines(c,`一句話：${R.executionAllowed?"主要條件已通過，仍要等盤中價量配合，依防守分批執行。":"條件還沒有完成，先等；不因單一指標偏多就買進。"}`,78,318,980,{size:24,weight:800,color:"#314158",maxLines:2});
+  const audience=[{x:42,title:"👤 我現在沒有持股",action:R.status,body:`等待：${v46PriceText(L.observation)}。${L.probe===null?"目前不啟用試單。":"到試單條件後，還要確認沒有馬上跌回。"}`},{x:586,title:"💼 我已經有持股",action:P.holderLabel,body:`核心防守：${v46PriceText(L.coreDefense)}。${layer.exitManagementState.label}`}];
+  audience.forEach(item=>{v46CanvasRound(c,item.x,446,524,254,18,"#ffffff","#d5dde7");v46CanvasLines(c,item.title,item.x+24,472,476,{size:29,weight:950,color:"#15263e",maxLines:1});v46CanvasLines(c,item.action,item.x+24,522,476,{size:27,weight:950,color:tone.bar,maxLines:2});v46CanvasLines(c,item.body,item.x+24,600,476,{size:20,weight:750,color:"#405069",maxLines:3});});
+  v46CanvasLines(c,"今日關鍵價位｜價格地圖",48,734,700,{size:32,weight:950,color:"#132740",maxLines:1});v46CanvasLines(c,"到價只是開始檢查，不是普通掛單價。",1104,742,500,{size:19,weight:800,color:"#59687b",maxLines:1,align:"right"});
+  const cards=[["現價",L.close,null,"#bd2d38"],["空手開始注意",L.observation,null,"#2869aa"],["積極型試單條件",L.probe,null,"#ad630b"],["保守型確認",L.confirmation,null,"#187044"],["第一支撐",L.supportLow,L.supportHigh,"#1d786f"],["核心防守",L.coreDefense,null,"#8f2634"],["⚠️ 結構失效",L.invalid,null,"#8f2634"],["第一壓力",L.firstResistance,null,"#67428f"],["下一目標",L.nextTarget,null,"#46469a"]],gap=16,cw=338,ch=174,startX=42,startY=786;
+  cards.forEach((card,i)=>{const col=i%3,row=Math.floor(i/3),px=startX+col*(cw+gap),py=startY+row*(ch+gap);v46CanvasRound(c,px,py,cw,ch,16,"#ffffff","#d7dee8");c.fillStyle=card[3];c.fillRect(px,py,cw,7);v46CanvasLines(c,card[0],px+18,py+24,cw-36,{size:20,weight:850,color:"#536176",maxLines:1});v46CanvasLines(c,v46CanvasPrice(card[1],card[2]),px+18,py+65,cw-36,{size:30,weight:950,color:card[3],maxLines:2});v46CanvasLines(c,i===1?"到這裡才開始看，不代表直接買。":i===2?"突破後還要確認沒有馬上跌回。":i===5?"跌破後，原本看多理由開始變差。":"",px+18,py+123,cw-36,{size:16,weight:700,color:"#617086",maxLines:2});});
+  v46CanvasRound(c,42,1368,1068,190,18,"#fff8ea","#e6c38b");v46CanvasLines(c,"⚠️ 現在最需要注意",68,1396,1000,{size:29,weight:950,color:"#8e5308",maxLines:1});v46CanvasLines(c,`主要原因：${R.primary}`,68,1445,1000,{size:23,weight:850,color:"#3a4658",maxLines:2});v46CanvasLines(c,`下一步：${x.currentExecutionPhase?.label||"等待更完整證據"}。${layer.volumeContextState.label}。`,68,1510,1000,{size:20,weight:750,color:"#5d6878",maxLines:2});
+  v46CanvasRound(c,42,1580,1068,292,18,"#ffffff","#d5dde7");v46CanvasLines(c,"為什麼？｜四組證據，不重複計票",68,1608,1000,{size:29,weight:950,color:"#172941",maxLines:1});
+  E.families.forEach((family,i)=>{const col=i%2,row=Math.floor(i/2),px=68+col*506,py=1662+row*86;v46CanvasLines(c,`${family.title}：${family.label}`,px,py,470,{size:19,weight:780,color:"#40516a",maxLines:3});});v46CanvasLines(c,`合併結果：${E.note}`,68,1820,1000,{size:17,weight:750,color:"#66758a",maxLines:2});
+  c.fillStyle="#10243d";c.fillRect(0,1910,1152,138);v46CanvasLines(c,"技術分析僅供研究與決策參考，不構成投資建議。",52,1942,1048,{size:22,weight:800,color:"#e9eef5",maxLines:1});v46CanvasLines(c,"教材證據不改原始分數，也不能繞過共用進場檢查。",52,1985,1048,{size:19,weight:750,color:"#bfcddd",maxLines:1});
+  canvas.dataset.reportMode="beginner";
+  canvas.dataset.language="plain-zh-TW";
+  return canvas;
+}
+renderStockInfographicV3328=renderStockInfographicV46;
+
+async function generateStockImageByModeV51(mode="beginner",withWatermark=false){
+  const professional=mode==="professional";
+  const buttonId=professional
+    ?(withWatermark?"generateStockProfessionalWatermarkImageButton":"generateStockProfessionalImageButton")
+    :(withWatermark?"generateStockBeginnerWatermarkImageButton":"generateStockBeginnerImageButton");
+  const button=document.getElementById(buttonId),message=document.getElementById("copyMessage");
+  const reportName=professional?"專業個股圖片分析報告":"新手簡易個股圖片分析報告";
+  if(!lastReportData){if(message){message.style.color="var(--red)";message.textContent=`請先完成個股分析，再生成${reportName}。`;}return;}
+  const original=button?.textContent||"";
+  if(button){button.disabled=true;button.textContent=withWatermark?"🛡️ 防盜浮水印圖片產生中...":"🖼️ 圖片產生中...";}
+  if(message){message.style.color="var(--blue)";message.textContent=`正在產生${reportName}${withWatermark?"（防盜浮水印版）":""}...`;}
+  try{
+    if(document.fonts?.ready)await document.fonts.ready;
+    const canvas=professional?renderStockProfessionalInfographicV51(lastReportData):renderStockInfographicV46(lastReportData);
+    if(withWatermark)applyAntiTheftWatermarkV3761(canvas,"stock");
+    canvas.dataset.watermark=withWatermark?"enabled":"disabled";
+    const d=String(lastReportData.closeDate||"").replace(/\D/g,"").slice(0,8)||"latest";
+    const suffix=withWatermark?"_防盜浮水印版":"";
+    const modeName=professional?"專業個股圖片分析報告":"新手簡易個股圖片分析報告";
+    const filename=sanitizeFilenameV3328(`石頭少爺_${lastReportData.name||lastReportData.code}_${lastReportData.code}_${modeName}${suffix}_${d}_V46_R5.1.0_雙模式圖片版.png`);
+    const title=`${formatStockNameWithCode(lastReportData.name,lastReportData.code)} ${modeName}${withWatermark?"｜防盜浮水印版":""}`;
+    await showInfographicPreviewV3328(canvas,filename,title);
+    const note=document.getElementById("imagePreviewNote");
+    if(note)note.textContent=professional
+      ?`專業完整版為 ${canvas.width}×${canvas.height}，保留K線、ABC、分數與完整價位；說明已改成白話。${withWatermark?"本張已套用防盜浮水印。":"可另生成防盜浮水印版。"}`
+      :`新手簡易版為 ${canvas.width}×${canvas.height}，集中顯示結論、身分建議、關鍵價位與風險。${withWatermark?"本張已套用防盜浮水印。":"可另生成防盜浮水印版。"}`;
+    if(message){message.style.color="var(--green)";message.textContent=`✅ ${reportName}${withWatermark?"（防盜浮水印版）":""}已產生，可預覽、儲存 PNG 或直接分享。`;}
+  }catch(err){
+    console.error(`${reportName}產生失敗：`,err);
+    if(message){message.style.color="var(--red)";message.textContent=`❌ ${reportName}產生失敗：${err?.message||"未知錯誤"}`;}
+  }finally{
+    if(button){button.disabled=false;button.textContent=original;}
+  }
+}
+
+function generateStockBeginnerInfographicV51(withWatermark=false){return generateStockImageByModeV51("beginner",withWatermark);}
+function generateStockProfessionalInfographicV51(withWatermark=false){return generateStockImageByModeV51("professional",withWatermark);}
+// 保留舊函式名稱供既有外部呼叫使用；舊入口預設仍指向新手簡易版。
+generateStockInfographicV3328=generateStockBeginnerInfographicV51;
+
+function runV46AcceptanceTests(){
+  const scenarios=[
+    {name:"尚未突破",input:{B:100,close:94,high:96},expect:"NOT_TESTED",tone:"orange",allowed:false,reason:"還沒有突破重要壓力"},
+    {name:"剛突破",input:{B:100,close:101,high:102},expect:"CLOSE_CONFIRMED",tone:"orange",allowed:false,reason:"收盤突破後還要等持續性"},
+    {name:"突破後回測",input:{B:100,close:100.5,high:102,low:99.6,phase:"RETESTING",historical:true},expect:"RETEST_HELD",tone:"orange",allowed:false,reason:"回測已守住，還要等資金配合"},
+    {name:"假突破",input:{B:100,close:98,high:103,historical:true},expect:"FAILED_BREAKOUT",tone:"red",allowed:false,reason:"突破後又跌回原區間"},
+    {name:"主升段",input:{B:100,close:112,high:114,phase:"EXTENDING",historical:true},expect:"CONTINUATION",tone:"green",allowed:true,reason:"結構、位置與資金條件已通過"},
+    {name:"高檔過熱",input:{B:100,close:120,high:123,phase:"EXTENDING",historical:true},expect:"CONTINUATION",tone:"orange",allowed:false,reason:"離支撐太遠，現在不追"},
+    {name:"結構轉弱",input:{B:100,close:100.2,high:101,low:98.5,phase:"WEAKENING",historical:true},expect:"RETESTING",tone:"red",allowed:false,reason:"突破後轉弱，先修復"},
+    {name:"空頭",input:{B:100,close:88,high:91,failed:true},expect:"FAILED_BREAKOUT",tone:"red",allowed:false,reason:"原本看多條件已失效"}
+  ];
+  const results=scenarios.map(row=>{const lifecycle=v46ClassifyBreakoutSnapshot(row.input),plain=!/[A-Z_]{3,}|execution|blocker|lifecycle|gate/i.test(`${row.name}${row.reason}${lifecycle.label}`),prices={current:row.input.close,observe:row.input.B,support:row.input.B*.99,defense:row.input.B*.96,resistance:row.input.B,target:row.input.B*1.1};return {scenario:row.name,status:lifecycle.label,light:row.tone,executionAllowed:row.allowed,primaryReason:row.reason,nonHolderAdvice:row.allowed?"依條件分批執行":"先等，不追價",holderAdvice:row.tone==="red"?"優先降低風險":"續抱觀察，未確認前不加碼",prices,plainChinese:plain,semanticColor:["green","orange","red","white"].includes(row.tone),pass:lifecycle.key===row.expect&&plain};});
+  const css=getComputedStyle(document.body),mobileRule=Array.from(document.styleSheets).some(sheet=>{try{return Array.from(sheet.cssRules||[]).some(rule=>String(rule.cssText).includes("max-width: 600px")&&String(rule.cssText).includes("1.0625rem"));}catch(_){return false;}});
+  return {version:V46_RELEASE_LABEL,scenarios:results,allScenarioPassed:results.every(row=>row.pass),ui:{bodyFontPx:css.fontSize,bodyLineHeight:css.lineHeight,mobileRule,buttonMinimumHeight:"48px",imageSize:"1152x2048"}};
+}
+
+document.documentElement.dataset.v46Acceptance=encodeURIComponent(JSON.stringify(runV46AcceptanceTests()));
+upgradeVisibleTextV40(document.body);
 
 </script>
 
