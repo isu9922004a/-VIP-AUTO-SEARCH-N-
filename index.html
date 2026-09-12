@@ -22194,7 +22194,7 @@ function drawMarketComfortHeaderRibbonV37775(ctx,x,y,w,h){
 function renderStockInfographicV3328(report){
   // V40｜沿用 V40 個股圖片固定模板：警語搬到最底部右側，並強化繁中文字體清晰度；1152×2048（9:16）
   // 新增市場階段／突破生命週期／突破品質2.0／價帶／動態防守；Canvas尺寸與ABC/Fib/N字公式完全不變。
-  const P=infoPaletteV3328(),st=stockInfographicStateV3328(report),displayStage=abcTradeStateV377717(report);
+  const P=infoPaletteV3328(),st=stockInfographicStateV3328(report),displayStage=tradeStateMachineV350(report);
   const STOCK_W=1152,LOG_W=1600,LOG_H=3480,SCALE=STOCK_W/LOG_W,STOCK_H=Math.round(LOG_H*SCALE);
   const canvas=document.createElement("canvas");canvas.width=STOCK_W;canvas.height=STOCK_H;
   const ctx=canvas.getContext("2d");
