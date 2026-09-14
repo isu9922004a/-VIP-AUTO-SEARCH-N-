@@ -32171,9 +32171,14 @@ const renderStockInfographicV46_V53245_BASE=renderStockInfographicV46;
 renderStockInfographicV46=function(report){return insertStageCanvasCardV53245(renderStockInfographicV46_V53245_BASE(report),stockStageDisplayAdapterV53245(report),"📈 行情階段",150,154);};
 renderStockInfographicV3328=renderStockInfographicV46;
 const renderStockProfessionalInfographicV51_V53245_BASE=renderStockProfessionalInfographicV51;
-renderStockProfessionalInfographicV51=function(report){return insertStageCanvasCardV53245(renderStockProfessionalInfographicV51_V53245_BASE(report),stockStageDisplayAdapterV53245(report),"📈 行情階段｜主要依據與風險",150,170);};
+// 專業母圖先用 1600×3480 邏輯座標繪製，再縮成 1152px 實體寬度：頁首約在 y=111 結束，
+// 空手者／持有者卡約從 y=125 開始。舊切點 y=150 會把角色卡從中間切開，形成上半部覆蓋。
+// 改在兩者之間的實體像素安全空隙 y=116 插入，後續內容整體下移，不改任何欄位資料。
+renderStockProfessionalInfographicV51=function(report){return insertStageCanvasCardV53245(renderStockProfessionalInfographicV51_V53245_BASE(report),stockStageDisplayAdapterV53245(report),"📈 行情階段｜主要依據與風險",116,170);};
 const renderMarketInfographicV3328_V53245_BASE=renderMarketInfographicV3328;
-renderMarketInfographicV3328=function(data){return insertStageCanvasCardV53245(renderMarketInfographicV3328_V53245_BASE(data),marketStageDisplayAdapterV53245(data),"📈 大盤行情階段",176,154);};
+// 大盤母圖由 1600px 邏輯寬縮成 1024px：頁首約在實體 y=99 結束，ABC／日K雙欄約從 y=111 開始。
+// 舊切點 y=176 會切進雙欄內容；改在兩者之間的 y=104 插入，雙欄與後續區塊完整一起下移。
+renderMarketInfographicV3328=function(data){return insertStageCanvasCardV53245(renderMarketInfographicV3328_V53245_BASE(data),marketStageDisplayAdapterV53245(data),"📈 大盤行情階段",104,154);};
 const renderMomentumScanInfographicV3762_V53245_BASE=renderMomentumScanInfographicV3762;
 renderMomentumScanInfographicV3762=function(scan){const cloned=v53245ScanClone(scan),top=cloned?.candidates?.[0],stage=top?stockStageDisplayAdapterV53245(top):V53245_STAGE_META.UNKNOWN;return insertStageCanvasCardV53245(renderMomentumScanInfographicV3762_V53245_BASE(cloned),stage,"📈 前列候選行情階段",184,142);};
 const renderMomentumScanResultV3765_V53245_BASE=renderMomentumScanResultV3765;
