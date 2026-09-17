@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+// 石頭少爺 Agent R5.3.2.4.13-R4.1｜GitHub Actions 完成交易日校正版
+// 修正：當 TWSE STOCK_DAY_ALL 落後 TPEx 最新交易日時，以 TWSE 官方 MI_INDEX 指定日行情補齊後再建立完整快照。
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import crypto from 'node:crypto';
@@ -11,6 +13,7 @@ const MAX_ARCHIVES = 30;
 
 export const SOURCES = Object.freeze({
   twseQuotes: 'https://openapi.twse.com.tw/v1/exchangeReport/STOCK_DAY_ALL',
+  twseQuotesByDateBase: 'https://www.twse.com.tw/exchangeReport/MI_INDEX',
   tpexQuotes: 'https://www.tpex.org.tw/openapi/v1/tpex_mainboard_daily_close_quotes',
   twseCompanies: 'https://openapi.twse.com.tw/v1/opendata/t187ap03_L',
   tpexCompanies: 'https://www.tpex.org.tw/openapi/v1/mopsfin_t187ap03_O'
@@ -198,6 +201,133 @@ async function fetchJsonArray(url, label, retries = 3) {
   throw lastError || new Error(`${label} 取得失敗`);
 }
 
+async function fetchJsonValue(url, label, retries = 3) {
+  let lastError = null;
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 30000);
+      let res;
+      try {
+        res = await fetch(url, { method:'GET', signal:controller.signal, redirect:'follow' });
+      } finally {
+        clearTimeout(timer);
+      }
+      const finalUrl = res.url || url;
+      const contentType = String(res.headers.get('content-type') || '');
+      const text = await res.text();
+      if (!res.ok) throw new Error(`${label} HTTP ${res.status}｜${finalUrl}`);
+      if (/\/errors(?:[/?#]|$)/i.test(finalUrl)) throw new Error(`${label} 被導向 /errors｜${finalUrl}`);
+      if (/text\/html|application\/xhtml/i.test(contentType) || text.trim().startsWith('<')) {
+        throw new Error(`${label} 回傳 HTML 而非 JSON｜${finalUrl}`);
+      }
+      const data = JSON.parse(text);
+      return { data, finalUrl, status:res.status, contentType, attempt };
+    } catch (error) {
+      lastError = error;
+      if (attempt < retries) await new Promise(r => setTimeout(r, 1500 * attempt));
+    }
+  }
+  throw lastError || new Error(`${label} 取得失敗`);
+}
+
+function signedTwseChange(row) {
+  const raw = num(row?.['漲跌價差']);
+  if (raw === null) return null;
+  const sign = String(row?.['漲跌(+/-)'] ?? row?.['漲跌(+／-)'] ?? row?.['漲跌'] ?? '').trim();
+  if (sign.includes('-') || sign.includes('－') || sign.includes('−')) return -Math.abs(raw);
+  if (sign.includes('+') || sign.includes('＋')) return Math.abs(raw);
+  return raw;
+}
+
+function makeObjectsFromFields(fields, data, tradeDate) {
+  if (!Array.isArray(fields) || !Array.isArray(data)) return [];
+  const fieldNames = fields.map(x => String(x ?? '').trim());
+  const joined = fieldNames.join('|');
+  if (!/證券代號/.test(joined) || !/收盤價/.test(joined) || !/開盤價/.test(joined) || !/最高價/.test(joined) || !/最低價/.test(joined)) return [];
+  return data.map(values => {
+    if (!Array.isArray(values)) return null;
+    const row = { Date:tradeDate };
+    for (let i=0;i<fieldNames.length;i++) row[fieldNames[i]] = values[i];
+    const signed = signedTwseChange(row);
+    if (signed !== null) row.Change = signed;
+    return row;
+  }).filter(Boolean);
+}
+
+export function extractTwseMiIndexRows(payload, targetDate) {
+  const candidates = [];
+  if (!payload || typeof payload !== 'object') return candidates;
+
+  // Newer TWSE JSON shape: tables:[{title,fields,data}, ...]
+  if (Array.isArray(payload.tables)) {
+    for (const table of payload.tables) {
+      const rows = makeObjectsFromFields(table?.fields, table?.data, targetDate);
+      if (rows.length) candidates.push(rows);
+    }
+  }
+
+  // Legacy TWSE JSON shape: fields8/data8, fields9/data9, etc.
+  for (const [key, fields] of Object.entries(payload)) {
+    const m = key.match(/^fields(\d*)$/i);
+    if (!m) continue;
+    const suffix = m[1] || '';
+    const data = payload[`data${suffix}`];
+    const rows = makeObjectsFromFields(fields, data, targetDate);
+    if (rows.length) candidates.push(rows);
+  }
+
+  // Some responses expose one direct fields/data table.
+  const direct = makeObjectsFromFields(payload.fields, payload.data, targetDate);
+  if (direct.length) candidates.push(direct);
+
+  if (!candidates.length) return [];
+  return candidates.sort((a,b) => b.length-a.length)[0];
+}
+
+function twseMiIndexUrl(date) {
+  const u = new URL(SOURCES.twseQuotesByDateBase);
+  u.searchParams.set('response','json');
+  u.searchParams.set('date',date);
+  u.searchParams.set('type','ALLBUT0999');
+  return u.toString();
+}
+
+async function fetchTwseQuotesByDate(date) {
+  const url = twseMiIndexUrl(date);
+  const res = await fetchJsonValue(url, `TWSE MI_INDEX ${date}`);
+  const rows = extractTwseMiIndexRows(res.data, date);
+  if (rows.length < 800) {
+    const stat = String(res.data?.stat || res.data?.status || '').trim();
+    throw new Error(`TWSE 指定日 ${date} 行情解析不足：${rows.length} 筆${stat ? `｜stat ${stat}` : ''}`);
+  }
+  return { rows, finalUrl:res.finalUrl, status:res.status, contentType:res.contentType, attempt:res.attempt, source:'MI_INDEX_BY_DATE' };
+}
+
+export async function reconcileLatestTradeDate(twseQuotes, tpexQuotes) {
+  let twse = twseQuotes;
+  const tpex = tpexQuotes;
+  let twseDate = latestMarketQuoteDate(twse.rows);
+  const tpexDate = latestMarketQuoteDate(tpex.rows);
+  const events = [];
+  if (!twseDate || !tpexDate) return { twse, tpex, twseDate, tpexDate, events };
+
+  if (twseDate < tpexDate) {
+    events.push(`TWSE latest ${twseDate} 落後 TPEx ${tpexDate}，改查 TWSE 指定日 ${tpexDate}`);
+    const upgraded = await fetchTwseQuotesByDate(tpexDate);
+    const upgradedDate = latestMarketQuoteDate(upgraded.rows);
+    if (upgradedDate === tpexDate) {
+      twse = upgraded;
+      twseDate = upgradedDate;
+      events.push(`TWSE 指定日校正成功：${twseDate}`);
+    } else {
+      events.push(`TWSE 指定日校正未對齊：${upgradedDate || '未知'}`);
+    }
+  }
+
+  return { twse, tpex, twseDate, tpexDate, events };
+}
+
 function sha256Json(value) {
   return crypto.createHash('sha256').update(JSON.stringify(value)).digest('hex');
 }
@@ -261,6 +391,7 @@ export async function buildSnapshot({twseQuoteRows,tpexQuoteRows,twseCompanyRows
     },
     officialSources: {
       twseQuotes: SOURCES.twseQuotes,
+      twseQuotesByDateBase: SOURCES.twseQuotesByDateBase,
       tpexQuotes: SOURCES.tpexQuotes,
       twseCompanies: SOURCES.twseCompanies,
       tpexCompanies: SOURCES.tpexCompanies
@@ -278,23 +409,59 @@ export async function buildSnapshot({twseQuoteRows,tpexQuoteRows,twseCompanyRows
 
 export async function main() {
   console.log('Fetching official TWSE / TPEx market snapshot...');
-  const [twseQuotes,tpexQuotes,twseCompanies,tpexCompanies] = await Promise.all([
+  const [twseLatest,tpexQuotes,twseCompanies,tpexCompanies] = await Promise.all([
     fetchJsonArray(SOURCES.twseQuotes, 'TWSE STOCK_DAY_ALL'),
     fetchJsonArray(SOURCES.tpexQuotes, 'TPEx daily_close_quotes'),
     fetchJsonArray(SOURCES.twseCompanies, 'TWSE company list'),
     fetchJsonArray(SOURCES.tpexCompanies, 'TPEx company list')
   ]);
 
+  const initialTwseDate = latestMarketQuoteDate(twseLatest.rows);
+  const initialTpexDate = latestMarketQuoteDate(tpexQuotes.rows);
+  console.log(`Latest source dates: TWSE ${initialTwseDate || 'unknown'}｜TPEx ${initialTpexDate || 'unknown'}`);
+
+  let reconciled;
+  try {
+    reconciled = await reconcileLatestTradeDate(twseLatest, tpexQuotes);
+  } catch (error) {
+    throw new Error(`完成交易日校正失敗｜TWSE ${initialTwseDate || '未知'}｜TPEx ${initialTpexDate || '未知'}｜${error?.message || error}`);
+  }
+  for (const line of reconciled.events) console.log(`Trade-date reconciliation: ${line}`);
+
+  const finalTwseDate = latestMarketQuoteDate(reconciled.twse.rows);
+  const finalTpexDate = latestMarketQuoteDate(reconciled.tpex.rows);
+  if (!finalTwseDate || !finalTpexDate) {
+    throw new Error(`市場日期無法判斷｜TWSE ${finalTwseDate || '未知'}｜TPEx ${finalTpexDate || '未知'}`);
+  }
+  if (finalTwseDate !== finalTpexDate) {
+    throw new Error(`兩市場最新完成交易日仍不同｜TWSE ${finalTwseDate}｜TPEx ${finalTpexDate}｜不覆蓋上一份完整快照`);
+  }
+
   const snapshot = await buildSnapshot({
-    twseQuoteRows: twseQuotes.rows,
-    tpexQuoteRows: tpexQuotes.rows,
+    twseQuoteRows: reconciled.twse.rows,
+    tpexQuoteRows: reconciled.tpex.rows,
     twseCompanyRows: twseCompanies.rows,
     tpexCompanyRows: tpexCompanies.rows,
     sourceMeta: {
-      twseQuotes: { status:twseQuotes.status, finalUrl:twseQuotes.finalUrl, attempt:twseQuotes.attempt },
-      tpexQuotes: { status:tpexQuotes.status, finalUrl:tpexQuotes.finalUrl, attempt:tpexQuotes.attempt },
+      twseQuotes: {
+        status:reconciled.twse.status,
+        finalUrl:reconciled.twse.finalUrl,
+        attempt:reconciled.twse.attempt,
+        source:reconciled.twse.source || 'STOCK_DAY_ALL',
+        initialDate:initialTwseDate,
+        finalDate:finalTwseDate
+      },
+      tpexQuotes: {
+        status:tpexQuotes.status,
+        finalUrl:tpexQuotes.finalUrl,
+        attempt:tpexQuotes.attempt,
+        source:'tpex_mainboard_daily_close_quotes',
+        initialDate:initialTpexDate,
+        finalDate:finalTpexDate
+      },
       twseCompanies: { status:twseCompanies.status, finalUrl:twseCompanies.finalUrl, attempt:twseCompanies.attempt },
-      tpexCompanies: { status:tpexCompanies.status, finalUrl:tpexCompanies.finalUrl, attempt:tpexCompanies.attempt }
+      tpexCompanies: { status:tpexCompanies.status, finalUrl:tpexCompanies.finalUrl, attempt:tpexCompanies.attempt },
+      reconciliation: reconciled.events
     }
   });
 
