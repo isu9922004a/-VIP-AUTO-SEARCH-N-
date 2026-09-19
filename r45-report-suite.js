@@ -143,10 +143,97 @@ function prepareStockBaseForIphone(source){
   const assistantHeight=Math.max(0,Number(source?.dataset?.r45AssistantAppendHeight)||0);
   const originalFooterHeight=source?.dataset?.reportMode?138:0;
   const targetHeight=Math.max(1,source.height-assistantHeight-originalFooterHeight);
-  const out=copyCanvas(source,targetHeight);
+  let out=copyCanvas(source,targetHeight);
   out.dataset.r45RemovedAssistantHeight=String(assistantHeight);
   out.dataset.r45RemovedOriginalFooterHeight=String(originalFooterHeight);
+  if(source?.dataset?.reportMode==='professional'&&source?.dataset?.snrAudit){
+    try{
+      const audit=JSON.parse(decodeURIComponent(source.dataset.snrAudit)),layout=audit?.layoutAudit;
+      const insertHeight=Math.max(0,Number(layout?.insertH)||0),stageHeight=170,panelStart=Math.max(0,Math.round(Number(layout?.cutY)||0)+stageHeight);
+      if(insertHeight>0&&panelStart+insertHeight<=out.height){
+        const compact=canvas(out.width,out.height-insertHeight,'#eef3f8'),context=compact.getContext('2d');
+        context.drawImage(out,0,0,out.width,panelStart,0,0,out.width,panelStart);
+        context.drawImage(out,0,panelStart+insertHeight,out.width,out.height-panelStart-insertHeight,0,panelStart,out.width,out.height-panelStart-insertHeight);
+        for(const [key,value] of Object.entries(out.dataset||{}))compact.dataset[key]=value;
+        compact.dataset.r45RemovedProfessionalSupplement=`snr-panel:${insertHeight}`;
+        out=compact;
+      }
+    }catch(_){out.dataset.r45RemovedProfessionalSupplement='audit-invalid';}
+  }
   return out;
+}
+
+function compactProfessionalBottom(source,report){
+  if(source?.dataset?.reportMode!=='professional'||source?.dataset?.r45RemovedProfessionalSupplement?.indexOf('snr-panel:')!==0)return source;
+  const stageHeight=170,logicalScale=source.width/1600,mapY=Math.round(2534*logicalScale)+stageHeight;
+  if(mapY<1||mapY>=source.height-300)return source;
+  const out=copyCanvas(source),context=out.getContext('2d'),panelY=mapY+4,panelH=out.height-panelY-8;
+  context.fillStyle='#eef3f8';context.fillRect(0,mapY,out.width,out.height-mapY);
+  const leftX=18,gap=14,leftW=350,rightX=leftX+leftW+gap,rightW=out.width-rightX-18;
+  rounded(context,leftX,panelY,leftW,panelH,15,'#ffffff','#c9d7e5');
+  rounded(context,rightX,panelY,rightW,panelH,15,'#ffffff','#c9d7e5');
+  fitText(context,'E. 進階完整價位｜需要時再看',leftX+16,panelY+34,leftW-32,{max:20,min:14,weight:950,color:'#173a5d'});
+  let state=null,map=[];
+  try{
+    state=typeof window.stockInfographicStateV3328==='function'?window.stockInfographicStateV3328(report):null;
+    map=state&&typeof window.buildStockMapItemsV3328==='function'?window.buildStockMapItemsV3328(report,state).slice(0,12):[];
+  }catch(_){map=[];}
+  const rowTop=panelY+55,rowH=Math.max(29,Math.min(52,Math.floor((panelH-82)/Math.max(1,map.length))));
+  if(map.length){
+    map.forEach((item,index)=>{
+      const y=rowTop+index*rowH,isCurrent=['目前收盤','現在價格'].includes(String(item?.label||'').trim());
+      if(index){context.strokeStyle='#e3eaf2';context.lineWidth=1;context.beginPath();context.moveTo(leftX+14,y-15);context.lineTo(leftX+leftW-14,y-15);context.stroke();}
+      fitText(context,`${priceText(item.value)} 元`,leftX+16,y+7,112,{max:17,min:12,weight:950,color:isCurrent?'#d7273f':(item.color||'#173a5d')});
+      fitText(context,String(item.label||'價位'),leftX+132,y+7,leftW-148,{max:15,min:10,weight:isCurrent?950:850,color:isCurrent?'#d7273f':'#263f5a'});
+    });
+  }else{
+    fitText(context,'價位資料不足',leftX+18,rowTop+20,leftW-36,{max:17,min:13,weight:900,color:'#6a7889'});
+  }
+  fitText(context,'實際委託仍以上方觀察、確認與失效價位為準',leftX+16,panelY+panelH-16,leftW-32,{max:11,min:9,weight:800,color:'#68788b'});
+
+  const layer=typeof window.buildEducationLayerV46==='function'?window.buildEducationLayerV46(report):null;
+  const snr=layer?.snrConfluenceEvidence||{},support=snr.supportConfluence,resistance=snr.resistanceConfluence;
+  const rangeText=value=>typeof window.snrRangeTextV532==='function'?window.snrRangeTextV532(value):(value?.rangeText||'資料不足');
+  const distanceText=value=>typeof window.snrDistanceTextV532==='function'?window.snrDistanceTextV532(value):(value?.distanceText||'距離資料不足');
+  const freshText=value=>typeof window.snrFreshTextV532==='function'?window.snrFreshTextV532(value):(value?.freshnessText||'歷史資料不足');
+  const roleText=value=>typeof window.snrRoleTextV532==='function'?window.snrRoleTextV532(value):(value?.roleText||'依既有支撐壓力判讀');
+  fitText(context,'F. 歷史支撐壓力 × ABC × 三叉戟｜三種方法一起看',rightX+16,panelY+34,rightW-32,{max:20,min:13,weight:950,color:'#173a5d'});
+  const cardGap=12,cardW=(rightW-44-cardGap)/2,cardY=panelY+52,cardH=118;
+  rounded(context,rightX+16,cardY,cardW,cardH,12,'#eef9f2','#bcdcca');
+  fitText(context,`🟢 支撐 ${rangeText(support)}｜${support?.label||'0級'}`,rightX+28,cardY+29,cardW-24,{max:17,min:11,weight:950,color:'#176a45'});
+  const supportLines=wrapLines(context,`${distanceText(support)}｜${support?.reason||'目前沒有多種方法集中在同一區'}`,cardW-24,13,780).slice(0,2);
+  supportLines.forEach((line,index)=>fitText(context,line,rightX+28,cardY+64+index*22,cardW-24,{max:14,min:10,weight:780,color:'#43566a'}));
+  const resistanceX=rightX+28+cardW;
+  rounded(context,resistanceX,cardY,cardW,cardH,12,'#fff5f2','#e2c5bd');
+  fitText(context,`🟣 壓力 ${rangeText(resistance)}｜${resistance?.label||'0級'}`,resistanceX+12,cardY+29,cardW-24,{max:17,min:11,weight:950,color:'#7a3454'});
+  const resistanceLines=wrapLines(context,`${distanceText(resistance)}｜${resistance?.reason||'目前沒有多種方法集中在同一區'}`,cardW-24,13,780).slice(0,2);
+  resistanceLines.forEach((line,index)=>fitText(context,line,resistanceX+12,cardY+64+index*22,cardW-24,{max:14,min:10,weight:780,color:'#43566a'}));
+
+  const summaryY=cardY+134,summaryH=145,summaryW=(rightW-44-cardGap)/2;
+  rounded(context,rightX+16,summaryY,summaryW,summaryH,12,'#f8fbff','#d3dfeb');
+  fitText(context,'☁️ 記住口訣',rightX+30,summaryY+29,summaryW-28,{max:18,min:13,weight:950,color:'#173a5d'});
+  const a=state?.A,b=state?.B,c=state?.C;
+  fitText(context,a!==null&&a!==undefined&&b!==null&&b!==undefined?'A 起漲 → B 前高 →':'ABC 結構資料不足',rightX+30,summaryY+60,summaryW-28,{max:18,min:12,weight:950,color:'#173a5d'});
+  if(a!==null&&a!==undefined&&b!==null&&b!==undefined)fitText(context,c!==null&&c!==undefined?'C 回檔 → 再突破 B':'等待 C 回檔確認',rightX+30,summaryY+88,summaryW-28,{max:18,min:12,weight:950,color:'#bd2638'});
+  fitText(context,'＝完整 N 字確認',rightX+30,summaryY+125,summaryW-28,{max:16,min:11,weight:950,color:'#173a5d'});
+  const currentX=rightX+28+summaryW;
+  rounded(context,currentX,summaryY,summaryW,summaryH,12,'#fff8ea','#ead2a5');
+  fitText(context,'📍 現在位置／下一步',currentX+12,summaryY+29,summaryW-24,{max:18,min:12,weight:950,color:'#a65d08'});
+  fitText(context,`現價：${priceText(state?.close)} 元`,currentX+12,summaryY+58,summaryW-24,{max:16,min:11,weight:900,color:'#263f5a'});
+  fitText(context,`20日均線：${priceText(state?.ma)} 元`,currentX+12,summaryY+84,summaryW-24,{max:15,min:10,weight:850,color:'#263f5a'});
+  fitText(context,b!==null&&b!==undefined?`下一步：等待突破 B ${priceText(b)} 元`:'下一步：等待有效 ABC 結構',currentX+12,summaryY+118,summaryW-24,{max:15,min:10,weight:900,color:'#314aaf'});
+
+  const detailY=summaryY+169,detailW=rightW-32;
+  fitText(context,`歷史支撐：${freshText(snr.nearestSnrSupport)}｜${roleText(snr.nearestSnrSupport)}`,rightX+16,detailY,detailW,{max:14,min:10,weight:800,color:'#31475d'});
+  fitText(context,`歷史壓力：${freshText(snr.nearestSnrResistance)}｜${roleText(snr.nearestSnrResistance)}`,rightX+16,detailY+27,detailW,{max:14,min:10,weight:800,color:'#31475d'});
+  const plain=wrapLines(context,`白話：${snr.plainInterpretation||'歷史支撐壓力資料不足，仍以原本ABC、三叉戟與共用進場檢查為準。'}`,detailW,14,850).slice(0,3);
+  plain.forEach((line,index)=>fitText(context,line,rightX+16,detailY+56+index*22,detailW,{max:14,min:10,weight:850,color:'#8a5208'}));
+  out.dataset.r45ProfessionalCompactBottom='e-left,f-right:real-map-and-snr';
+  return out;
+}
+
+function priceText(value){
+  return Number.isFinite(Number(value))?(E?E.price(value):Number(value).toFixed(2)):'資料不足';
 }
 
 function appendStockCompactEvidence(source,report){
@@ -167,7 +254,7 @@ function appendStockCompactEvidence(source,report){
     fitText(context,`KD(9,3,3) ${kd}`,x+20,y+99,width-34,{max:15,min:10,weight:900,color:'#586a7e'});
     fitText(context,`資料日 ${evidence?.dataQuality?.dataDate||report?.closeDate||'未提供'}｜補充證據不計分`,x+20,y+height-7,width-34,{max:11,min:9,weight:900,color:'#66758a'});
     out.dataset.r45StockCompactPanel='stage-right:major-volume-zone,ema,kd,rsi5';
-    if(mode==='professional')return out;
+    if(mode==='professional')return compactProfessionalBottom(out,report);
 
     const trident=typeof window.tridentEngineV361==='function'?window.tridentEngineV361(report):null;
     const layer=typeof window.buildEducationLayerV46==='function'?window.buildEducationLayerV46(report):null;
@@ -264,7 +351,7 @@ function singleLongDetailed(source,{title,date='資料日期依原報告',waterm
   return {pages:[out],segments:[[0,source.height]],sourceHeight:source.height,size:`${out.width}x${out.height}`,singleLong:true};
 }
 
-function fitIphoneStockReport(source,{title,date='資料日期依原報告',watermark=false}={}){
+function fitIphoneStockReport(source,{title,date='資料日期依原報告',watermark=false,watermarkKind='stock'}={}){
   if(!source)throw new Error('個股原始圖片畫布不存在');
   const scaleX=IPHONE_12_PRO_MAX.width/source.width,scaleY=IPHONE_12_PRO_MAX.height/source.height,scale=Math.min(scaleX,scaleY);
   if(scale<IPHONE_12_PRO_MAX.minReadableScale){
@@ -272,10 +359,10 @@ function fitIphoneStockReport(source,{title,date='資料日期依原報告',wate
     fallback.iphoneFallback=true;fallback.fitScale=scale;return fallback;
   }
   const out=canvas(IPHONE_12_PRO_MAX.width,IPHONE_12_PRO_MAX.height,'#eef3f8'),context=out.getContext('2d');
-  const fullBleed=source?.dataset?.reportMode==='professional'||source?.dataset?.reportMode==='beginner';
+  const fullBleed=['professional','beginner','market'].includes(source?.dataset?.reportMode);
   const drawWidth=fullBleed?out.width:Math.round(source.width*scale),drawHeight=fullBleed?out.height:Math.round(source.height*scale),x=fullBleed?0:Math.floor((out.width-drawWidth)/2),y=fullBleed?0:Math.floor((out.height-drawHeight)/2);
   context.drawImage(source,0,0,source.width,source.height,x,y,drawWidth,drawHeight);
-  if(watermark&&typeof original.watermark==='function')original.watermark(out,'stock');
+  if(watermark&&typeof original.watermark==='function')original.watermark(out,watermarkKind);
   out.dataset.r45IphoneAudit=encodeURIComponent(JSON.stringify({size:`${out.width}x${out.height}`,sourceSize:`${source.width}x${source.height}`,scale:Number(scale.toFixed(4)),scaleX:Number(scaleX.toFixed(4)),scaleY:Number(scaleY.toFixed(4)),contentBox:{x,y,width:drawWidth,height:drawHeight},fullBleed,complete:true,overlap:false}));
   return {pages:[out],segments:[[0,source.height]],sourceHeight:source.height,size:'1284x2778',singleLong:true,iphoneFullScreen:true,fullBleed,fitScale:scale,scaleX,scaleY};
 }
@@ -432,9 +519,9 @@ async function generateStock(mode='beginner',withWatermark=false){
 async function generateMarket(withWatermark=false){
   const report=typeof lastMarketReportData!=='undefined'?lastMarketReportData:null;if(!report)throw new Error('請先完成大盤分析');
   if(document.fonts?.ready)await document.fonts.ready;if(typeof original.marketRender!=='function')throw new Error('大盤原始圖片產生器不存在');
-  const source=appendEvidence(original.marketRender(report),[report],'market','大盤完整圖片');
-  const result=paginateDetailed(source,{title:'臺灣加權股價指數（TAIEX）大盤分析',date:report.closeDate,watermark:withWatermark});
-  await showPages(result.pages,{title:'臺灣加權股價指數大盤圖片報告',prefix:`石頭少爺_TAIEX_大盤分析圖${withWatermark?'_防盜浮水印':''}`,date:dateOf(report.closeDate),note:'1284×2778滿版安全分頁；保留ABC、真實K線、量能、三劇本與三條關鍵線',kind:'market'});
+  const source=original.marketRender(report);source.dataset.reportMode='market';
+  const result=fitIphoneStockReport(source,{title:'臺灣加權股價指數（TAIEX）大盤分析',date:report.closeDate,watermark:withWatermark,watermarkKind:'market'});
+  await showPages(result.pages,{title:'臺灣加權股價指數大盤圖片報告',prefix:`石頭少爺_TAIEX_大盤分析圖${withWatermark?'_防盜浮水印':''}`,date:dateOf(report.closeDate),note:'iPhone 12 Pro Max 1284×2778 原生模板滿版；保留ABC、真實K線、量能、三劇本與三條關鍵線，不另加頁首、頁尾或重複技術附錄',kind:'market'});
   return result;
 }
 
