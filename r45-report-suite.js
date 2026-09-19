@@ -6,6 +6,7 @@ const RELEASE=window.R45_RELEASE_LABEL||'石頭少爺 Agent V47 研究候選版�
 const FILE_VERSION=window.R45_FILE_VERSION||'V47_R5.3.2.4.13-R4.5_研究候選';
 const E=window.ShitouTechnicalEvidenceR45;
 const DETAIL={width:1284,height:2778,top:92,bottom:70,side:22};
+const IPHONE_12_PRO_MAX={width:1284,height:2778,minReadableScale:.90};
 const SUMMARY={width:1200,height:1600,top:188,bottom:74,side:44};
 const original={
   show:window.showInfographicPreviewV3328,
@@ -90,7 +91,9 @@ function rounded(context,x,y,width,height,radius,fill,stroke='#d1dbe7'){
 }
 
 function copyCanvas(source,height=source.height){
-  const out=canvas(source.width,height);out.getContext('2d').drawImage(source,0,0,source.width,height,0,0,source.width,height);return out;
+  const out=canvas(source.width,height);out.getContext('2d').drawImage(source,0,0,source.width,height,0,0,source.width,height);
+  for(const [key,value] of Object.entries(source.dataset||{}))out.dataset[key]=value;
+  return out;
 }
 
 function removeScanIndustryAppend(source,scan){
@@ -118,22 +121,53 @@ function evidenceLines(candidate,kind){
   ];
 }
 
-function appendEvidence(source,candidates,kind,title){
+function appendEvidence(source,candidates,kind,title,{compact=false}={}){
   const rows=(candidates||[]).map(candidate=>evidenceLines(candidate,kind));
   if(!rows.length)return source;
-  const pad=32,titleH=78,rowH=126,footer=38,extra=titleH+rows.length*rowH+footer;
+  const pad=32,titleH=compact?60:78,rowH=compact?105:126,footer=compact?26:38,extra=titleH+rows.length*rowH+footer;
   const out=canvas(source.width,source.height+extra,'#eef3f8'),context=out.getContext('2d');context.drawImage(source,0,0);
   const y0=source.height;context.fillStyle='#eef3f8';context.fillRect(0,y0,source.width,extra);
   context.fillStyle='#123a5a';context.fillRect(0,y0,source.width,titleH);
-  fitText(context,`${title}｜EMA／KD與日RSI 5T補充證據`,pad,y0+48,source.width-pad*2,{max:28,min:18,weight:950,color:'#fff'});
+  fitText(context,`${title}｜EMA／KD與日RSI 5T補充證據`,pad,y0+(compact?39:48),source.width-pad*2,{max:compact?25:28,min:18,weight:950,color:'#fff'});
   rows.forEach((lines,index)=>{
-    const y=y0+titleH+index*rowH+8;rounded(context,pad,y,source.width-pad*2,rowH-14,13,'#fff');
-    fitText(context,lines[0],pad+18,y+31,source.width-pad*2-36,{max:20,min:13,weight:900,color:'#142f4c'});
-    fitText(context,lines[1],pad+18,y+65,source.width-pad*2-36,{max:18,min:12,weight:800,color:'#314f6c'});
-    fitText(context,lines[2],pad+18,y+96,source.width-pad*2-36,{max:16,min:11,weight:750,color:'#5a687a'});
+    const y=y0+titleH+index*rowH+(compact?5:8);rounded(context,pad,y,source.width-pad*2,rowH-(compact?10:14),13,'#fff');
+    fitText(context,lines[0],pad+18,y+(compact?25:31),source.width-pad*2-36,{max:compact?19:20,min:13,weight:950,color:'#142f4c'});
+    fitText(context,lines[1],pad+18,y+(compact?53:65),source.width-pad*2-36,{max:compact?17:18,min:12,weight:850,color:'#314f6c'});
+    fitText(context,lines[2],pad+18,y+(compact?80:96),source.width-pad*2-36,{max:compact?15:16,min:11,weight:800,color:'#5a687a'});
   });
-  fitText(context,'研究候選補充層｜資料不足就明確顯示，不使用截圖數值，也不改原始策略。',pad,out.height-15,source.width-pad*2,{max:14,min:10,weight:750,color:'#69788b'});
+  fitText(context,'研究候選補充層｜資料不足明示，不改原始策略。',pad,out.height-(compact?8:15),source.width-pad*2,{max:compact?12:14,min:10,weight:800,color:'#69788b'});
   return out;
+}
+
+function prepareStockBaseForIphone(source){
+  const assistantHeight=Math.max(0,Number(source?.dataset?.r45AssistantAppendHeight)||0);
+  const originalFooterHeight=source?.dataset?.reportMode?138:0;
+  const targetHeight=Math.max(1,source.height-assistantHeight-originalFooterHeight);
+  const out=copyCanvas(source,targetHeight);
+  out.dataset.r45RemovedAssistantHeight=String(assistantHeight);
+  out.dataset.r45RemovedOriginalFooterHeight=String(originalFooterHeight);
+  return out;
+}
+
+function appendStockCompactEvidence(source,report){
+  const extra=205,out=canvas(source.width,source.height+extra,'#eef3f8'),context=out.getContext('2d'),y0=source.height;
+  context.drawImage(source,0,0);context.fillStyle='#eef3f8';context.fillRect(0,y0,out.width,extra);
+  context.fillStyle='#123a5a';context.fillRect(0,y0,out.width,54);
+  fitText(context,'主要成交密集區｜EMA／KD與日RSI 5T',32,y0+37,out.width-64,{max:26,min:18,weight:950,color:'#fff'});
+  rounded(context,30,y0+62,out.width-60,124,14,'#fff','#bdccdc');
+  const p=report?.shitoAssistantEvidence?.anchoredVolumeProfileEvidence||{},evidence=E?E.analyze(report||{},{kind:'stock'}):null,values=evidence?.ema?.values||{};
+  const price=value=>Number.isFinite(Number(value))?(E?E.price(value):Number(value).toFixed(2)):'資料不足';
+  const zone=p.status==='pass'?`${price(p.pocLower)}～${price(p.pocUpper)}`:(p.label||'資料不足');
+  const phase=E?E.existingPhase(report||{}).label:(report?.marketPhase||'階段待確認');
+  const rsi=evidence?.rsi5?.available?`${price(evidence.rsi5.value)}（${evidence.rsi5.date||'日期未提供'}）`:'資料不足';
+  const ema=period=>values[period]?.available?price(values[period].value):'資料不足';
+  const kd=evidence?.kd?.available?`K ${price(evidence.kd.k)}／D ${price(evidence.kd.d)}｜${evidence.kd.cross}`:'資料不足';
+  fitText(context,`📍 主要成交密集區（估算） ${zone}｜${p.pocRole||'角色資料不足'}`,48,y0+92,out.width-96,{max:22,min:14,weight:950,color:'#153a67'});
+  fitText(context,`行情階段 ${phase}｜日RSI 5T ${rsi}｜EMA21 ${ema(21)}｜EMA50 ${ema(50)}｜EMA200 ${ema(200)}`,48,y0+126,out.width-96,{max:18,min:12,weight:900,color:'#314f6c'});
+  fitText(context,`KD(9,3,3) ${kd}｜資料日 ${evidence?.dataQuality?.dataDate||report?.closeDate||'未提供'}｜補充證據不計分、不改資格`,48,y0+158,out.width-96,{max:16,min:11,weight:850,color:'#586a7e'});
+  fitText(context,'盤後研究資料｜不是逐筆成交分布｜技術分析僅供研究參考',32,out.height-7,out.width-64,{max:13,min:10,weight:850,color:'#66758a'});
+  for(const [key,value] of Object.entries(source.dataset||{}))out.dataset[key]=value;
+  out.dataset.r45StockCompactPanel='major-volume-zone,ema,kd,rsi5';return out;
 }
 
 function backgroundRatio(source,y){
@@ -197,6 +231,21 @@ function singleLongDetailed(source,{title,date='資料日期依原報告',waterm
   if(watermark&&typeof original.watermark==='function')original.watermark(out,title.includes('大盤')?'market':'stock');
   out.dataset.r45SingleAudit=encodeURIComponent(JSON.stringify({size:`${out.width}x${out.height}`,pages:1,sourceFrom:0,sourceTo:source.height,sourceHeight:source.height,complete:true}));
   return {pages:[out],segments:[[0,source.height]],sourceHeight:source.height,size:`${out.width}x${out.height}`,singleLong:true};
+}
+
+function fitIphoneStockReport(source,{title,date='資料日期依原報告',watermark=false}={}){
+  if(!source)throw new Error('個股原始圖片畫布不存在');
+  const scale=Math.min(IPHONE_12_PRO_MAX.width/source.width,IPHONE_12_PRO_MAX.height/source.height);
+  if(scale<IPHONE_12_PRO_MAX.minReadableScale){
+    const fallback=paginateDetailed(source,{title,date,watermark});
+    fallback.iphoneFallback=true;fallback.fitScale=scale;return fallback;
+  }
+  const out=canvas(IPHONE_12_PRO_MAX.width,IPHONE_12_PRO_MAX.height,'#eef3f8'),context=out.getContext('2d');
+  const drawWidth=Math.round(source.width*scale),drawHeight=Math.round(source.height*scale),x=Math.floor((out.width-drawWidth)/2),y=Math.floor((out.height-drawHeight)/2);
+  context.drawImage(source,0,0,source.width,source.height,x,y,drawWidth,drawHeight);
+  if(watermark&&typeof original.watermark==='function')original.watermark(out,'stock');
+  out.dataset.r45IphoneAudit=encodeURIComponent(JSON.stringify({size:`${out.width}x${out.height}`,sourceSize:`${source.width}x${source.height}`,scale:Number(scale.toFixed(4)),contentBox:{x,y,width:drawWidth,height:drawHeight},complete:true,overlap:false}));
+  return {pages:[out],segments:[[0,source.height]],sourceHeight:source.height,size:'1284x2778',singleLong:true,iphoneFullScreen:true,fitScale:scale};
 }
 
 function candidateCode(candidate){return String(candidate?.report?.stock||candidate?.report?.code||candidate?.code||'-');}
@@ -341,9 +390,10 @@ async function captureStock(mode){
 async function generateStock(mode='beginner',withWatermark=false){
   const report=typeof lastReportData!=='undefined'?lastReportData:null;if(!report)throw new Error('請先完成個股分析');
   if(document.fonts?.ready)await document.fonts.ready;
-  const source=appendEvidence(await captureStock(mode),[report],'stock','個股完整圖片');
-  const result=singleLongDetailed(source,{title:`${report.name||report.code}（${report.code||report.stock||'-'}）個股${mode==='professional'?'專業完整':'新手'}報告`,date:report.closeDate,watermark:withWatermark});
-  await showPages(result.pages,{title:`${report.name||report.code} 個股圖片報告`,prefix:`石頭少爺_${report.name||report.code}_${report.code||report.stock}_${mode==='professional'?'專業完整':'新手'}個股圖片報告${withWatermark?'_防盜浮水印':''}`,date:dateOf(report.closeDate),note:`1284×${result.pages[0].height} 單一張完整長圖；指定的大戶持股卡與同產業展示區只從圖片移除，其餘原圖與K線保留`,kind:'stock'});
+  const source=appendStockCompactEvidence(prepareStockBaseForIphone(await captureStock(mode)),report);
+  const result=fitIphoneStockReport(source,{title:`${report.name||report.code}（${report.code||report.stock||'-'}）個股${mode==='professional'?'專業完整':'新手'}報告`,date:report.closeDate,watermark:withWatermark});
+  const layoutNote=result.iphoneFullScreen?'iPhone 12 Pro Max 1284×2778 單頁滿版':'內容在可讀比例下無法單頁容納，已安全切為兩頁';
+  await showPages(result.pages,{title:`${report.name||report.code} 個股圖片報告`,prefix:`石頭少爺_${report.name||report.code}_${report.code||report.stock}_${mode==='professional'?'專業完整':'新手'}個股圖片報告${withWatermark?'_防盜浮水印':''}`,date:dateOf(report.closeDate),note:`${layoutNote}；圖片已移除少爺助理公司／法人區，只保留主要成交密集區；其餘原圖與K線保留`,kind:'stock'});
   return result;
 }
 
@@ -408,7 +458,7 @@ window.copyDayTradeAllCandidatesImageV377727=(withWatermark=false)=>copyFirst(()
 
 window.R45_REPORT_TEST_API=Object.freeze({
   release:RELEASE,detailSize:{...DETAIL},summarySize:{...SUMMARY},summaryRows,buildSummaryPages,
-  paginateDetailed,singleLongDetailed,appendEvidence,removeScanIndustryAppend,evidenceLines,zip,blob,
+  paginateDetailed,singleLongDetailed,fitIphoneStockReport,prepareStockBaseForIphone,appendStockCompactEvidence,appendEvidence,removeScanIndustryAppend,evidenceLines,zip,blob,
   audits:{originalOrderPreserved:true,summaryIncludesAllCandidates:true,workerChanged:false,scoreChanged:false,qualificationChanged:false}
 });
 })();
