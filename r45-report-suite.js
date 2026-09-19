@@ -1,4 +1,4 @@
-/* R5.3.2.4.13-R4.5 research candidate: safe canvas pagination and 3:4 summaries. */
+/* R5.3.2.4.13-R4.5 research candidate: single long-form detail images and 3:4 summaries. */
 (function(){
 'use strict';
 
@@ -182,6 +182,23 @@ function paginateDetailed(source,{title,date='資料日期依原報告',watermar
   return {pages,segments,sourceHeight:source.height,size:'1284x2778'};
 }
 
+function singleLongDetailed(source,{title,date='資料日期依原報告',watermark=false}={}){
+  if(!source)throw new Error('原始圖片畫布不存在');
+  const scale=(DETAIL.width-DETAIL.side*2)/source.width;
+  const drawHeight=Math.ceil(source.height*scale);
+  const height=DETAIL.top+drawHeight+DETAIL.bottom;
+  const out=canvas(DETAIL.width,height,'#eef3f8'),context=out.getContext('2d');
+  context.fillStyle='#123a5a';context.fillRect(0,0,DETAIL.width,DETAIL.top-10);
+  fitText(context,title,DETAIL.side,48,DETAIL.width-DETAIL.side*2,{max:31,min:18,weight:950,color:'#fff'});
+  fitText(context,`${date||'資料日期依原報告'}｜${RELEASE}`,DETAIL.side,76,DETAIL.width-DETAIL.side*2,{max:17,min:11,weight:750,color:'#d5e5f4'});
+  context.drawImage(source,0,0,source.width,source.height,DETAIL.side,DETAIL.top,DETAIL.width-DETAIL.side*2,drawHeight);
+  context.fillStyle='#123a5a';context.fillRect(0,height-DETAIL.bottom,DETAIL.width,DETAIL.bottom);
+  fitText(context,'單一張完整長圖｜原始內容連續保留、不拆頁｜技術分析僅供研究參考',DETAIL.side,height-27,DETAIL.width-DETAIL.side*2,{max:17,min:12,weight:800,color:'#eef6ff'});
+  if(watermark&&typeof original.watermark==='function')original.watermark(out,title.includes('大盤')?'market':'stock');
+  out.dataset.r45SingleAudit=encodeURIComponent(JSON.stringify({size:`${out.width}x${out.height}`,pages:1,sourceFrom:0,sourceTo:source.height,sourceHeight:source.height,complete:true}));
+  return {pages:[out],segments:[[0,source.height]],sourceHeight:source.height,size:`${out.width}x${out.height}`,singleLong:true};
+}
+
 function candidateCode(candidate){return String(candidate?.report?.stock||candidate?.report?.code||candidate?.code||'-');}
 function candidateName(candidate){return String(candidate?.report?.name||candidate?.name||candidateCode(candidate));}
 function candidateClose(candidate){const value=Number(candidate?.close??candidate?.report?.close);return Number.isFinite(value)?value:null;}
@@ -271,8 +288,8 @@ async function setPreviewPage(index){
   if(previewUrl)URL.revokeObjectURL(previewUrl);previewUrl=URL.createObjectURL(value);
   const image=document.getElementById('imagePreviewImg'),link=document.getElementById('imageDownloadLink'),title=document.getElementById('imagePreviewTitle');
   if(image)image.src=previewUrl;if(link){link.href=previewUrl;link.download=previewSet.names[previewSet.index];}
-  if(title)title.textContent=`🖼️ ${previewSet.title}｜第 ${previewSet.index+1}/${previewSet.pages.length} 頁`;
-  const label=document.getElementById('r45PreviewPageLabel');if(label)label.textContent=`第 ${previewSet.index+1}／${previewSet.pages.length} 頁`;
+  if(title)title.textContent=previewSet.pages.length===1?`🖼️ ${previewSet.title}｜單一張完整長圖`:`🖼️ ${previewSet.title}｜第 ${previewSet.index+1}/${previewSet.pages.length} 頁`;
+  const label=document.getElementById('r45PreviewPageLabel');if(label)label.textContent=previewSet.pages.length===1?'單一張完整長圖':`第 ${previewSet.index+1}／${previewSet.pages.length} 頁`;
   const prev=document.getElementById('r45PreviewPrev'),next=document.getElementById('r45PreviewNext');if(prev)prev.disabled=previewSet.index===0;if(next)next.disabled=previewSet.index===previewSet.pages.length-1;
 }
 
@@ -293,16 +310,16 @@ function mountPreviewActions(){
       }finally{button.disabled=false;button.textContent=old;}
     });
   }
-  group.hidden=!previewSet||previewSet.pages.length<1;
+  group.hidden=!previewSet||previewSet.pages.length<=1;
 }
 
 async function showPages(pages,{title,prefix,date='latest',note='',kind='report'}={}){
   if(!Array.isArray(pages)||!pages.length)throw new Error('沒有可預覽的頁面');
-  const names=pages.map((_,index)=>safeName(`${prefix}_${String(index+1).padStart(2,'0')}-${pages.length}_${date}_${FILE_VERSION}.png`));
+  const names=pages.length===1?[safeName(`${prefix}_單一張完整長圖_${date}_${FILE_VERSION}.png`)]:pages.map((_,index)=>safeName(`${prefix}_${String(index+1).padStart(2,'0')}-${pages.length}_${date}_${FILE_VERSION}.png`));
   previewSet={pages,names,title,index:0,zipName:safeName(`${prefix}_完整${pages.length}頁_${date}_${FILE_VERSION}.zip`),kind};
   if(typeof original.show==='function')await original.show(pages[0],names[0],`${title}｜第 1/${pages.length} 頁`);
   mountPreviewActions();await setPreviewPage(0);
-  const element=document.getElementById('imagePreviewNote');if(element)element.textContent=`${note}｜共 ${pages.length} 頁；可逐頁預覽／下載，或下載完整ZIP。`;
+  const element=document.getElementById('imagePreviewNote');if(element)element.textContent=pages.length===1?`${note}｜完整內容已合併為單一張 PNG，可直接預覽或下載。`:`${note}｜共 ${pages.length} 頁；可逐頁預覽／下載，或下載完整ZIP。`;
   return previewSet;
 }
 
@@ -325,8 +342,8 @@ async function generateStock(mode='beginner',withWatermark=false){
   const report=typeof lastReportData!=='undefined'?lastReportData:null;if(!report)throw new Error('請先完成個股分析');
   if(document.fonts?.ready)await document.fonts.ready;
   const source=appendEvidence(await captureStock(mode),[report],'stock','個股完整圖片');
-  const result=paginateDetailed(source,{title:`${report.name||report.code}（${report.code||report.stock||'-'}）個股${mode==='professional'?'專業完整':'新手'}報告`,date:report.closeDate,watermark:withWatermark});
-  await showPages(result.pages,{title:`${report.name||report.code} 個股圖片報告`,prefix:`石頭少爺_${report.name||report.code}_${report.code||report.stock}_${mode==='professional'?'專業完整':'新手'}個股圖片報告${withWatermark?'_防盜浮水印':''}`,date:dateOf(report.closeDate),note:'1284×2778滿版安全分頁；指定的大戶持股卡與同產業展示區只從圖片移除，其餘原圖與K線保留',kind:'stock'});
+  const result=singleLongDetailed(source,{title:`${report.name||report.code}（${report.code||report.stock||'-'}）個股${mode==='professional'?'專業完整':'新手'}報告`,date:report.closeDate,watermark:withWatermark});
+  await showPages(result.pages,{title:`${report.name||report.code} 個股圖片報告`,prefix:`石頭少爺_${report.name||report.code}_${report.code||report.stock}_${mode==='professional'?'專業完整':'新手'}個股圖片報告${withWatermark?'_防盜浮水印':''}`,date:dateOf(report.closeDate),note:`1284×${result.pages[0].height} 單一張完整長圖；指定的大戶持股卡與同產業展示區只從圖片移除，其餘原圖與K線保留`,kind:'stock'});
   return result;
 }
 
@@ -348,8 +365,8 @@ async function generateDetailed(kind,withWatermark=false){
   const candidates=(scan.candidates||scan.launchCandidates||[]).slice(0,8);
   source=appendEvidence(source,candidates,kind,kind==='momentum'?'主升段前八名':'當沖前八名');
   const title=kind==='momentum'?'主升段前八名詳細圖片':'當沖前八名詳細圖片';
-  const result=paginateDetailed(source,{title,date:scan.dataDate||scan.createdAt,watermark:withWatermark});
-  await showPages(result.pages,{title,prefix:`石頭少爺_${kind==='momentum'?'主升段':'當沖'}_前八名詳細圖片${withWatermark?'_防盜浮水印':''}`,date:dateOf(scan.dataDate||scan.createdAt),note:`沿用原始展示順序 ${candidates.length} 檔；1284×2778安全分頁；同產業展示區已從詳細圖片移除`,kind});
+  const result=singleLongDetailed(source,{title,date:scan.dataDate||scan.createdAt,watermark:withWatermark});
+  await showPages(result.pages,{title,prefix:`石頭少爺_${kind==='momentum'?'主升段':'當沖'}_前八名詳細圖片${withWatermark?'_防盜浮水印':''}`,date:dateOf(scan.dataDate||scan.createdAt),note:`沿用原始展示順序 ${candidates.length} 檔；1284×${result.pages[0].height} 單一張完整長圖；同產業展示區已從詳細圖片移除`,kind});
   return result;
 }
 
@@ -369,7 +386,7 @@ async function copyFirst(resultFactory,messageId){
     const result=await resultFactory(),page=result.pages[0],value=await blob(page);
     if(navigator.clipboard?.write&&typeof ClipboardItem!=='undefined'){
       await navigator.clipboard.write([new ClipboardItem({'image/png':value})]);
-      const message=document.getElementById(messageId);if(message)message.textContent='✅ 已複製第1頁PNG；完整多頁請使用ZIP下載。';return;
+      const message=document.getElementById(messageId);if(message)message.textContent=result.pages.length===1?'✅ 已複製單一張完整長圖 PNG。':'✅ 已複製第1頁PNG；完整多頁請使用ZIP下載。';return;
     }
     const message=document.getElementById(messageId);if(message)message.textContent='⚠️ 瀏覽器不支援圖片剪貼簿，已開啟完整分頁預覽。';
   }catch(error){const message=document.getElementById(messageId);if(message)message.textContent=`❌ ${error.message}`;}
@@ -391,7 +408,7 @@ window.copyDayTradeAllCandidatesImageV377727=(withWatermark=false)=>copyFirst(()
 
 window.R45_REPORT_TEST_API=Object.freeze({
   release:RELEASE,detailSize:{...DETAIL},summarySize:{...SUMMARY},summaryRows,buildSummaryPages,
-  paginateDetailed,appendEvidence,removeScanIndustryAppend,evidenceLines,zip,blob,
+  paginateDetailed,singleLongDetailed,appendEvidence,removeScanIndustryAppend,evidenceLines,zip,blob,
   audits:{originalOrderPreserved:true,summaryIncludesAllCandidates:true,workerChanged:false,scoreChanged:false,qualificationChanged:false}
 });
 })();
