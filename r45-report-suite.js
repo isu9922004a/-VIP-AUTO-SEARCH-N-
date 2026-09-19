@@ -170,31 +170,33 @@ function appendStockCompactEvidence(source,report){
     if(mode==='professional')return out;
 
     const trident=typeof window.tridentEngineV361==='function'?window.tridentEngineV361(report):null;
+    const layer=typeof window.buildEducationLayerV46==='function'?window.buildEducationLayerV46(report):null;
     const triPrice=item=>item&&Number.isFinite(Number(item.value))?`${price(item.value)} 元`:'資料不足';
-    const triDetail=item=>item&&Number.isFinite(Number(item.value))?`${item.date||'日期未提供'}${Number.isFinite(Number(item.volRatio))?`｜量 ${Number(item.volRatio).toFixed(2)}×`:''}`:'未取得有效大量K';
-    const extra=205,extended=canvas(out.width,out.height+extra,'#eef3f8'),c=extended.getContext('2d'),y0=out.height;
-    c.drawImage(out,0,0);c.fillStyle='#eef3f8';c.fillRect(0,y0,extended.width,extra);
-    c.fillStyle='#123a5a';c.fillRect(0,y0,extended.width,50);
-    fitText(c,'🔱 三叉戟價位分析｜壓力・支撐・候選預備',32,y0+35,extended.width-64,{max:25,min:18,weight:950,color:'#fff'});
-    const cards=[
-      {icon:'🧱',label:'壓力線',value:triPrice(trident?.pressure),detail:triDetail(trident?.pressure),fill:'#fff7ed',stroke:'#e6a14d',color:'#a85a08'},
-      {icon:'🛡️',label:'支撐線',value:triPrice(trident?.support),detail:triDetail(trident?.support),fill:'#f0fdf4',stroke:'#5eb480',color:'#16724a'},
-      {icon:'📌',label:'候選預備線',value:triPrice(trident?.preparatory),detail:triDetail(trident?.preparatory),fill:'#faf5ff',stroke:'#9a79c9',color:'#6c43a3'}
+    const triDate=item=>item?.date||'未取得有效大量K';
+    const c=out.getContext('2d'),warningY=1744,leftX=42,leftWidth=524,rightX=578,rightWidth=532,panelHeight=180;
+    c.fillStyle='#eef3f8';c.fillRect(36,warningY-6,1080,panelHeight+12);
+    rounded(c,leftX,warningY,leftWidth,panelHeight,18,'#fff8ea','#e6c38b');
+    fitText(c,'⚠️ 現在最需要注意',leftX+24,warningY+36,leftWidth-48,{max:25,min:19,weight:950,color:'#8e5308'});
+    fitText(c,`主要原因：${layer?.decisionRiskState?.primary||'目前資料不足'}`,leftX+24,warningY+76,leftWidth-48,{max:18,min:13,weight:900,color:'#3a4658'});
+    const volumeLines=wrapLines(c,`量價背景：${layer?.volumeContextState?.warning||'量價資料不足，先依原有進場檢查等待。'}`,leftWidth-48,15,800).slice(0,2);
+    volumeLines.forEach((line,index)=>fitText(c,line,leftX+24,warningY+118+index*25,leftWidth-48,{max:15,min:12,weight:800,color:'#5d6878'}));
+
+    rounded(c,rightX,warningY,rightWidth,panelHeight,18,'#f8fbff','#9bb2c9');
+    fitText(c,'🔱 三叉戟價位分析',rightX+22,warningY+34,rightWidth-44,{max:23,min:18,weight:950,color:'#173a5d'});
+    const rows=[
+      {icon:'🧱',label:'壓力',item:trident?.pressure,color:'#a85a08'},
+      {icon:'🛡️',label:'支撐',item:trident?.support,color:'#16724a'},
+      {icon:'📌',label:'候選預備',item:trident?.preparatory,color:'#6c43a3'}
     ];
-    cards.forEach((item,index)=>{
-      const cardX=30+index*367,cardY=y0+58,cardWidth=357,cardHeight=96;
-      rounded(c,cardX,cardY,cardWidth,cardHeight,13,item.fill,item.stroke);
-      fitText(c,`${item.icon} ${item.label}`,cardX+17,cardY+26,cardWidth-34,{max:19,min:15,weight:950,color:item.color});
-      fitText(c,item.value,cardX+17,cardY+57,cardWidth-34,{max:24,min:18,weight:950,color:'#183653'});
-      fitText(c,item.detail,cardX+17,cardY+82,cardWidth-34,{max:13,min:10,weight:850,color:'#64748b'});
+    rows.forEach((item,index)=>{
+      const rowY=warningY+68+index*32;
+      fitText(c,`${item.icon} ${item.label} ${triPrice(item.item)}｜${triDate(item.item)}`,rightX+22,rowY,rightWidth-44,{max:18,min:13,weight:950,color:item.color});
     });
-    fitText(c,'壓＝最近戰術壓力｜撐＝最近戰術支撐｜預＝候選備用線，不等同正式支撐；只補充證據，不改分數與資格。',32,y0+174,extended.width-64,{max:16,min:11,weight:900,color:'#52677d'});
-    fitText(c,trident?.available?'量能大於左一根：紅K取低點、綠K取高點；資料不足時明示，不自行猜測。':'逐日OHLCV資料不足，三叉戟暫不計算。',32,y0+197,extended.width-64,{max:14,min:10,weight:850,color:'#68788b'});
-    for(const [key,value] of Object.entries(out.dataset||{}))extended.dataset[key]=value;
-    extended.dataset.r45TridentPanel='bottom:pressure,support,preparatory';
+    fitText(c,trident?.available?'量能＞左一根；紅K取低、綠K取高｜只補充證據，不改資格':'逐日OHLCV不足｜不建立假價位',rightX+22,warningY+166,rightWidth-44,{max:13,min:10,weight:850,color:'#68788b'});
+    out.dataset.r45TridentPanel='warning-right:pressure,support,preparatory';
     const auditItem=item=>item&&Number.isFinite(Number(item.value))?{value:Number(item.value),date:item.date||null,volRatio:Number.isFinite(Number(item.volRatio))?Number(item.volRatio):null}:null;
-    extended.dataset.r45TridentAudit=encodeURIComponent(JSON.stringify({source:'tridentEngineV361',available:trident?.available===true,key:trident?.key||'UNAVAILABLE',pressure:auditItem(trident?.pressure),support:auditItem(trident?.support),preparatory:auditItem(trident?.preparatory),invented:false}));
-    return extended;
+    out.dataset.r45TridentAudit=encodeURIComponent(JSON.stringify({source:'tridentEngineV361',available:trident?.available===true,key:trident?.key||'UNAVAILABLE',pressure:auditItem(trident?.pressure),support:auditItem(trident?.support),preparatory:auditItem(trident?.preparatory),invented:false}));
+    return out;
   }
   return source;
 }
@@ -264,17 +266,18 @@ function singleLongDetailed(source,{title,date='資料日期依原報告',waterm
 
 function fitIphoneStockReport(source,{title,date='資料日期依原報告',watermark=false}={}){
   if(!source)throw new Error('個股原始圖片畫布不存在');
-  const scale=Math.min(IPHONE_12_PRO_MAX.width/source.width,IPHONE_12_PRO_MAX.height/source.height);
+  const scaleX=IPHONE_12_PRO_MAX.width/source.width,scaleY=IPHONE_12_PRO_MAX.height/source.height,scale=Math.min(scaleX,scaleY);
   if(scale<IPHONE_12_PRO_MAX.minReadableScale){
     const fallback=paginateDetailed(source,{title,date,watermark});
     fallback.iphoneFallback=true;fallback.fitScale=scale;return fallback;
   }
   const out=canvas(IPHONE_12_PRO_MAX.width,IPHONE_12_PRO_MAX.height,'#eef3f8'),context=out.getContext('2d');
-  const drawWidth=Math.round(source.width*scale),drawHeight=Math.round(source.height*scale),x=Math.floor((out.width-drawWidth)/2),y=Math.floor((out.height-drawHeight)/2);
+  const fullBleed=source?.dataset?.reportMode==='professional'||source?.dataset?.reportMode==='beginner';
+  const drawWidth=fullBleed?out.width:Math.round(source.width*scale),drawHeight=fullBleed?out.height:Math.round(source.height*scale),x=fullBleed?0:Math.floor((out.width-drawWidth)/2),y=fullBleed?0:Math.floor((out.height-drawHeight)/2);
   context.drawImage(source,0,0,source.width,source.height,x,y,drawWidth,drawHeight);
   if(watermark&&typeof original.watermark==='function')original.watermark(out,'stock');
-  out.dataset.r45IphoneAudit=encodeURIComponent(JSON.stringify({size:`${out.width}x${out.height}`,sourceSize:`${source.width}x${source.height}`,scale:Number(scale.toFixed(4)),contentBox:{x,y,width:drawWidth,height:drawHeight},complete:true,overlap:false}));
-  return {pages:[out],segments:[[0,source.height]],sourceHeight:source.height,size:'1284x2778',singleLong:true,iphoneFullScreen:true,fitScale:scale};
+  out.dataset.r45IphoneAudit=encodeURIComponent(JSON.stringify({size:`${out.width}x${out.height}`,sourceSize:`${source.width}x${source.height}`,scale:Number(scale.toFixed(4)),scaleX:Number(scaleX.toFixed(4)),scaleY:Number(scaleY.toFixed(4)),contentBox:{x,y,width:drawWidth,height:drawHeight},fullBleed,complete:true,overlap:false}));
+  return {pages:[out],segments:[[0,source.height]],sourceHeight:source.height,size:'1284x2778',singleLong:true,iphoneFullScreen:true,fullBleed,fitScale:scale,scaleX,scaleY};
 }
 
 function candidateCode(candidate){return String(candidate?.report?.stock||candidate?.report?.code||candidate?.code||'-');}
