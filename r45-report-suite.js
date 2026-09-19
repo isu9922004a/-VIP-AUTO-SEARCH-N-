@@ -1,9 +1,9 @@
-/* R5.3.2.4.13-R4.5 research candidate: single long-form detail images and 3:4 summaries. */
+/* R5.3.2.4.14-R4.5 research candidate: full-screen stock reports and restored beginner trident. */
 (function(){
 'use strict';
 
-const RELEASE=window.R45_RELEASE_LABEL||'石頭少爺 Agent V47 研究候選版｜R5.3.2.4.13-R4.5';
-const FILE_VERSION=window.R45_FILE_VERSION||'V47_R5.3.2.4.13-R4.5_研究候選';
+const RELEASE=window.R45_RELEASE_LABEL||'石頭少爺 Agent V47 研究候選版｜R5.3.2.4.14-R4.5';
+const FILE_VERSION=window.R45_FILE_VERSION||'V47_R5.3.2.4.14-R4.5_研究候選';
 const E=window.ShitouTechnicalEvidenceR45;
 const DETAIL={width:1284,height:2778,top:92,bottom:70,side:22};
 const IPHONE_12_PRO_MAX={width:1284,height:2778,minReadableScale:.90};
@@ -57,7 +57,7 @@ function zip(entries){
 
 function safeName(value){
   const base=typeof window.sanitizeFilenameV3328==='function'?window.sanitizeFilenameV3328(value):String(value||'報告').replace(/[\\/:*?"<>|]+/g,'_');
-  return base.replace(/R5\.3\.2\.4\.13-R4\.4[^.\s]*/g,'R5.3.2.4.13-R4.5');
+  return base.replace(/R5\.3\.2\.4\.13-R4\.4[^.\s]*/g,'R5.3.2.4.14-R4.5');
 }
 
 function dateOf(value){return String(value||'').replace(/\D/g,'').slice(0,8)||'latest';}
@@ -153,31 +153,50 @@ function appendStockCompactEvidence(source,report){
   const p=report?.shitoAssistantEvidence?.anchoredVolumeProfileEvidence||{},evidence=E?E.analyze(report||{},{kind:'stock'}):null,values=evidence?.ema?.values||{};
   const price=value=>Number.isFinite(Number(value))?(E?E.price(value):Number(value).toFixed(2)):'資料不足';
   const zone=p.status==='pass'?`${price(p.pocLower)}～${price(p.pocUpper)}`:(p.label||'資料不足');
-  const phase=E?E.existingPhase(report||{}).label:(report?.marketPhase||'階段待確認');
   const rsi=evidence?.rsi5?.available?`${price(evidence.rsi5.value)}（${evidence.rsi5.date||'日期未提供'}）`:'資料不足';
   const ema=period=>values[period]?.available?price(values[period].value):'資料不足';
   const kd=evidence?.kd?.available?`K ${price(evidence.kd.k)}／D ${price(evidence.kd.d)}｜${evidence.kd.cross}`:'資料不足';
-  if(source?.dataset?.reportMode==='professional'){
-    const out=copyCanvas(source),context=out.getContext('2d'),x=590,y=132,width=526,height=136;
+  const mode=source?.dataset?.reportMode;
+  if(mode==='professional'||mode==='beginner'){
+    const out=copyCanvas(source),context=out.getContext('2d');
+    const x=590,y=mode==='professional'?132:166,width=526,height=mode==='professional'?136:124;
     rounded(context,x,y,width,height,13,'#f8fbff','#8da3ba');context.fillStyle='#27648a';context.fillRect(x,y,8,height);
-    fitText(context,`📍 主要成交密集區 ${zone}`,x+20,y+27,width-34,{max:19,min:14,weight:950,color:'#153a67'});
-    fitText(context,`日RSI 5T ${rsi}｜EMA21 ${ema(21)}`,x+20,y+55,width-34,{max:15,min:11,weight:900,color:'#314f6c'});
-    fitText(context,`EMA50 ${ema(50)}｜EMA200 ${ema(200)}`,x+20,y+82,width-34,{max:15,min:11,weight:900,color:'#314f6c'});
-    fitText(context,`KD(9,3,3) ${kd}`,x+20,y+108,width-34,{max:14,min:10,weight:850,color:'#586a7e'});
-    fitText(context,`資料日 ${evidence?.dataQuality?.dataDate||report?.closeDate||'未提供'}｜補充證據不計分`,x+20,y+129,width-34,{max:11,min:9,weight:850,color:'#66758a'});
-    out.dataset.r45StockCompactPanel='stage-right:major-volume-zone,ema,kd,rsi5';return out;
+    fitText(context,`📍 主要成交密集區 ${zone}`,x+20,y+25,width-34,{max:19,min:14,weight:950,color:'#153a67'});
+    fitText(context,`日RSI 5T ${rsi}｜EMA21 ${ema(21)}`,x+20,y+50,width-34,{max:16,min:11,weight:950,color:'#314f6c'});
+    fitText(context,`EMA50 ${ema(50)}｜EMA200 ${ema(200)}`,x+20,y+75,width-34,{max:16,min:11,weight:950,color:'#314f6c'});
+    fitText(context,`KD(9,3,3) ${kd}`,x+20,y+99,width-34,{max:15,min:10,weight:900,color:'#586a7e'});
+    fitText(context,`資料日 ${evidence?.dataQuality?.dataDate||report?.closeDate||'未提供'}｜補充證據不計分`,x+20,y+height-7,width-34,{max:11,min:9,weight:900,color:'#66758a'});
+    out.dataset.r45StockCompactPanel='stage-right:major-volume-zone,ema,kd,rsi5';
+    if(mode==='professional')return out;
+
+    const trident=typeof window.tridentEngineV361==='function'?window.tridentEngineV361(report):null;
+    const triPrice=item=>item&&Number.isFinite(Number(item.value))?`${price(item.value)} 元`:'資料不足';
+    const triDetail=item=>item&&Number.isFinite(Number(item.value))?`${item.date||'日期未提供'}${Number.isFinite(Number(item.volRatio))?`｜量 ${Number(item.volRatio).toFixed(2)}×`:''}`:'未取得有效大量K';
+    const extra=205,extended=canvas(out.width,out.height+extra,'#eef3f8'),c=extended.getContext('2d'),y0=out.height;
+    c.drawImage(out,0,0);c.fillStyle='#eef3f8';c.fillRect(0,y0,extended.width,extra);
+    c.fillStyle='#123a5a';c.fillRect(0,y0,extended.width,50);
+    fitText(c,'🔱 三叉戟價位分析｜壓力・支撐・候選預備',32,y0+35,extended.width-64,{max:25,min:18,weight:950,color:'#fff'});
+    const cards=[
+      {icon:'🧱',label:'壓力線',value:triPrice(trident?.pressure),detail:triDetail(trident?.pressure),fill:'#fff7ed',stroke:'#e6a14d',color:'#a85a08'},
+      {icon:'🛡️',label:'支撐線',value:triPrice(trident?.support),detail:triDetail(trident?.support),fill:'#f0fdf4',stroke:'#5eb480',color:'#16724a'},
+      {icon:'📌',label:'候選預備線',value:triPrice(trident?.preparatory),detail:triDetail(trident?.preparatory),fill:'#faf5ff',stroke:'#9a79c9',color:'#6c43a3'}
+    ];
+    cards.forEach((item,index)=>{
+      const cardX=30+index*367,cardY=y0+58,cardWidth=357,cardHeight=96;
+      rounded(c,cardX,cardY,cardWidth,cardHeight,13,item.fill,item.stroke);
+      fitText(c,`${item.icon} ${item.label}`,cardX+17,cardY+26,cardWidth-34,{max:19,min:15,weight:950,color:item.color});
+      fitText(c,item.value,cardX+17,cardY+57,cardWidth-34,{max:24,min:18,weight:950,color:'#183653'});
+      fitText(c,item.detail,cardX+17,cardY+82,cardWidth-34,{max:13,min:10,weight:850,color:'#64748b'});
+    });
+    fitText(c,'壓＝最近戰術壓力｜撐＝最近戰術支撐｜預＝候選備用線，不等同正式支撐；只補充證據，不改分數與資格。',32,y0+174,extended.width-64,{max:16,min:11,weight:900,color:'#52677d'});
+    fitText(c,trident?.available?'量能大於左一根：紅K取低點、綠K取高點；資料不足時明示，不自行猜測。':'逐日OHLCV資料不足，三叉戟暫不計算。',32,y0+197,extended.width-64,{max:14,min:10,weight:850,color:'#68788b'});
+    for(const [key,value] of Object.entries(out.dataset||{}))extended.dataset[key]=value;
+    extended.dataset.r45TridentPanel='bottom:pressure,support,preparatory';
+    const auditItem=item=>item&&Number.isFinite(Number(item.value))?{value:Number(item.value),date:item.date||null,volRatio:Number.isFinite(Number(item.volRatio))?Number(item.volRatio):null}:null;
+    extended.dataset.r45TridentAudit=encodeURIComponent(JSON.stringify({source:'tridentEngineV361',available:trident?.available===true,key:trident?.key||'UNAVAILABLE',pressure:auditItem(trident?.pressure),support:auditItem(trident?.support),preparatory:auditItem(trident?.preparatory),invented:false}));
+    return extended;
   }
-  const extra=205,out=canvas(source.width,source.height+extra,'#eef3f8'),context=out.getContext('2d'),y0=source.height;
-  context.drawImage(source,0,0);context.fillStyle='#eef3f8';context.fillRect(0,y0,out.width,extra);
-  context.fillStyle='#123a5a';context.fillRect(0,y0,out.width,54);
-  fitText(context,'主要成交密集區｜EMA／KD與日RSI 5T',32,y0+37,out.width-64,{max:26,min:18,weight:950,color:'#fff'});
-  rounded(context,30,y0+62,out.width-60,124,14,'#fff','#bdccdc');
-  fitText(context,`📍 主要成交密集區（估算） ${zone}｜${p.pocRole||'角色資料不足'}`,48,y0+92,out.width-96,{max:22,min:14,weight:950,color:'#153a67'});
-  fitText(context,`行情階段 ${phase}｜日RSI 5T ${rsi}｜EMA21 ${ema(21)}｜EMA50 ${ema(50)}｜EMA200 ${ema(200)}`,48,y0+126,out.width-96,{max:18,min:12,weight:900,color:'#314f6c'});
-  fitText(context,`KD(9,3,3) ${kd}｜資料日 ${evidence?.dataQuality?.dataDate||report?.closeDate||'未提供'}｜補充證據不計分、不改資格`,48,y0+158,out.width-96,{max:16,min:11,weight:850,color:'#586a7e'});
-  fitText(context,'盤後研究資料｜不是逐筆成交分布｜技術分析僅供研究參考',32,out.height-7,out.width-64,{max:13,min:10,weight:850,color:'#66758a'});
-  for(const [key,value] of Object.entries(source.dataset||{}))out.dataset[key]=value;
-  out.dataset.r45StockCompactPanel='major-volume-zone,ema,kd,rsi5';return out;
+  return source;
 }
 
 function backgroundRatio(source,y){
