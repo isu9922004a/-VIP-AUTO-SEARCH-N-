@@ -150,11 +150,6 @@ function prepareStockBaseForIphone(source){
 }
 
 function appendStockCompactEvidence(source,report){
-  const extra=205,out=canvas(source.width,source.height+extra,'#eef3f8'),context=out.getContext('2d'),y0=source.height;
-  context.drawImage(source,0,0);context.fillStyle='#eef3f8';context.fillRect(0,y0,out.width,extra);
-  context.fillStyle='#123a5a';context.fillRect(0,y0,out.width,54);
-  fitText(context,'主要成交密集區｜EMA／KD與日RSI 5T',32,y0+37,out.width-64,{max:26,min:18,weight:950,color:'#fff'});
-  rounded(context,30,y0+62,out.width-60,124,14,'#fff','#bdccdc');
   const p=report?.shitoAssistantEvidence?.anchoredVolumeProfileEvidence||{},evidence=E?E.analyze(report||{},{kind:'stock'}):null,values=evidence?.ema?.values||{};
   const price=value=>Number.isFinite(Number(value))?(E?E.price(value):Number(value).toFixed(2)):'資料不足';
   const zone=p.status==='pass'?`${price(p.pocLower)}～${price(p.pocUpper)}`:(p.label||'資料不足');
@@ -162,6 +157,21 @@ function appendStockCompactEvidence(source,report){
   const rsi=evidence?.rsi5?.available?`${price(evidence.rsi5.value)}（${evidence.rsi5.date||'日期未提供'}）`:'資料不足';
   const ema=period=>values[period]?.available?price(values[period].value):'資料不足';
   const kd=evidence?.kd?.available?`K ${price(evidence.kd.k)}／D ${price(evidence.kd.d)}｜${evidence.kd.cross}`:'資料不足';
+  if(source?.dataset?.reportMode==='professional'){
+    const out=copyCanvas(source),context=out.getContext('2d'),x=590,y=132,width=526,height=136;
+    rounded(context,x,y,width,height,13,'#f8fbff','#8da3ba');context.fillStyle='#27648a';context.fillRect(x,y,8,height);
+    fitText(context,`📍 主要成交密集區 ${zone}`,x+20,y+27,width-34,{max:19,min:14,weight:950,color:'#153a67'});
+    fitText(context,`日RSI 5T ${rsi}｜EMA21 ${ema(21)}`,x+20,y+55,width-34,{max:15,min:11,weight:900,color:'#314f6c'});
+    fitText(context,`EMA50 ${ema(50)}｜EMA200 ${ema(200)}`,x+20,y+82,width-34,{max:15,min:11,weight:900,color:'#314f6c'});
+    fitText(context,`KD(9,3,3) ${kd}`,x+20,y+108,width-34,{max:14,min:10,weight:850,color:'#586a7e'});
+    fitText(context,`資料日 ${evidence?.dataQuality?.dataDate||report?.closeDate||'未提供'}｜補充證據不計分`,x+20,y+129,width-34,{max:11,min:9,weight:850,color:'#66758a'});
+    out.dataset.r45StockCompactPanel='stage-right:major-volume-zone,ema,kd,rsi5';return out;
+  }
+  const extra=205,out=canvas(source.width,source.height+extra,'#eef3f8'),context=out.getContext('2d'),y0=source.height;
+  context.drawImage(source,0,0);context.fillStyle='#eef3f8';context.fillRect(0,y0,out.width,extra);
+  context.fillStyle='#123a5a';context.fillRect(0,y0,out.width,54);
+  fitText(context,'主要成交密集區｜EMA／KD與日RSI 5T',32,y0+37,out.width-64,{max:26,min:18,weight:950,color:'#fff'});
+  rounded(context,30,y0+62,out.width-60,124,14,'#fff','#bdccdc');
   fitText(context,`📍 主要成交密集區（估算） ${zone}｜${p.pocRole||'角色資料不足'}`,48,y0+92,out.width-96,{max:22,min:14,weight:950,color:'#153a67'});
   fitText(context,`行情階段 ${phase}｜日RSI 5T ${rsi}｜EMA21 ${ema(21)}｜EMA50 ${ema(50)}｜EMA200 ${ema(200)}`,48,y0+126,out.width-96,{max:18,min:12,weight:900,color:'#314f6c'});
   fitText(context,`KD(9,3,3) ${kd}｜資料日 ${evidence?.dataQuality?.dataDate||report?.closeDate||'未提供'}｜補充證據不計分、不改資格`,48,y0+158,out.width-96,{max:16,min:11,weight:850,color:'#586a7e'});
