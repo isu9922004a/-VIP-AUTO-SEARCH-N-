@@ -1,9 +1,9 @@
-/* R5.3.2.4.18-R4.5 research candidate: stock/market full-screen typography optimization. */
+/* R5.3.2.4.19-R4.5 research candidate: frontend resource scheduling and failure presentation fix. */
 (function(){
 'use strict';
 
-const RELEASE=window.R45_RELEASE_LABEL||'石頭少爺 Agent V47 研究候選版｜R5.3.2.4.18-R4.5';
-const FILE_VERSION=window.R45_FILE_VERSION||'V47_R5.3.2.4.18-R4.5_研究候選';
+const RELEASE=window.R45_RELEASE_LABEL||'石頭少爺 Agent V47 研究候選版｜R5.3.2.4.19-R4.5';
+const FILE_VERSION=window.R45_FILE_VERSION||'V47_R5.3.2.4.19-R4.5_研究候選';
 const E=window.ShitouTechnicalEvidenceR45;
 const DETAIL={width:1284,height:2778,top:92,bottom:70,side:22};
 const IPHONE_12_PRO_MAX={width:1284,height:2778,minReadableScale:.90};
@@ -57,7 +57,7 @@ function zip(entries){
 
 function safeName(value){
   const base=typeof window.sanitizeFilenameV3328==='function'?window.sanitizeFilenameV3328(value):String(value||'報告').replace(/[\\/:*?"<>|]+/g,'_');
-  return base.replace(/R5\.3\.2\.4\.13-R4\.4[^.\s]*/g,'R5.3.2.4.18-R4.5');
+  return base.replace(/R5\.3\.2\.4\.13-R4\.4[^.\s]*/g,'R5.3.2.4.19-R4.5');
 }
 
 function dateOf(value){return String(value||'').replace(/\D/g,'').slice(0,8)||'latest';}

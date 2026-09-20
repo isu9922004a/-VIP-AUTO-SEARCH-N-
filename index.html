@@ -1,4 +1,4 @@
-<!-- 石頭少爺 Agent V47 研究候選版｜R5.3.2.4.18-R4.5 圖片滿版字體優化驗收候選：只調整個股／大盤圖片展示層；原有雙通道快篩、MACD、最近壓力與遠期目標、原始排序分、Pivot、Swing Chain、ABC／N字、三週期分數與既有Hard Reject核心全部保留。 -->
+<!-- 石頭少爺 Agent V47 研究候選版｜R5.3.2.4.19-R4.5 前端資源調度與失敗呈現修正版：只調整前端請求節奏、有限重試與失敗呈現；原有選股公式、分數、資格、排序、Worker 契約及既有圖片展示成果全部保留。 -->
 <!DOCTYPE html>
 
 <html lang="zh-TW">
@@ -9,7 +9,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>石頭少爺 Agent V47 研究候選版｜R5.3.2.4.18-R4.5 圖片滿版字體優化驗收候選</title>
+<title>石頭少爺 Agent V47 研究候選版｜R5.3.2.4.19-R4.5 前端資源調度與失敗呈現修正版</title>
 
 <style>
 
@@ -1083,7 +1083,7 @@ body.dark .v46-reason,body.dark .v46-note,body.dark .v46-family{color:#d2dae7}bo
 
     <p>盤後個股判讀＋三重選股把關＋區段量價防守＋主升段／當沖產業輪動</p>
 
-    <span class="version-pill">石頭少爺 Agent V47 研究候選版｜R5.3.2.4.18-R4.5 圖片滿版字體優化驗收候選｜盤後資料｜原始策略不變</span>
+    <span class="version-pill">石頭少爺 Agent V47 研究候選版｜R5.3.2.4.19-R4.5 前端資源調度與失敗呈現修正版｜盤後資料｜原始策略不變</span>
 
   </div>
 
@@ -1861,7 +1861,7 @@ body.dark .v46-reason,body.dark .v46-note,body.dark .v46-family{color:#d2dae7}bo
   </div>
 </div>
 
-<footer class="footer"><strong>石頭少爺 Agent V47 研究候選版｜R5.3.2.4.18-R4.5 圖片滿版字體優化驗收候選</strong><br>本頁使用最近完成交易日的盤後資料，不是即時看盤；網頁、文字與圖片報告共用同一份分析結果。EMA／KD與歷史支撐壓力只補充證據，不會改寫原有分數、資格、排序或進場檢查。<br>技術分析僅供研究與決策參考，不構成投資建議；所有分數都是條件評估，不是勝率或上漲機率。</footer>
+<footer class="footer"><strong>石頭少爺 Agent V47 研究候選版｜R5.3.2.4.19-R4.5 前端資源調度與失敗呈現修正版</strong><br>本頁使用最近完成交易日的盤後資料，不是即時看盤；網頁、文字與圖片報告共用同一份分析結果。EMA／KD與歷史支撐壓力只補充證據，不會改寫原有分數、資格、排序或進場檢查。<br>技術分析僅供研究與決策參考，不構成投資建議；所有分數都是條件評估，不是勝率或上漲機率。</footer>
 
 <script>
 // V40｜三週期盤後適配度＋Decision Layer整合版。Worker分數為主，前端舊公式保留fallback；不使用盤中假資料。
@@ -2109,7 +2109,7 @@ body.dark .v46-reason,body.dark .v46-note,body.dark .v46-family{color:#d2dae7}bo
 // 不新增艾略特1～5浪或ABC修正浪計數。
 // ========================================================================
 
-const V40_RELEASE_LABEL="石頭少爺 Agent V47 研究候選版｜R5.3.2.4.18-R4.5 圖片滿版字體優化驗收候選";
+const V40_RELEASE_LABEL="石頭少爺 Agent V47 研究候選版｜R5.3.2.4.19-R4.5 前端資源調度與失敗呈現修正版";
 const API_BASE_URL="https://shitou-agent-fib-api.d318426.workers.dev";
 
 // V40：延續 GIS-KY 英文名稱修正；新增「戰術頸線突破」與「Fib B正式突破」角色隔離，避免B尚未突破卻被寫成支撐。
@@ -24909,9 +24909,9 @@ function momentumFastScoreV377737(q){
 
 const MOMENTUM_DEEP_LIMIT_V3765=70;
 const MOMENTUM_DEEP_CONCURRENCY_V3765=1;
-const MOMENTUM_DEEP_REQUEST_GAP_MS_V3765=650;
-const MOMENTUM_DEEP_BATCH_SIZE_V3765=18;
-const MOMENTUM_DEEP_BATCH_GAP_MS_V3765=1800;
+const MOMENTUM_DEEP_REQUEST_GAP_MS_V3765=1200;
+const MOMENTUM_DEEP_BATCH_SIZE_V3765=1;
+const MOMENTUM_DEEP_BATCH_GAP_MS_V3765=2400;
 const MOMENTUM_DEEP_QUALITY_MIN_V3765=0.90;
 
 function numLooseV3765(v){
@@ -25691,6 +25691,8 @@ const MOMENTUM_DEEP_PROXY_BATCH_V3768=1; // Free Worker: bound CPU/payload per r
 const MOMENTUM_DEEP_PROXY_TIMEOUT_MS_V3768=95000;
 const MOMENTUM_DEEP_PROXY_RETRIES_V3768=2;
 const MOMENTUM_DEEP_QUALITY_MIN_V3768=0.95;
+const MOMENTUM_DEEP_PROXY_GAP_MS_V19=1400;
+const MOMENTUM_DEEP_RETRY_GAP_MS_V19=2600;
 
 function strategicMomentumTargetV3768(st,close,rr){
   const mk=(label,value,role,formal=true)=>{
@@ -26134,9 +26136,9 @@ async function runMomentumScanV3769(){
         for(const item of batch){const x=byCode.get(item.code);if(x?.ok)accept(item,x);else retry(item,new Error(x?.error||"DeepScan 未回傳結果"));}
       }
       progress();
-      if(!momentumScanAbortV3762&&start+batch.length<total)await sleepMomentumV3763(900);
+      if(!momentumScanAbortV3762&&start+batch.length<total)await sleepMomentumV3763(MOMENTUM_DEEP_PROXY_GAP_MS_V19);
     }
-    if(retryQueue.length&&!momentumScanAbortV3762)await sleepMomentumV3763(1800);
+    if(retryQueue.length&&!momentumScanAbortV3762)await sleepMomentumV3763(MOMENTUM_DEEP_RETRY_GAP_MS_V19);
     for(let i=0;i<retryQueue.length&&!momentumScanAbortV3762;i++){
       const {item}=retryQueue[i];
       if(btn)btn.textContent=`🛠️ 補救 ${i+1}/${retryQueue.length}｜${item.code}`;
@@ -26144,7 +26146,7 @@ async function runMomentumScanV3769(){
         const payload=await fetchDeepBatchViaMarketWorkerV3768([item],"CORE");if(payload?.health)deepHealth=payload.health;
         accept(item,(payload?.results||[]).find(x=>String(x.code)===item.code),true);
       }catch(error){outcomes.set(item.code,fail(item,error));}
-      progress();if(!momentumScanAbortV3762&&i+1<retryQueue.length)await sleepMomentumV3763(650);
+      progress();if(!momentumScanAbortV3762&&i+1<retryQueue.length)await sleepMomentumV3763(MOMENTUM_DEEP_RETRY_GAP_MS_V19);
     }
     const audit=momentumAuditV377737(outcomes,total),candidates=audit.candidates;
     candidates.sort(momentumLaunchCompareV37617);
@@ -28232,12 +28234,16 @@ async function runDayTradeScanV1(){
     }
 
     const audit=dayTradeAuditV377736(outcomes,total),candidates=audit.candidates;
+    candidates.forEach((c,index)=>{
+      c.originalCandidateOrderV19=index;
+      c.originalCandidateGradeV19=c.grade;
+      c.originalCandidateScoreV19=c?.score?.final??null;
+      c.originalCandidateEligibleV19=c.eligible===true;
+    });
     const decisionEnrich=dayTradeScanAbortV1
-      ?{requested:0,success:0,failed:0,skipped:"USER_ABORT"}
+      ?{requested:0,success:0,failed:0,pending:candidates.length,aborted:true,skipped:"USER_ABORT"}
       :await dayTradeEnrichFinalCandidatesV39B12(candidates);
-    candidates.forEach(applyDayTradeActionGateV40);
-    candidates.sort(dayTradeCompareV1);
-    assignDayTradeDisplayRanksV40(candidates);
+    finalizeDayTradeCandidatesV19(candidates,decisionEnrich);
     const count=fn=>candidates.filter(fn).length;
     const completed=!dayTradeScanAbortV1&&audit.done===total;
     const fullDataReady=decisionEnrich.failed===0&&decisionEnrich.success===decisionEnrich.requested;
@@ -28252,14 +28258,14 @@ async function runDayTradeScanV1(){
       deferredCount:p1.deferred.length,deferredCodes:p1.deferred.map(x=>x.code),pendingCodes:p1.deep.filter(x=>!outcomes.has(x.code)||outcomes.get(x.code).status==="RETRY").map(x=>x.code),
       deepLimit:Number.isFinite(deepLimit)?deepLimit:"all",sCount:count(c=>c.grade==="S"),aCount:count(c=>c.grade==="A"),bCount:count(c=>c.grade==="B"),
       lowTurnCount:count(c=>c.setup.key==="LOW_TURN"),breakoutCount:count(c=>c.setup.key==="BREAKOUT"),continuationCount:count(c=>c.setup.key==="CONTINUATION"),
-      marketBundleMeta:bundle.meta,source:`${V40_RELEASE_LABEL}｜完整市場快照→140檔自適應續跑→完整個股進場檢查→正式排序；原當沖掃描分公式不變`,
+      marketBundleMeta:bundle.meta,source:`${V40_RELEASE_LABEL}｜完整市場快照→單檔串行深入分析→完整個股資料有限補抓；補抓失敗保留原候選；原當沖掃描分公式不變`,
       chipContract:"report.dayTradeChips（可選；缺資料時不補猜、不扣分）"
     };
     renderDayTradeScanResultV1(lastDayTradeScanDataV1);
     if(result){result.style.display="block";result.scrollIntoView({behavior:"smooth",block:"start"});}
     if(err){
       err.style.display="block";err.style.background=qualityPass?"var(--greenbg)":"var(--yellowbg)";err.style.color=qualityPass?"var(--green)":"var(--yellow)";
-      err.textContent=`${qualityPass?"✅":"⚠️"} ${completed?"本次範圍分析完成":"掃描已停止"}｜候選 ${candidates.length}｜快篩合格 ${p1.ranked.length}，請求已結束 ${audit.done}/${total}｜有效分析 ${audit.success}｜核心失敗 ${audit.failed}，尚未完成 ${audit.pending}｜完整個股資料 ${decisionEnrich.success}/${decisionEnrich.requested}，失敗 ${decisionEnrich.failed}${resourceProtectionTriggered?`｜曾自動降速 ${resourceCooldownCount} 次`:""}。${qualityPass?"":"有效資料未達完整性標準時，結果僅供部分觀察。"}`;
+      err.textContent=`${qualityPass?"✅":"⚠️"} ${completed?"本次範圍分析完成":"掃描已停止"}｜候選 ${candidates.length}｜快篩合格 ${p1.ranked.length}，請求已結束 ${audit.done}/${total}｜有效分析 ${audit.success}｜核心請求失敗 ${audit.failed}，尚未完成 ${audit.pending}｜完整個股資料 ${decisionEnrich.success}/${decisionEnrich.requested}，詳細資料暫缺 ${decisionEnrich.failed||0}，補抓未完成 ${decisionEnrich.pending||0}${resourceProtectionTriggered?`｜曾自動降速 ${resourceCooldownCount} 次`:""}。${qualityPass?"":"請求或資源問題不會當成策略不合格，原候選仍保留。"}`;
     }
   }catch(error){
     console.error(error);
@@ -28289,22 +28295,71 @@ function isCompleteFullAnalysisV40(data,expectedCode=""){
     .every(key=>data[key]&&typeof data[key]==="object");
 }
 
+function dayTradeDetailFailureStateV19(reason){
+  const cls=classifyMomentumFailureV3763(new Error(String(reason||"完整個股資料暫缺")));
+  const text=String(reason||"");
+  if(/CPU|執行時間|1102|資源|limit exceeded/i.test(text))return {state:"RESOURCE_LIMIT",label:"詳細資料暫缺｜伺服器資源限制",reason:text};
+  if(/timeout|timed out|AbortError|逾時|failed to fetch|HTTP\s*[45]/i.test(text))return {state:"REQUEST_FAILED",label:"詳細資料暫缺｜連線或服務暫時異常",reason:text};
+  if(cls?.key==="DATA")return {state:"DATA_INSUFFICIENT",label:"詳細資料暫缺｜回傳欄位不足",reason:text};
+  return {state:"REQUEST_FAILED",label:"詳細資料暫缺｜稍後可重新查詢",reason:text};
+}
+
+function markDayTradeDetailUnavailableV19(c,status){
+  const detail=status||{state:"REQUEST_FAILED",label:"詳細資料暫缺｜稍後可重新查詢",reason:"完整個股資料未完成"};
+  c.decisionEnrichedV39B12=false;
+  c.detailDataStatusV19={...detail,available:false,originalCandidatePreserved:true};
+  c.actionGate={
+    modelId:"DAYTRADE_DETAIL_STATUS_V19",version:"R5.3.2.4.19",key:"DETAIL_UNAVAILABLE",category:"DATA_INSUFFICIENT",icon:"⚪",
+    label:detail.label,reasons:[detail.reason||detail.label],formalEligible:false,top3Eligible:false,conditionalEligible:false,
+    originalScorePreserved:true,originalQualificationPreserved:true,dataComplete:false
+  };
+  c.actionGateRankV40=2;
+  c.displayRankV40=null;
+  return c;
+}
+
+function finalizeDayTradeCandidatesV19(candidates,decisionEnrich){
+  const list=Array.isArray(candidates)?candidates:[];
+  const failureMap=new Map((decisionEnrich?.failures||[]).map(x=>[String(x.code),x]));
+  const preserveOriginalOrder=(decisionEnrich?.failed||0)>0||(decisionEnrich?.pending||0)>0||decisionEnrich?.aborted===true;
+  for(const c of list){
+    if(c.decisionEnrichedV39B12===true){
+      c.detailDataStatusV19={state:"AVAILABLE",label:"完整個股資料已取得",available:true,originalCandidatePreserved:true};
+      applyDayTradeActionGateV40(c);
+    }else{
+      const code=String(c?.report?.stock||c?.report?.code||"");
+      const row=failureMap.get(code);
+      const status=decisionEnrich?.aborted===true
+        ?{state:"USER_ABORT",label:"詳細資料暫缺｜使用者已中止",reason:"使用者中止完整資料補抓"}
+        :(row?.status||dayTradeDetailFailureStateV19(row?.reason));
+      markDayTradeDetailUnavailableV19(c,status);
+    }
+  }
+  if(preserveOriginalOrder){
+    list.sort((a,b)=>(a.originalCandidateOrderV19??Number.MAX_SAFE_INTEGER)-(b.originalCandidateOrderV19??Number.MAX_SAFE_INTEGER));
+  }else list.sort(dayTradeCompareV1);
+  assignDayTradeDisplayRanksV40(list);
+  return list;
+}
+window.finalizeDayTradeCandidatesV19=finalizeDayTradeCandidatesV19;
+
 async function dayTradeEnrichFinalCandidatesV39B12(candidates){
   const list=Array.isArray(candidates)?candidates:[];
-  if(!list.length)return {requested:0,success:0,failed:0,retryRecovered:0,failedCodes:[],failures:[],cooldowns:0};
+  if(!list.length)return {requested:0,success:0,failed:0,pending:0,aborted:false,retryRecovered:0,failedCodes:[],failures:[],cooldowns:0};
   let success=0,retryRecovered=0,cooldowns=0,resourceStreak=0;
   const failures=[];
   const codeOf=c=>String(c?.report?.stock||c?.report?.code||"");
+  list.forEach(c=>{c.detailDataStatusV19={state:"PENDING",label:"完整個股資料補抓中",available:false,originalCandidatePreserved:true};});
   const accept=(c,x,recovered=false)=>{
     if(!(x?.ok&&isCompleteFullAnalysisV40(x.data,codeOf(c))))return false;
-    c.report=x.data;c.decisionEnrichedV39B12=true;success++;resourceStreak=0;
+    c.report=x.data;c.decisionEnrichedV39B12=true;c.detailDataStatusV19={state:"AVAILABLE",label:"完整個股資料已取得",available:true,originalCandidatePreserved:true};success++;resourceStreak=0;
     if(recovered)retryRecovered++;
     return true;
   };
-  // R4.2：FULL 判讀改成最多2檔的小批次；批次失敗時逐檔補救，不讓單一股票拖累整批。
-  for(let start=0;start<list.length;start+=2){
+  // R5.3.2.4.19：FULL 補充資料改為單檔串行；失敗只標示詳細資料暫缺，不改原候選資格與順序。
+  for(let start=0;start<list.length;start+=1){
     if(dayTradeScanAbortV1)break;
-    const batch=list.slice(start,start+2);
+    const batch=list.slice(start,start+1);
     let unresolved=[...batch],firstError="";
     try{
       const payload=await fetchDeepBatchViaMarketWorkerV3768(batch.map(c=>({code:codeOf(c)})),"FULL");
@@ -28348,14 +28403,17 @@ async function dayTradeEnrichFinalCandidatesV39B12(candidates){
       }
       if(!recovered){
         c.decisionEnrichedV39B12=false;
-        failures.push({code,reason:lastReason});
+        const status=dayTradeDetailFailureStateV19(lastReason);
+        c.detailDataStatusV19={...status,available:false,originalCandidatePreserved:true};
+        failures.push({code,reason:lastReason,status});
       }
-      if(!dayTradeScanAbortV1)await sleepMomentumV3763(550);
+      if(!dayTradeScanAbortV1)await sleepMomentumV3763(1200);
     }
-    if(start+2<list.length&&!dayTradeScanAbortV1)await sleepMomentumV3763(500);
+    if(start+1<list.length&&!dayTradeScanAbortV1)await sleepMomentumV3763(1400);
   }
-  const failed=list.length-success;
-  return {requested:list.length,success,failed,retryRecovered,failedCodes:failures.map(x=>x.code),failures,cooldowns};
+  const pending=dayTradeScanAbortV1?list.filter(c=>c.decisionEnrichedV39B12!==true&&!failures.some(x=>x.code===codeOf(c))).length:0;
+  const failed=failures.length;
+  return {requested:list.length,success,failed,pending,aborted:dayTradeScanAbortV1,retryRecovered,failedCodes:failures.map(x=>x.code),failures,cooldowns};
 }
 
 function dayTradeRiskLabelV1(c){
@@ -30931,7 +30989,7 @@ buildReportText=function(report){
 // 本層只讀取既有結果，不改 ABC、N字、Pivot、Swing、Fib、月線、三週期分數、
 // RSI、OBV、CMF、支撐壓力、原有價位與共用操作檢查。教材訊號永遠不能單獨開啟執行。
 // ========================================================================
-const V46_RELEASE_LABEL="石頭少爺 Agent V47 研究候選版｜R5.3.2.4.18-R4.5 圖片滿版字體優化驗收候選";
+const V46_RELEASE_LABEL="石頭少爺 Agent V47 研究候選版｜R5.3.2.4.19-R4.5 前端資源調度與失敗呈現修正版";
 const V46_EDUCATION_CACHE=new WeakMap();
 const V46_CONTEXT_CACHE=new WeakMap();
 
@@ -33523,23 +33581,23 @@ dayTradeAuditV377736=function(outcomes,total){
 };
 
 function dayTradeFunnelV53249(scan){
-  const list=Array.isArray(scan?.candidates)?scan.candidates:[],formal=list.filter(dayTradeFormalRankEligibleV53249),conditional=list.filter(c=>c?.actionGate?.conditionalEligible===true),backup=list.filter(c=>c?.actionGate?.category==="DATA_INSUFFICIENT"),riskPenalty=list.filter(c=>(c?.dayTradeRiskState?.riskPenalty||0)>0),noChase=list.filter(c=>c?.dayTradeRiskState?.noChase===true||c?.actionGate?.key==="NO_CHASE");
+  const list=Array.isArray(scan?.candidates)?scan.candidates:[],formal=list.filter(dayTradeFormalRankEligibleV53249),conditional=list.filter(c=>c?.actionGate?.conditionalEligible===true),detailUnavailable=list.filter(c=>c?.detailDataStatusV19?.available===false),backup=list.filter(c=>c?.actionGate?.category==="DATA_INSUFFICIENT"&&c?.detailDataStatusV19?.available!==false),riskPenalty=list.filter(c=>(c?.dayTradeRiskState?.riskPenalty||0)>0),noChase=list.filter(c=>c?.dayTradeRiskState?.noChase===true||c?.actionGate?.key==="NO_CHASE");
   const fakeSuspect=list.filter(c=>c?.dayTradeRiskState?.fakeBreakoutTier==="SUSPECT").length,fakeHigh=list.filter(c=>c?.dayTradeRiskState?.fakeBreakoutTier==="HIGH_RISK").length,fakeConfirmed=(scan?.hardGateSkipped||0)+list.filter(c=>c?.dayTradeRiskState?.fakeBreakoutTier==="CONFIRMED").length;
   const hotSingle=list.filter(c=>c?.dayTradeRiskState?.overheatingEvidenceCount===1).length,hotMulti=list.filter(c=>(c?.dayTradeRiskState?.overheatingEvidenceCount||0)>=2).length;
   const unanalysed=Math.max(0,Number(scan?.deferredCount||0)+Number(scan?.pending||0));
   const basicTradable=Math.max(0,Number(scan?.done||0)-Number(scan?.baseFilterSkipped||0)-Number(scan?.dataSkippedCount||0)-Number(scan?.failed||0));
-  return {version:"R5.3.2.4.9",quickQualified:scan?.phase1Ranked??null,deepPlanned:scan?.total??null,deepAnalysed:scan?.done??0,basicTradable,hardReject:scan?.hardGateSkipped||0,noChase:noChase.length,riskPenalty:riskPenalty.length,scored:scan?.scoredCount??(list.length+(scan?.scoreSkipped||0)),scoreInsufficient:scan?.scoreSkipped||0,formal:formal.length,conditional:conditional.length,dataInsufficient:(scan?.dataSkippedCount||0)+backup.length,unanalysed,
+  return {version:"R5.3.2.4.19",quickQualified:scan?.phase1Ranked??null,deepPlanned:scan?.total??null,deepAnalysed:scan?.done??0,basicTradable,hardReject:scan?.hardGateSkipped||0,noChase:noChase.length,riskPenalty:riskPenalty.length,scored:scan?.scoredCount??(list.length+(scan?.scoreSkipped||0)),scoreInsufficient:scan?.scoreSkipped||0,formal:formal.length,conditional:conditional.length,dataInsufficient:(scan?.dataSkippedCount||0)+backup.length,detailUnavailable:detailUnavailable.length,unanalysed,
     fakeBreakout:{suspect:fakeSuspect,highRisk:fakeHigh,confirmed:fakeConfirmed},overheat:{single:hotSingle,multi:hotMulti},formalCandidates:formal,conditionalCandidates:conditional};
 }
 window.dayTradeFunnelV53249=dayTradeFunnelV53249;
 
 function dayTradeCandidateBreakdownV53249(scanOrList){
   const scan=Array.isArray(scanOrList)?null:scanOrList,list=Array.isArray(scanOrList)?scanOrList:Array.isArray(scanOrList?.candidates)?scanOrList.candidates:[];
-  const formal=list.filter(dayTradeFormalRankEligibleV53249),conditional=list.filter(c=>c?.actionGate?.conditionalEligible===true),backup=list.filter(c=>c?.actionGate?.category==="DATA_INSUFFICIENT"),hardRejected=list.filter(c=>c?.actionGate?.category==="HARD_REJECT");
+  const formal=list.filter(dayTradeFormalRankEligibleV53249),conditional=list.filter(c=>c?.actionGate?.conditionalEligible===true),detailUnavailable=list.filter(c=>c?.detailDataStatusV19?.available===false),backup=list.filter(c=>c?.actionGate?.category==="DATA_INSUFFICIENT"&&c?.detailDataStatusV19?.available!==false),hardRejected=list.filter(c=>c?.actionGate?.category==="HARD_REJECT");
   const reasonStats={};for(const c of [...conditional,...backup]){const k=c?.primaryBlocker?.label||c?.actionGate?.label||"其他";reasonStats[k]=(reasonStats[k]||0)+1;}if(scan?.hardGateBreakdown)for(const [k,v] of Object.entries(scan.hardGateBreakdown))reasonStats[k]=(reasonStats[k]||0)+v;
   const highRiskCount=(scan?.hardGateSkipped||0)+hardRejected.length;
-  return {total:list.length,formalCount:formal.length,blockedCount:conditional.length,conditionalCount:conditional.length,backupCount:backup.length,highRiskCount,formal,blocked:conditional,conditional,backup,hardRejected,reasonStats,
-    label:`正式當沖候選 ${formal.length} 檔＋條件式觀察 ${conditional.length} 檔＋資料不足 ${backup.length} 檔＋確認危險淘汰 ${highRiskCount} 檔`,note:"正式候選代表具隔日觀察價值；條件式觀察不是不能做，而是隔日不能直接追高。"};
+  return {total:list.length,formalCount:formal.length,blockedCount:conditional.length,conditionalCount:conditional.length,backupCount:backup.length,detailUnavailableCount:detailUnavailable.length,highRiskCount,formal,blocked:conditional,conditional,backup,detailUnavailable,hardRejected,reasonStats,
+    label:`正式當沖候選 ${formal.length} 檔＋條件式觀察 ${conditional.length} 檔＋資料不足 ${backup.length} 檔＋詳細資料暫缺 ${detailUnavailable.length} 檔＋確認危險淘汰 ${highRiskCount} 檔`,note:"詳細資料暫缺只代表補充查詢失敗；原候選資格、分數與順序仍保留。"};
 }
 dayTradeCandidateBreakdownV512=dayTradeCandidateBreakdownV53249;
 
@@ -33727,8 +33785,8 @@ const buildDayTradeTextReportV1_V532410_BASE=buildDayTradeTextReportV1;
 buildDayTradeTextReportV1=function(scan){
   let t=buildDayTradeTextReportV1_V532410_BASE(scan),f=dayTradeFunnelV53249(scan);
   t=v532410PlainText(t)
-    .replace(/名單口徑：正式當沖候選 \d+ 檔＋條件式觀察 \d+ 檔＋資料不足 \d+ 檔＋確認危險淘汰 \d+ 檔。[^\n]*/,
-      `名單口徑：正式當沖候選 ${f.formal} 檔＋條件式觀察 ${f.conditional} 檔＋資料不足 ${f.dataInsufficient} 檔＋確認危險淘汰 ${f.hardReject} 檔。正式候選＝明天值得優先觀察；條件式觀察＝仍可看，但不能直接追高。`)
+    .replace(/名單口徑：正式當沖候選 \d+ 檔＋條件式觀察 \d+ 檔＋資料不足 \d+ 檔(?:＋詳細資料暫缺 \d+ 檔)?＋確認危險淘汰 \d+ 檔。[^\n]*/,
+      `名單口徑：正式當沖候選 ${f.formal} 檔＋條件式觀察 ${f.conditional} 檔＋資料不足 ${f.dataInsufficient} 檔＋詳細資料暫缺 ${f.detailUnavailable||0} 檔＋確認危險淘汰 ${f.hardReject} 檔。詳細資料暫缺不會移除原候選，也不會改寫原分數、資格或順序。`)
     .replace(/假突破警訊檢查＝[^\n]*/,
       "假突破怎麼判斷＝先累積警訊，例如收盤跌回突破價、上影線偏長、量放大但價格推不動、收盤偏弱。只有多項高風險警訊同時出現，而且包含關鍵價位失守，才直接淘汰；只有疑慮就扣分或禁止追高。")
     .replace(/【R5\.3\.2\.4\.10安全總覽】/g,"【當沖安全總覽｜R5.3.2.4.13-R4.4】")
@@ -34272,9 +34330,12 @@ async function r43RunDayTradeSecondRound(scan){
     }catch(e){failed++;auditRows.push({code,name:item.name,status:"FAILED",reason:String(e?.message||e)});}
     if(i+1<codes.length)await sleepMomentumV3763(900);
   }
-  const enrich=dayTradeScanAbortV1?{requested:0,success:0,failed:0}:await dayTradeEnrichFinalCandidatesV39B12(newCandidates);
-  newCandidates.forEach(applyDayTradeActionGateV40);
-  const combined=[...(scan.candidates||[]),...newCandidates];combined.sort(dayTradeCompareV1);assignDayTradeDisplayRanksV40(combined);
+  newCandidates.forEach((c,index)=>{c.originalCandidateOrderV19=index;c.originalCandidateGradeV19=c.grade;c.originalCandidateScoreV19=c?.score?.final??null;c.originalCandidateEligibleV19=c.eligible===true;});
+  const enrich=dayTradeScanAbortV1?{requested:0,success:0,failed:0,pending:newCandidates.length,aborted:true}:await dayTradeEnrichFinalCandidatesV39B12(newCandidates);
+  finalizeDayTradeCandidatesV19(newCandidates,enrich);
+  const combined=[...(scan.candidates||[]),...newCandidates];
+  if((enrich.failed||0)===0&&(enrich.pending||0)===0&&!enrich.aborted)combined.sort(dayTradeCompareV1);
+  assignDayTradeDisplayRanksV40(combined);
   const formalAfter=combined.filter(c=>dayTradeFormalRankEligibleV53249(c)).length;
   const n=codes.length,successAdd=newCandidates.length+hard+base+scoreLow;
   scan.candidates=combined;scan.initialDeepTotalR43=scan.total;scan.secondRoundTriggeredR43=true;scan.secondRoundAnalyzedR43=n;scan.secondRoundFormalBeforeR43=formalBefore;scan.secondRoundFormalAfterR43=formalAfter;
