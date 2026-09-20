@@ -1,8 +1,8 @@
-/* R5.3.2.4.19-R4.5 research candidate: frontend resource scheduling and failure presentation fix. */
+/* R5.3.2.4.19-R4.5 official release: frontend resource scheduling and failure presentation fix. */
 (function(){
 'use strict';
 
-const RELEASE='石頭少爺 Agent V47 研究候選版｜R5.3.2.4.19-R4.5 前端資源調度與失敗呈現修正版';
+const RELEASE='石頭少爺 Agent V47 正式版｜R5.3.2.4.19-R4.5 前端資源調度與失敗呈現修正版';
 const FILE_VERSION='V47_R5.3.2.4.19-R4.5_前端資源調度與失敗呈現修正版';
 const E=window.ShitouTechnicalEvidenceR45;
 window.R45_RELEASE_LABEL=RELEASE;
