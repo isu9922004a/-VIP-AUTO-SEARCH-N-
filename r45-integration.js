@@ -1,9 +1,9 @@
-/* R5.3.2.4.14-R4.5 research candidate: UI/text integration only. */
+/* R5.3.2.4.15-R4.5 research candidate: image layout typography optimization. */
 (function(){
 'use strict';
 
-const RELEASE='石頭少爺 Agent V47 研究候選版｜R5.3.2.4.14-R4.5 四大模組整合驗收候選';
-const FILE_VERSION='V47_R5.3.2.4.14-R4.5_四大模組整合驗收候選';
+const RELEASE='石頭少爺 Agent V47 研究候選版｜R5.3.2.4.15-R4.5 圖片滿版字體優化驗收候選';
+const FILE_VERSION='V47_R5.3.2.4.15-R4.5_圖片滿版字體優化驗收候選';
 const E=window.ShitouTechnicalEvidenceR45;
 window.R45_RELEASE_LABEL=RELEASE;
 window.R45_FILE_VERSION=FILE_VERSION;

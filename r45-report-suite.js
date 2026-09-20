@@ -1,9 +1,9 @@
-/* R5.3.2.4.14-R4.5 research candidate: full-screen stock reports and restored beginner trident. */
+/* R5.3.2.4.15-R4.5 research candidate: stock/market full-screen typography optimization. */
 (function(){
 'use strict';
 
-const RELEASE=window.R45_RELEASE_LABEL||'石頭少爺 Agent V47 研究候選版｜R5.3.2.4.14-R4.5';
-const FILE_VERSION=window.R45_FILE_VERSION||'V47_R5.3.2.4.14-R4.5_研究候選';
+const RELEASE=window.R45_RELEASE_LABEL||'石頭少爺 Agent V47 研究候選版｜R5.3.2.4.15-R4.5';
+const FILE_VERSION=window.R45_FILE_VERSION||'V47_R5.3.2.4.15-R4.5_研究候選';
 const E=window.ShitouTechnicalEvidenceR45;
 const DETAIL={width:1284,height:2778,top:92,bottom:70,side:22};
 const IPHONE_12_PRO_MAX={width:1284,height:2778,minReadableScale:.90};
@@ -57,7 +57,7 @@ function zip(entries){
 
 function safeName(value){
   const base=typeof window.sanitizeFilenameV3328==='function'?window.sanitizeFilenameV3328(value):String(value||'報告').replace(/[\\/:*?"<>|]+/g,'_');
-  return base.replace(/R5\.3\.2\.4\.13-R4\.4[^.\s]*/g,'R5.3.2.4.14-R4.5');
+  return base.replace(/R5\.3\.2\.4\.13-R4\.4[^.\s]*/g,'R5.3.2.4.15-R4.5');
 }
 
 function dateOf(value){return String(value||'').replace(/\D/g,'').slice(0,8)||'latest';}
@@ -236,6 +236,23 @@ function priceText(value){
   return Number.isFinite(Number(value))?(E?E.price(value):Number(value).toFixed(2)):'資料不足';
 }
 
+function drawPreservedAssistantMiniCard(source,report){
+  if(source?.dataset?.reportMode!=='professional')return source;
+  const evidence=report?.shitoAssistantEvidence||{},operating=evidence.operatingGateEvidence||{},capital=evidence.capitalGateEvidence||{};
+  const statusText=item=>item?.status==='pass'?'通過':item?.status==='fail'?'未通過':item?.status==='partial'?'接近條件':item?.status==='unavailable'?'資料不足':(item?.label||'資料不足');
+  const statusColor=item=>item?.status==='pass'?'#16804f':item?.status==='fail'?'#c3273d':item?.status==='partial'?'#b36b00':'#67768a';
+  const out=copyCanvas(source),context=out.getContext('2d'),x=862,y=1866,width=273,height=115;
+  rounded(context,x,y,width,height,12,'#ffffff','#d2dce8');context.fillStyle='#27648a';context.fillRect(x,y,6,height);
+  fitText(context,'🛡️ 少爺助理｜公司・法人',x+16,y+25,width-28,{max:16,min:11,weight:950,color:'#173a5d'});
+  fitText(context,`公司營運：${statusText(operating)}`,x+16,y+56,width-28,{max:16,min:11,weight:900,color:statusColor(operating)});
+  fitText(context,`法人買盤：${statusText(capital)}`,x+16,y+84,width-28,{max:16,min:11,weight:900,color:statusColor(capital)});
+  fitText(context,'僅保留既有證據，不改原判讀',x+16,y+105,width-28,{max:11,min:9,weight:800,color:'#6b7788'});
+  out.dataset.r45ImageBlocksRemoved='holder-card,industry-panel,strength-risk-panel';
+  out.dataset.r45ImageBlocksKept='company-card,capital-card,major-volume-zone';
+  out.dataset.r45AssistantMiniCard='professional-d-grid-empty-cell';
+  return out;
+}
+
 function appendStockCompactEvidence(source,report){
   const p=report?.shitoAssistantEvidence?.anchoredVolumeProfileEvidence||{},evidence=E?E.analyze(report||{},{kind:'stock'}):null,values=evidence?.ema?.values||{};
   const price=value=>Number.isFinite(Number(value))?(E?E.price(value):Number(value).toFixed(2)):'資料不足';
@@ -254,7 +271,7 @@ function appendStockCompactEvidence(source,report){
     fitText(context,`KD(9,3,3) ${kd}`,x+20,y+99,width-34,{max:15,min:10,weight:900,color:'#586a7e'});
     fitText(context,`資料日 ${evidence?.dataQuality?.dataDate||report?.closeDate||'未提供'}｜補充證據不計分`,x+20,y+height-7,width-34,{max:11,min:9,weight:900,color:'#66758a'});
     out.dataset.r45StockCompactPanel='stage-right:major-volume-zone,ema,kd,rsi5';
-    if(mode==='professional')return compactProfessionalBottom(out,report);
+    if(mode==='professional')return compactProfessionalBottom(drawPreservedAssistantMiniCard(out,report),report);
 
     const trident=typeof window.tridentEngineV361==='function'?window.tridentEngineV361(report):null;
     const layer=typeof window.buildEducationLayerV46==='function'?window.buildEducationLayerV46(report):null;
