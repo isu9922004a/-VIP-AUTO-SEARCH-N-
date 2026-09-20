@@ -1,4 +1,4 @@
-<!-- 石頭少爺 Agent V47 研究候選版｜R5.3.2.4.15-R4.5 圖片滿版字體優化驗收候選：只調整個股／大盤圖片展示層；原有雙通道快篩、MACD、最近壓力與遠期目標、原始排序分、Pivot、Swing Chain、ABC／N字、三週期分數與既有Hard Reject核心全部保留。 -->
+<!-- 石頭少爺 Agent V47 研究候選版｜R5.3.2.4.16-R4.5 圖片滿版字體優化驗收候選：只調整個股／大盤圖片展示層；原有雙通道快篩、MACD、最近壓力與遠期目標、原始排序分、Pivot、Swing Chain、ABC／N字、三週期分數與既有Hard Reject核心全部保留。 -->
 <!DOCTYPE html>
 
 <html lang="zh-TW">
@@ -9,7 +9,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>石頭少爺 Agent V47 研究候選版｜R5.3.2.4.15-R4.5 圖片滿版字體優化驗收候選</title>
+<title>石頭少爺 Agent V47 研究候選版｜R5.3.2.4.16-R4.5 圖片滿版字體優化驗收候選</title>
 
 <style>
 
@@ -370,6 +370,7 @@ body{
 .image-modal-close{border:1px solid #cbd5e1;background:#fff;color:#334155;border-radius:9px;padding:8px 12px;font-weight:900;cursor:pointer}
 .image-preview-wrap{background:#e9eef5;border-radius:14px;padding:10px;max-height:72vh;overflow:auto;text-align:center}
 .image-preview-wrap img{display:block;width:100%;height:auto;max-width:1000px;margin:0 auto;border-radius:8px;background:#fff;box-shadow:0 6px 20px rgba(0,0,0,.12)}
+@media(max-width:600px){.image-modal{padding:0}.image-modal-card{padding:8px;border-radius:0}.image-preview-wrap{padding:0;border-radius:0;max-height:82vh}.image-preview-wrap img{max-width:none;border-radius:0}.image-modal-actions{gap:8px}.image-save-link,.image-share-btn{min-width:140px}}
 .image-modal-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:14px}
 .image-save-link,.image-share-btn{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;border:0;border-radius:11px;padding:12px 18px;font-size:15px;font-weight:900;cursor:pointer;min-width:170px}
 .image-save-link{background:#0b5ed7;color:#fff}
@@ -1082,7 +1083,7 @@ body.dark .v46-reason,body.dark .v46-note,body.dark .v46-family{color:#d2dae7}bo
 
     <p>盤後個股判讀＋三重選股把關＋區段量價防守＋主升段／當沖產業輪動</p>
 
-    <span class="version-pill">石頭少爺 Agent V47 研究候選版｜R5.3.2.4.15-R4.5 圖片滿版字體優化驗收候選｜盤後資料｜原始策略不變</span>
+    <span class="version-pill">石頭少爺 Agent V47 研究候選版｜R5.3.2.4.16-R4.5 圖片滿版字體優化驗收候選｜盤後資料｜原始策略不變</span>
 
   </div>
 
@@ -1860,7 +1861,7 @@ body.dark .v46-reason,body.dark .v46-note,body.dark .v46-family{color:#d2dae7}bo
   </div>
 </div>
 
-<footer class="footer"><strong>石頭少爺 Agent V47 研究候選版｜R5.3.2.4.15-R4.5 圖片滿版字體優化驗收候選</strong><br>本頁使用最近完成交易日的盤後資料，不是即時看盤；網頁、文字與圖片報告共用同一份分析結果。EMA／KD與歷史支撐壓力只補充證據，不會改寫原有分數、資格、排序或進場檢查。<br>技術分析僅供研究與決策參考，不構成投資建議；所有分數都是條件評估，不是勝率或上漲機率。</footer>
+<footer class="footer"><strong>石頭少爺 Agent V47 研究候選版｜R5.3.2.4.16-R4.5 圖片滿版字體優化驗收候選</strong><br>本頁使用最近完成交易日的盤後資料，不是即時看盤；網頁、文字與圖片報告共用同一份分析結果。EMA／KD與歷史支撐壓力只補充證據，不會改寫原有分數、資格、排序或進場檢查。<br>技術分析僅供研究與決策參考，不構成投資建議；所有分數都是條件評估，不是勝率或上漲機率。</footer>
 
 <script>
 // V40｜三週期盤後適配度＋Decision Layer整合版。Worker分數為主，前端舊公式保留fallback；不使用盤中假資料。
@@ -2108,7 +2109,7 @@ body.dark .v46-reason,body.dark .v46-note,body.dark .v46-family{color:#d2dae7}bo
 // 不新增艾略特1～5浪或ABC修正浪計數。
 // ========================================================================
 
-const V40_RELEASE_LABEL="石頭少爺 Agent V47 研究候選版｜R5.3.2.4.15-R4.5 圖片滿版字體優化驗收候選";
+const V40_RELEASE_LABEL="石頭少爺 Agent V47 研究候選版｜R5.3.2.4.16-R4.5 圖片滿版字體優化驗收候選";
 const API_BASE_URL="https://shitou-agent-fib-api.d318426.workers.dev";
 
 // V40：延續 GIS-KY 英文名稱修正；新增「戰術頸線突破」與「Fib B正式突破」角色隔離，避免B尚未突破卻被寫成支撐。
@@ -20585,7 +20586,7 @@ function drawReportBulletListV377734(ctx,bullets,x,y,w,h,opts={}){
   const gap=6,maxSize=opts.maxSize||20,minSize=12;
   let layouts,size=maxSize,needed;
   for(;;){
-    layouts=bullets.map(text=>layoutReportTextV377734(ctx,`• ${text}`,w,h,{...opts,maxSize:size,minSize:size,maxLines:2}));
+    layouts=bullets.map(text=>layoutReportTextV377734(ctx,`• ${text}`,w,10000,{...opts,maxSize:size,minSize:size,maxLines:99}));
     needed=layouts.reduce((sum,l)=>sum+l.height+2,0)+gap*(bullets.length-1);
     if(needed<=h||size<=minSize)break;
     size=Math.max(minSize,size-.5);
@@ -20594,7 +20595,7 @@ function drawReportBulletListV377734(ctx,bullets,x,y,w,h,opts={}){
   const equalH=Math.max(0,(h-gap*(bullets.length-1))/bullets.length);
   bullets.forEach((text,i)=>{
     const rowH=needed<=h?layouts[i].height+2:equalH;
-    drawReportTextBoxV377734(ctx,`• ${text}`,x,top,w,rowH,{...opts,maxSize:size,minSize:9,maxLines:2,verticalAlign:"top"});
+    drawReportTextBoxV377734(ctx,`• ${text}`,x,top,w,rowH,{...opts,maxSize:size,minSize:size,maxLines:99,verticalAlign:"top"});
     top+=rowH+gap;
   });
   return top;
@@ -21135,7 +21136,7 @@ function drawAbcValueRowV3329(ctx,x,y,w,key,color,label,value,date,unit="元"){
   if(n(value)!==null&&date)drawReportTextBoxV377734(ctx,dateCompactV3328(date),x+w-dateW-10,y+7,dateW,32,{maxSize:14,minSize:10,maxLines:1,align:"right",weight:750,color:P.muted});
 }
 
-// R5.3.2.4.15｜大盤圖片專用 ABC 列。只放大展示層並重新分配欄寬，
+// R5.3.2.4.16｜大盤圖片專用 ABC 列。只放大展示層並重新分配欄寬，
 // 數值與日期仍直接使用既有 marketInfographicStateV3328 結果。
 function drawMarketAbcValueRowV532415(ctx,x,y,w,key,color,label,value,date){
   const P=infoPaletteV3328(),rowH=56,dateW=122,labelW=96,valueX=x+54+labelW,valueW=w-54-labelW-dateW-16;
@@ -22342,19 +22343,19 @@ function renderStockInfographicV3328(report){
   drawStockComfortBackdropV37774(ctx,LOG_W,LOG_H);
   rrV3328(ctx,24,17,1192,54,18,"rgba(255,255,255,.74)",null);
 
-  drawHeaderTitleV3328(ctx,"🧩 新手先懂","這檔現在走到哪一步？");
-  drawStockComfortHeaderRibbonV37774(ctx,26,82,1190,72);
+  drawStockComfortHeaderRibbonV37774(ctx,0,0,1600,158);
+  drawFitSingleLineStrictV3661(ctx,`現價 ${fmt(st.close)} 元`,800,75,410,{maxSize:44,minSize:28,weight:950,color:"#ff8f9f"});
   const stock=formatStockNameWithCode(report.name,report.code);
   // V40｜股票名稱＋代號首眼強化：放大、提高亮度，並限制在左側藍底範圍內自動縮字，不越界。
-  const stockNameX3775=48,stockNameW3775=500,stockMetaX3775=565;
+  const stockNameX3775=48,stockNameW3775=730,stockMetaX3775=48;
   drawFitSingleLineStrictV3661(
     ctx,stock,
-    stockNameX3775,130,stockNameW3775,
-    {maxSize:45,minSize:31,weight:950,color:"#f8fbff"}
+    stockNameX3775,75,stockNameW3775,
+    {maxSize:58,minSize:31,weight:950,color:"#f8fbff"}
   );
   drawFitSingleLineStrictV3661(
     ctx,`｜${marketNameZh(report.market)}｜最新交易日 ${datefmt(report.closeDate)}｜資料來源：${sourceNameZh(report.source)}`,
-    stockMetaX3775,128,1198-stockMetaX3775,
+    stockMetaX3775,133,1160,
     {maxSize:23,minSize:16,weight:800,color:"#ffffff"}
   );
   drawStockComfortHeaderRibbonV37774(ctx,1232,18,340,136);
@@ -22477,11 +22478,8 @@ function renderStockInfographicV3328(report){
       68,sy+40,650,
       {maxSize:25,minSize:19,weight:950,color:scColors[i]}
     );
-    drawWrapV3328(
-      ctx,t,
-      68,sy+82,670,30,4,
-      {size:22,weight:800,color:P.text}
-    );
+    drawReportTextBoxV377734(ctx,t,68,sy+61,670,119,
+      {maxSize:27,minSize:22,maxLines:5,weight:850,color:P.text,verticalAlign:"top"});
     sy+=204;
   });
 
@@ -22534,12 +22532,12 @@ function renderStockInfographicV3328(report){
   if(researchCard3673){
     const cardH=140,cardX=824,cardW=720,cardY=lowerY+lowerH-cardH-18;
     const available=Math.max(180,cardY-ky-10);
-    ky=drawReportBulletListV377734(ctx,bullets,824,ky-22,720,available+22,{maxSize:20,weight:750,color:P.text});
+    ky=drawReportBulletListV377734(ctx,bullets,824,ky-22,720,available+22,{maxSize:27,weight:850,color:P.text});
     drawResearchValidationCardV3673(ctx,researchCard3673,cardX,cardY,cardW,cardH);
   }else{
     // V40｜沒有 Research Card 時也使用動態排版：內容少維持大字；內容多才逐級縮到 19／18／17px。
-    const available=Math.max(240,lowerY+lowerH-ky-28);
-    ky=drawReportBulletListV377734(ctx,bullets,824,ky-22,720,available+22,{maxSize:20,weight:750,color:P.text});
+    const available=Math.max(240,lowerY+lowerH-ky-92);
+    ky=drawReportBulletListV377734(ctx,bullets,824,ky-22,720,available+22,{maxSize:29,weight:850,color:P.text});
     const nextText=`🎯 下一步：${st.breakoutLife360?.next||st.machine.trigger}`;
     if(ky+52<lowerY+lowerH-12){
       drawReportTextBoxV377734(ctx,nextText,824,ky,720,Math.min(64,lowerY+lowerH-12-ky),{maxSize:19,minSize:13,maxLines:2,weight:850,color:P.navy,verticalAlign:"top"});
@@ -22709,7 +22707,7 @@ function renderMarketInfographicV3328(data){
   drawMarketComfortHeaderRibbonV37775(ctx,26,82,1190,72);fontV3328(ctx,31,900,"#f2fbf8");ctx.fillText("臺灣加權股價指數（TAIEX）",48,128);drawFitSingleLineStrictV3661(ctx,`｜最新交易日 ${datefmt(data.closeDate)}｜資料來源：${data.source||"TWSE Official"}`,535,128,660,{maxSize:24,minSize:14,weight:800,color:"#fff"});
   drawMarketComfortHeaderRibbonV37775(ctx,1232,18,340,136);fontV3328(ctx,22,900,"#fff","center");ctx.fillText("報告製作 By.石頭少爺",1402,52);fontV3328(ctx,18,800,"#fff","center");ctx.fillText("圖片產生時間",1402,83);fontV3328(ctx,19,900,"#fff","center");ctx.fillText(reportGeneratedAt().replace("（台灣時間）",""),1402,115);drawFitSingleLineStrictV3661(ctx,V40_RELEASE_LABEL,1402,141,312,{maxSize:16,minSize:11,weight:700,color:"#dbeafe",align:"center"});
 
-  rrV3328(ctx,24,174,520,520,14,P.white,P.blue,2);drawCardTitleV3328(ctx,48,215,"📖 ABC 是這套分析的核心：",P.navy,32,468);drawWrapV3328(ctx,"A＝起漲點、B＝前波高點、C＝B回檔後由Pivot規則正式確認的回檔低點。",48,257,468,33,3,{size:23,weight:720,color:P.text});
+  rrV3328(ctx,24,174,520,520,14,P.white,P.blue,2);drawCardTitleV3328(ctx,48,215,"📖 ABC 是這套分析的核心：",P.navy,32,468);drawWrapV3328(ctx,"A 是起漲低點，B 是前一個高點，C 是回落後確認的低點。",48,257,468,33,3,{size:23,weight:720,color:P.text});
   drawMarketAbcValueRowV532415(ctx,48,352,466,"A",P.green,"起漲點",st.A,st.fib.ADate);
   drawMarketAbcValueRowV532415(ctx,48,416,466,"B",P.orange,"前波高點",st.B,st.fib.BDate);
   drawMarketAbcValueRowV532415(ctx,48,480,466,"C",P.blue2,"回檔低點",st.C,st.fib.CDate);
@@ -22718,7 +22716,7 @@ function renderMarketInfographicV3328(data){
   drawMarketTopChartV365(ctx,data,st);
 
   const cardsY=714,cardsX=24,gap=10,cw=(1552-gap*5)/6,ch=166;
-  drawMetricCardV3328(ctx,cardsX+(cw+gap)*0,cardsY,cw,ch,"大盤環境",st.env.state,`市場風險：${st.env.risk}`,"green");drawMarketMa20CardV3330(ctx,cardsX+(cw+gap)*1,cardsY,cw,ch,st);drawMarketRsiCardV3756(ctx,cardsX+(cw+gap)*2,cardsY,cw,ch,data);drawMetricCardV3328(ctx,cardsX+(cw+gap)*3,cardsY,cw,ch,"價格位置",st.pos.label,"Fib位置描述","orange");drawMetricCardV3328(ctx,cardsX+(cw+gap)*4,cardsY,cw,ch,"N字進度",progress.main,progress.sub,"blue");drawMetricCardV3328(ctx,cardsX+(cw+gap)*5,cardsY,cw,ch,"個股操作環境",st.action.label,st.action.label==="保守"?"提高門檻":"依個股自身結構選股","purple");
+  drawMetricCardV3328(ctx,cardsX+(cw+gap)*0,cardsY,cw,ch,"大盤環境",st.env.state,`市場風險：${st.env.risk}`,"green");drawMarketMa20CardV3330(ctx,cardsX+(cw+gap)*1,cardsY,cw,ch,st);drawMarketRsiCardV3756(ctx,cardsX+(cw+gap)*2,cardsY,cw,ch,data);drawMetricCardV3328(ctx,cardsX+(cw+gap)*3,cardsY,cw,ch,"價格位置",st.pos.label,"從前高拉回的位置","orange");drawMetricCardV3328(ctx,cardsX+(cw+gap)*4,cardsY,cw,ch,"漲勢進度",progress.main,progress.sub,"blue");drawMetricCardV3328(ctx,cardsX+(cw+gap)*5,cardsY,cw,ch,"個股操作環境",st.action.label,st.action.label==="保守"?"提高門檻":"依個股自身結構選股","purple");
 
   // 直式版下半部：大盤作戰地圖全寬，劇本／判讀各半欄。
   const mapY=900,mapH=520;
@@ -22735,7 +22733,7 @@ function renderMarketInfographicV3328(data){
     drawFitSingleLineStrictV3661(ctx,it.label,270,my,1260,
       {maxSize:23,minSize:17,weight:isClose?950:800,color:isClose?P.red:P.text});
     if(i<map.length-1)drawDividerV3328(ctx,46,my+15,1548,P.line);
-    my+=39;
+    my+=(mapH-120)/Math.max(1,map.length);
   });
   drawFitSingleLineStrictV3661(ctx,"※ 大盤關卡用來調整個股操作積極度，不是指數交易指令。",48,mapY+mapH-19,1480,
     {maxSize:19,minSize:15,weight:800,color:"#475467"});
@@ -22748,10 +22746,10 @@ function renderMarketInfographicV3328(data){
   scenarios.forEach((t,i)=>{
     const scenarioH=184;
     rrV3328(ctx,48,sy,712,scenarioH,12,scFills[i],scColors[i],2);
-    // R5.3.2.4.15｜用卡片現有寬度放大劇本；文字盒依實際內容自動退階，完整保留而不互相覆蓋。
+    // R5.3.2.4.16｜用卡片現有寬度放大劇本；文字盒依實際內容自動退階，完整保留而不互相覆蓋。
     drawFitSingleLineStrictV3661(ctx,`${i===0?"✅":i===1?"▶":"✖"} 劇本${i+1}`,68,sy+38,650,
-      {maxSize:29,minSize:22,weight:950,color:scColors[i]});
-    drawReportTextBoxV377734(ctx,t,68,sy+61,670,scenarioH-72,{maxSize:24,minSize:18,maxLines:4,weight:820,color:P.text,verticalAlign:"top"});
+      {maxSize:35,minSize:26,weight:950,color:scColors[i]});
+    drawReportTextBoxV377734(ctx,t,68,sy+61,670,scenarioH-72,{maxSize:31,minSize:23,maxLines:4,weight:850,color:P.text,verticalAlign:"top"});
     sy+=196;
   });
 
@@ -22763,19 +22761,19 @@ function renderMarketInfographicV3328(data){
     `📈 大盤環境：${st.env.state}｜風險${st.env.risk}`,
     `🧬 N字：${progress.combined}`,
     `🔥 價格位置：${st.pos.label}`,
-    `📏 MA20：${st.ma20===null?"-":fmt(st.ma20)} 點｜斜率 ${st.slope===null?"-":`${st.slope>=0?"+":""}${fmt(st.slope)}%`}`,
+    `📏 20日均線：${st.ma20===null?"資料不足":fmt(st.ma20)} 點｜方向 ${st.slope===null?"待確認":`${st.slope>=0?"向上":"向下"} ${fmt(Math.abs(st.slope))}%`}`,
     `🎛️ 個股操作：${st.action.label}`,
     st.B!==null?`⬆️ 往上先看：B｜${fmt(st.B)} 點`:"⬆️ 往上等待新前高",
-    st.ma20!==null?`⬇️ 第一趨勢防守：MA20｜${fmt(st.ma20)} 點`:"⬇️ 依Fib支撐觀察",
-    data?.dailySeriesMeta?.volumeMeaning?`📊 大盤量能口徑：${data.dailySeriesMeta.volumeMeaning}`:"📊 大盤量能口徑：等待新版Worker回傳",
-    st.nStatus==="FORMING"?"📌 C尚未確認：止跌K只能先當候選C。":"📌 依N字生命週期持續更新。"
+    st.ma20!==null?`⬇️ 先看能否守住20日均線：${fmt(st.ma20)} 點`:"⬇️ 均線資料不足，先觀察下方支撐",
+    data?.dailySeriesMeta?.volumeMeaning?`📊 成交量資料：${data.dailySeriesMeta.volumeMeaning}`:"📊 成交量資料不足，暫不判斷量能",
+    st.nStatus==="FORMING"?"📌 C尚未確認：止跌K只能先當候選C。":"📌 跟著這波漲勢的變化持續觀察。"
   ];
   const footerMarketPrepHint3718=st.trident365?.preparatory
     ?"📝 預：如果撐不住，下面還有一條備用防線（候選線，不等同正式支撐）"
     :"📝 三叉戟：壓＝上方賣壓觀察｜撐＝下方防守觀察";
   let ky=lowerY+88;
   // V40｜C區底部原有留白優先拿來放大內容；資料較長時才自動退回安全字級。
-  ky=drawReportBulletListV377734(ctx,bullets,824,ky-24,720,lowerH-152,{maxSize:23,weight:800,color:P.text});
+  ky=drawReportBulletListV377734(ctx,bullets,824,ky-24,720,lowerH-152,{maxSize:29,weight:850,color:P.text});
   drawFitSingleLineStrictV3661(ctx,"⚠️ 技術分析僅供研究與決策參考，風險自負。",824,lowerY+lowerH-38,720,
     {maxSize:20,minSize:15,weight:900,color:P.red});
 
@@ -30930,7 +30928,7 @@ buildReportText=function(report){
 // 本層只讀取既有結果，不改 ABC、N字、Pivot、Swing、Fib、月線、三週期分數、
 // RSI、OBV、CMF、支撐壓力、原有價位與共用操作檢查。教材訊號永遠不能單獨開啟執行。
 // ========================================================================
-const V46_RELEASE_LABEL="石頭少爺 Agent V47 研究候選版｜R5.3.2.4.15-R4.5 圖片滿版字體優化驗收候選";
+const V46_RELEASE_LABEL="石頭少爺 Agent V47 研究候選版｜R5.3.2.4.16-R4.5 圖片滿版字體優化驗收候選";
 const V46_EDUCATION_CACHE=new WeakMap();
 const V46_CONTEXT_CACHE=new WeakMap();
 
