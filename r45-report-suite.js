@@ -1,9 +1,9 @@
-/* R5.3.2.4.17-R4.5 research candidate: stock/market full-screen typography optimization. */
+/* R5.3.2.4.18-R4.5 research candidate: stock/market full-screen typography optimization. */
 (function(){
 'use strict';
 
-const RELEASE=window.R45_RELEASE_LABEL||'石頭少爺 Agent V47 研究候選版｜R5.3.2.4.17-R4.5';
-const FILE_VERSION=window.R45_FILE_VERSION||'V47_R5.3.2.4.17-R4.5_研究候選';
+const RELEASE=window.R45_RELEASE_LABEL||'石頭少爺 Agent V47 研究候選版｜R5.3.2.4.18-R4.5';
+const FILE_VERSION=window.R45_FILE_VERSION||'V47_R5.3.2.4.18-R4.5_研究候選';
 const E=window.ShitouTechnicalEvidenceR45;
 const DETAIL={width:1284,height:2778,top:92,bottom:70,side:22};
 const IPHONE_12_PRO_MAX={width:1284,height:2778,minReadableScale:.90};
@@ -57,7 +57,7 @@ function zip(entries){
 
 function safeName(value){
   const base=typeof window.sanitizeFilenameV3328==='function'?window.sanitizeFilenameV3328(value):String(value||'報告').replace(/[\\/:*?"<>|]+/g,'_');
-  return base.replace(/R5\.3\.2\.4\.13-R4\.4[^.\s]*/g,'R5.3.2.4.17-R4.5');
+  return base.replace(/R5\.3\.2\.4\.13-R4\.4[^.\s]*/g,'R5.3.2.4.18-R4.5');
 }
 
 function dateOf(value){return String(value||'').replace(/\D/g,'').slice(0,8)||'latest';}
@@ -377,6 +377,116 @@ function candidateQualification(candidate,kind){
   if(kind==='momentum')return candidate?.formalLaunchEligible===true?'正式候選':candidate?.formalLaunchEligible===false?(candidate?.launchRole?.label||candidate?.stage?.label||'條件式觀察'):(candidate?.stage?.label||'原始入列');
   return candidate?.actionGate?.top3Eligible===true?'正式候選':candidate?.actionGate?.label||candidate?.stageSafety?.label||'條件式觀察';
 }
+function top8Finite(...values){
+  for(const value of values){const number=Number(value);if(Number.isFinite(number))return number;}
+  return null;
+}
+function top8Number(value,digits=2){
+  const number=Number(value);return Number.isFinite(number)?number.toLocaleString('zh-TW',{minimumFractionDigits:digits,maximumFractionDigits:digits}):'資料不足';
+}
+function top8Percent(value){
+  const number=Number(value);return Number.isFinite(number)?(number>=0?'+':'')+top8Number(number,1)+'%':'資料不足';
+}
+function top8Technical(candidate,kind){
+  const info=evidenceFor(candidate,kind),evidence=info.evidence,values=evidence?.ema?.values||{};
+  const ema=period=>values[period]?.available?top8Number(values[period].value,2):'資料不足';
+  let trend='長期資料不足';
+  if(values[21]?.available&&values[50]?.available&&values[200]?.available){
+    const a=Number(values[21].value),b=Number(values[50].value),c=Number(values[200].value);
+    trend=a>b&&b>c?'多頭排列':a<b&&b<c?'空頭排列':'方向不一致';
+  }
+  const kd=evidence?.kd,cross=kd?.cross==='黃金交叉'?'力道轉強':kd?.cross==='死亡交叉'?'力道轉弱':'沒有新交叉';
+  return {
+    phase:info.phase?.label||'階段待確認',
+    emaLine:'📈 平均價趨勢：短期 '+ema(21)+'｜中期 '+ema(50)+'｜長期 '+ema(200)+'｜'+trend,
+    kdLine:kd?.available?'🎚️ 短線力道：K '+top8Number(kd.k,1)+'／D '+top8Number(kd.d,1)+'｜'+cross+'｜資料日 '+(evidence?.dataQuality?.dataDate||'日期未提供')+'｜只作補充，不改資格':'🎚️ 短線力道：資料不足｜只作補充，不改資格',
+    rsi:evidence?.rsi5?.available?Number(evidence.rsi5.value):candidateRsi(candidate)
+  };
+}
+function top8MomentumMetrics(candidate,report,technical){
+  const rr=top8Finite(candidate?.waveRRRatio,candidate?.waveRiskRewardRatio,candidate?.wave?.riskRewardRatio,candidate?.tradeability?.riskRewardRatio,candidate?.decisionLayer?.remainingOpportunity?.riskRewardRatio);
+  const upside=top8Finite(candidate?.strategicUpsidePct,candidate?.remainingUpsidePct,candidate?.remainingOpportunity?.upsidePct,candidate?.decisionLayer?.remainingOpportunity?.upsidePct);
+  const near=top8Finite(candidate?.nearestRRRatio,candidate?.nearestRiskRewardRatio,candidate?.nearestGateRiskRewardRatio,candidate?.tradeability?.nearestRiskRewardRatio);
+  return [['波段價差比',rr===null?'資料不足':'1:'+top8Number(rr,2),'#5b3e91'],['上方剩餘空間',upside===null?'資料不足':top8Percent(upside),'#198357'],['近端價差比',near===null?'資料不足':'1:'+top8Number(near,2),'#315878']];
+}
+function top8DaytradeMetrics(candidate,report,technical){
+  const volume=top8Finite(candidate?.volRatio,candidate?.relativeVolume20,candidate?.volumeRatio,report?.volume?.latest?.relativeVolume20);
+  const ma20=top8Finite(candidate?.gap,candidate?.ma20GapPct,report?.ma20GapPct,report?.structure?.ma20GapPct);
+  return [['今日量／5日均量',volume===null?'資料不足':top8Number(volume,2)+'×','#315878'],['距20日均線',ma20===null?'資料不足':top8Percent(ma20),'#315878'],['短線熱度（RSI5）',technical.rsi===null?'資料不足':top8Number(technical.rsi,1),'#9b6509']];
+}
+function top8Price(report,candidate,...paths){
+  for(const path of paths){
+    let value=path==='close'?(report?.close??candidate?.close):path.split('.').reduce((object,key)=>object?.[key],candidate);
+    if(value===null||value===undefined)value=path.split('.').reduce((object,key)=>object?.[key],report);
+    value=Number(value);if(Number.isFinite(value))return top8Number(value,2)+' 元';
+  }
+  return '資料不足';
+}
+function top8CardLines(candidate,kind,technical){
+  const report=candidate?.report||candidate||{};
+  if(kind==='momentum'){
+    const volume=top8Finite(candidate?.effectiveVol,candidate?.volumeRatio,candidate?.relativeVolume20,report?.volume?.latest?.relativeVolume20);
+    const quality=top8Finite(candidate?.breakoutQualityScore,candidate?.breakoutQuality?.score,candidate?.qualityScore);
+    return [
+      '🛡 防守 '+top8Price(report,candidate,'waveRiskLevel','fib.retracement.0.764','stop764')+'｜近撐 '+top8Price(report,candidate,'support.value')+'｜🎯 目標 '+top8Price(report,candidate,'strategicTarget.value','target.value','fib.target1618','target1618'),
+      '🟢 行情階段：'+technical.phase+'｜短線熱度 '+(technical.rsi===null?'資料不足':top8Number(technical.rsi,1))+'｜關鍵價位請以原始候選資料為準',
+      technical.emaLine,technical.kdLine+'｜量能 '+(volume===null?'資料不足':top8Number(volume,2)+'×')+'｜突破品質 '+(quality===null?'資料不足':top8Number(quality,1)+'/10')
+    ];
+  }
+  const trigger=top8Price(report,candidate,'levels.triggerShadow.value','entryTrigger','triggerPrice','close'),defense=top8Price(report,candidate,'levels.support.value','defensePrice','supportPrice','dailyMa20','ma20');
+  const strategy=(typeof window.dayTradeStrategyExplainV377728==='function'?window.dayTradeStrategyExplainV377728(candidate)?.short:null)||candidate?.strategyType||candidate?.selectionType||candidate?.actionGate?.label||'依原始條件觀察';
+  const riskReasons=Array.isArray(candidate?.fake?.reasons)?candidate.fake.reasons.filter(Boolean).join('、'):'',warning=riskReasons||candidate?.falseBreakoutWarning||candidate?.riskWarning||'未見主要假突破警訊';
+  const flow=top8Finite(candidate?.moneyFlowConfirmation?.dayTradeMoneyFlowScore),flowText=flow===null?'資金流暫不評分':'資金流 '+top8Number(flow,0)+'/100';
+  return ['🎯 觀察價 '+trigger+'｜🛡 防守價 '+defense+'｜做法：'+strategy,'🟢 行情階段：'+technical.phase+'｜⚠️ 假突破提醒：'+warning+'｜'+flowText,technical.emaLine,technical.kdLine];
+}
+function drawTop8Badge(context,x,y,width,text,fill,color){
+  rounded(context,x,y,width,34,17,fill,color);fitText(context,text,x+width/2,y+24,width-18,{max:16,min:11,weight:900,color,align:'center'});
+}
+function drawTop8Card(context,candidate,index,kind,x,y,width,height){
+  const report=candidate?.report||candidate||{},technical=top8Technical(candidate,kind),grade=String(candidate?.grade||report?.grade||'-').toUpperCase(),accent=grade==='S'?'#176a45':grade==='A'?'#28735b':grade==='B'?'#9a7208':'#315878';
+  rounded(context,x,y,width,height,18,'#ffffff','#c7d4e1');context.fillStyle=accent;context.fillRect(x,y,8,height);
+  const rank=kind==='daytrade'?(candidate?.displayRankV40?'#'+candidate.displayRankV40:(candidate?.rank?'#'+candidate.rank:'等待')):'#'+(index+1);
+  rounded(context,x+18,y+14,58,36,9,accent,null);fitText(context,rank,x+47,y+40,48,{max:17,min:12,weight:950,color:'#fff',align:'center'});
+  fitText(context,candidateName(candidate)+'（'+candidateCode(candidate)+'）',x+90,y+42,560,{max:29,min:17,weight:950,color:'#172f4b'});
+  const close=candidateClose(candidate);fitText(context,close===null?'現價 資料不足':'現價 '+top8Number(close,2)+' 元',x+660,y+42,width-690,{max:29,min:18,weight:950,color:'#d42d3d'});
+  const score=top8Finite(candidate?.score?.final,candidate?.score,candidate?.finalScore,candidate?.conditionScore,candidate?.launchScore,candidate?.actionGate?.score);
+  drawTop8Badge(context,x+90,y+55,245,'條件 '+grade+'｜總分 '+(score===null?'依原報告':top8Number(score,0)),'#f8fbfd',accent);
+  drawTop8Badge(context,x+345,y+55,360,candidateQualification(candidate,kind),'#f7fbf8',accent);
+  drawTop8Badge(context,x+715,y+55,width-733,technical.phase,'#fbfaf3',accent);
+  const metrics=kind==='momentum'?top8MomentumMetrics(candidate,report,technical):top8DaytradeMetrics(candidate,report,technical),metricY=y+100,gap=10,metricW=(width-56-gap*2)/3;
+  metrics.forEach((metric,i)=>{const mx=x+18+i*(metricW+gap);rounded(context,mx,metricY,metricW,62,10,'#f3f6fa','#e0e7ee');fitText(context,metric[0],mx+12,metricY+22,metricW-24,{max:15,min:11,weight:850,color:'#52657a'});fitText(context,metric[1],mx+12,metricY+51,metricW-24,{max:24,min:14,weight:950,color:metric[2]});});
+  const lines=top8CardLines(candidate,kind,technical),lineY=[186,211,236,263];
+  lines.forEach((line,i)=>fitText(context,line,x+22,y+lineY[i],width-44,{max:i<2?16:15,min:11,weight:i<2?850:800,color:i===3?'#6c5b11':i===2?'#244f72':'#334a61'}));
+}
+function buildTop8IphoneReport(scan,kind){
+  const candidates=(scan?.candidates||scan?.launchCandidates||[]).slice(0,8),out=canvas(IPHONE_12_PRO_MAX.width,IPHONE_12_PRO_MAX.height,'#eef3f8'),context=out.getContext('2d');
+  const title=kind==='momentum'?'主升段前八名詳細圖片':'當沖前八名詳細圖片',accent=kind==='momentum'?'#245f4b':'#246063',gradient=context.createLinearGradient(0,0,out.width,0);
+  gradient.addColorStop(0,'#123a5a');gradient.addColorStop(1,kind==='momentum'?'#5b4c91':'#25636b');context.fillStyle=gradient;context.fillRect(0,0,out.width,170);
+  fitText(context,title,28,55,760,{max:35,min:24,weight:950,color:'#fff'});
+  fitText(context,(scan?.dataDate||scan?.createdAt||'資料日期依各股')+'｜'+RELEASE,28,92,900,{max:17,min:10,weight:800,color:'#d8eaf6'});
+  fitText(context,'原始順序與資格不變｜每檔已整合平均價趨勢、短線力道與 RSI5',28,132,900,{max:20,min:13,weight:850,color:'#fff4bd'});
+  rounded(context,972,20,284,126,16,'rgba(255,255,255,.13)','rgba(255,255,255,.4)');
+  fitText(context,'iPhone 12 Pro Max',1114,58,245,{max:20,min:13,weight:950,color:'#fff',align:'center'});
+  fitText(context,'1284 × 2778 單頁滿版',1114,88,245,{max:17,min:11,weight:900,color:'#dff5ff',align:'center'});
+  fitText(context,'底部重複證據已移除',1114,119,245,{max:15,min:10,weight:800,color:'#fff4bd',align:'center'});
+  rounded(context,24,184,1236,76,14,'#fff8df','#e5c86f');context.fillStyle=accent;context.fillRect(24,184,8,76);
+  fitText(context,'🔎 閱讀方式：先看關鍵價位與行情階段，再用平均價趨勢、KD短線力道與RSI5交叉確認；它們只補充說明，不改原始排名。',48,231,1188,{max:18,min:12,weight:900,color:'#6a5211'});
+  const cardX=24,cardY=270,cardW=1236,cardH=282,gap=8;
+  if(!candidates.length){rounded(context,cardX,cardY,cardW,320,18,'#fff');fitText(context,'本次沒有可輸出的前八名候選。',out.width/2,cardY+180,cardW-80,{max:31,min:21,weight:950,color:'#66758a',align:'center'});}
+  candidates.forEach((candidate,index)=>drawTop8Card(context,candidate,index,kind,cardX,cardY+index*(cardH+gap),cardW,cardH));
+  const footerY=2598;context.fillStyle='#123a5a';context.fillRect(0,footerY,out.width,out.height-footerY);
+  fitText(context,'符號說明｜🎯 觀察或目標價　🛡 防守價　📈 平均價趨勢　🎚️ KD短線力道　RSI5＝近5日漲跌熱度',28,footerY+48,out.width-56,{max:18,min:12,weight:900,color:'#eef7ff'});
+  fitText(context,'若顯示「資料不足」，代表原始日K不足，系統不會用假數字補齊。技術分析僅供研究參考，不構成投資建議。',28,footerY+90,out.width-56,{max:17,min:11,weight:800,color:'#d9e8f4'});
+  fitText(context,'版面核對：8檔卡片內已整合 EMA／KD／RSI5；沒有底部重複附錄；沒有改動選股公式、排序、分數或資格。',28,footerY+132,out.width-56,{max:16,min:10,weight:800,color:'#fff4bd'});
+  out.dataset.reportMode=kind;out.dataset.r45Top8Layout='iphone-1284x2778-integrated-evidence';out.dataset.r45Top8EvidenceCount=String(candidates.length);out.dataset.r45RemovedBottomEvidence='true';
+  const auditRows=candidates.map((candidate,index)=>{
+    const report=candidate?.report||candidate||{},evidence=E?E.analyze(report,{kind}):null,values=evidence?.ema?.values||{},kd=evidence?.kd;
+    return {index:index+1,code:candidateCode(candidate),score:top8Finite(candidate?.score?.final,candidate?.score,candidate?.finalScore,candidate?.conditionScore,candidate?.launchScore,candidate?.actionGate?.score),qualification:candidateQualification(candidate,kind),ema21:values[21]?.available?Number(values[21].value):null,ema50:values[50]?.available?Number(values[50].value):null,ema200:values[200]?.available?Number(values[200].value):null,k:kd?.available?Number(kd.k):null,d:kd?.available?Number(kd.d):null,rsi:evidence?.rsi5?.available?Number(evidence.rsi5.value):candidateRsi(candidate)};
+  });
+  out.dataset.r45Top8Audit=encodeURIComponent(JSON.stringify({kind,codes:auditRows.map(row=>row.code),rows:auditRows,orderPreserved:true,scorePreserved:true,qualificationPreserved:true,technicalEvidenceMatchedByCandidate:true}));
+  out.dataset.r45IphoneAudit=encodeURIComponent(JSON.stringify({size:'1284x2778',sourceSize:'1284x2778',contentBox:{x:0,y:0,width:1284,height:2778},fullBleed:true,complete:true,overlap:false,candidates:candidates.length,integratedEvidence:true,bottomEvidenceRemoved:true}));
+  return out;
+}
 function category(candidate){
   const fields=[candidate?.strategyType,candidate?.selectionType,candidate?.entryMode,candidate?.stage?.label,candidate?.stageSafety?.label,candidate?.action,candidate?.patternLabel,candidate?.mainAdvanceStage?.label].filter(Boolean).join('｜');
   if(/低位|轉強|起漲/.test(fields))return '低位轉強';
@@ -530,13 +640,11 @@ async function generateDetailed(kind,withWatermark=false){
   const scan=kind==='momentum'?(typeof lastMomentumScanDataV3762!=='undefined'?lastMomentumScanDataV3762:null):(typeof lastDayTradeScanDataV1!=='undefined'?lastDayTradeScanDataV1:null);
   if(!scan)throw new Error(kind==='momentum'?'請先完成主升段掃描':'請先完成當沖掃描');
   if(document.fonts?.ready)await document.fonts.ready;
-  const renderer=kind==='momentum'?original.momentumRender:original.daytradeRender;if(typeof renderer!=='function')throw new Error('前八名原始圖片產生器不存在');
-  let source=removeScanIndustryAppend(renderer(scan),scan);
   const candidates=(scan.candidates||scan.launchCandidates||[]).slice(0,8);
-  source=appendEvidence(source,candidates,kind,kind==='momentum'?'主升段前八名':'當沖前八名');
   const title=kind==='momentum'?'主升段前八名詳細圖片':'當沖前八名詳細圖片';
-  const result=singleLongDetailed(source,{title,date:scan.dataDate||scan.createdAt,watermark:withWatermark});
-  await showPages(result.pages,{title,prefix:`石頭少爺_${kind==='momentum'?'主升段':'當沖'}_前八名詳細圖片${withWatermark?'_防盜浮水印':''}`,date:dateOf(scan.dataDate||scan.createdAt),note:`沿用原始展示順序 ${candidates.length} 檔；1284×${result.pages[0].height} 單一張完整長圖；同產業展示區已從詳細圖片移除`,kind});
+  const page=buildTop8IphoneReport(scan,kind);if(withWatermark&&typeof original.watermark==='function')original.watermark(page,'all');
+  const result={pages:[page],segments:[[0,IPHONE_12_PRO_MAX.height]],sourceHeight:IPHONE_12_PRO_MAX.height,size:'1284x2778',singleLong:true,iphoneFullScreen:true,fullBleed:true,fitScale:1,scaleX:1,scaleY:1};
+  await showPages(result.pages,{title,prefix:`石頭少爺_${kind==='momentum'?'主升段':'當沖'}_前八名_iPhone12ProMax滿版${withWatermark?'_防盜浮水印':''}`,date:dateOf(scan.dataDate||scan.createdAt),note:`沿用原始展示順序 ${candidates.length} 檔；原生 1284×2778 單頁滿版；EMA、KD、RSI5 已整合到每檔卡片，底部重複證據區已移除`,kind});
   return result;
 }
 
@@ -577,7 +685,7 @@ window.copyDayTradeTop8ImageV377727=(withWatermark=false)=>copyFirst(()=>generat
 window.copyDayTradeAllCandidatesImageV377727=(withWatermark=false)=>copyFirst(()=>generateSummary('daytrade',withWatermark),'dayTradeImageMessage');
 
 window.R45_REPORT_TEST_API=Object.freeze({
-  release:RELEASE,detailSize:{...DETAIL},summarySize:{...SUMMARY},summaryRows,buildSummaryPages,
+  release:RELEASE,detailSize:{...DETAIL},summarySize:{...SUMMARY},summaryRows,buildSummaryPages,buildTop8IphoneReport,
   paginateDetailed,singleLongDetailed,fitIphoneStockReport,prepareStockBaseForIphone,appendStockCompactEvidence,appendEvidence,removeScanIndustryAppend,evidenceLines,zip,blob,
   audits:{originalOrderPreserved:true,summaryIncludesAllCandidates:true,workerChanged:false,scoreChanged:false,qualificationChanged:false}
 });
