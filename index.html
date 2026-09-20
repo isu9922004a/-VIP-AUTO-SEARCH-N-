@@ -1,4 +1,4 @@
-<!-- 石頭少爺 Agent V47 研究候選版｜R5.3.2.4.16-R4.5 圖片滿版字體優化驗收候選：只調整個股／大盤圖片展示層；原有雙通道快篩、MACD、最近壓力與遠期目標、原始排序分、Pivot、Swing Chain、ABC／N字、三週期分數與既有Hard Reject核心全部保留。 -->
+<!-- 石頭少爺 Agent V47 研究候選版｜R5.3.2.4.17-R4.5 圖片滿版字體優化驗收候選：只調整個股／大盤圖片展示層；原有雙通道快篩、MACD、最近壓力與遠期目標、原始排序分、Pivot、Swing Chain、ABC／N字、三週期分數與既有Hard Reject核心全部保留。 -->
 <!DOCTYPE html>
 
 <html lang="zh-TW">
@@ -9,7 +9,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>石頭少爺 Agent V47 研究候選版｜R5.3.2.4.16-R4.5 圖片滿版字體優化驗收候選</title>
+<title>石頭少爺 Agent V47 研究候選版｜R5.3.2.4.17-R4.5 圖片滿版字體優化驗收候選</title>
 
 <style>
 
@@ -1083,7 +1083,7 @@ body.dark .v46-reason,body.dark .v46-note,body.dark .v46-family{color:#d2dae7}bo
 
     <p>盤後個股判讀＋三重選股把關＋區段量價防守＋主升段／當沖產業輪動</p>
 
-    <span class="version-pill">石頭少爺 Agent V47 研究候選版｜R5.3.2.4.16-R4.5 圖片滿版字體優化驗收候選｜盤後資料｜原始策略不變</span>
+    <span class="version-pill">石頭少爺 Agent V47 研究候選版｜R5.3.2.4.17-R4.5 圖片滿版字體優化驗收候選｜盤後資料｜原始策略不變</span>
 
   </div>
 
@@ -1861,7 +1861,7 @@ body.dark .v46-reason,body.dark .v46-note,body.dark .v46-family{color:#d2dae7}bo
   </div>
 </div>
 
-<footer class="footer"><strong>石頭少爺 Agent V47 研究候選版｜R5.3.2.4.16-R4.5 圖片滿版字體優化驗收候選</strong><br>本頁使用最近完成交易日的盤後資料，不是即時看盤；網頁、文字與圖片報告共用同一份分析結果。EMA／KD與歷史支撐壓力只補充證據，不會改寫原有分數、資格、排序或進場檢查。<br>技術分析僅供研究與決策參考，不構成投資建議；所有分數都是條件評估，不是勝率或上漲機率。</footer>
+<footer class="footer"><strong>石頭少爺 Agent V47 研究候選版｜R5.3.2.4.17-R4.5 圖片滿版字體優化驗收候選</strong><br>本頁使用最近完成交易日的盤後資料，不是即時看盤；網頁、文字與圖片報告共用同一份分析結果。EMA／KD與歷史支撐壓力只補充證據，不會改寫原有分數、資格、排序或進場檢查。<br>技術分析僅供研究與決策參考，不構成投資建議；所有分數都是條件評估，不是勝率或上漲機率。</footer>
 
 <script>
 // V40｜三週期盤後適配度＋Decision Layer整合版。Worker分數為主，前端舊公式保留fallback；不使用盤中假資料。
@@ -2109,7 +2109,7 @@ body.dark .v46-reason,body.dark .v46-note,body.dark .v46-family{color:#d2dae7}bo
 // 不新增艾略特1～5浪或ABC修正浪計數。
 // ========================================================================
 
-const V40_RELEASE_LABEL="石頭少爺 Agent V47 研究候選版｜R5.3.2.4.16-R4.5 圖片滿版字體優化驗收候選";
+const V40_RELEASE_LABEL="石頭少爺 Agent V47 研究候選版｜R5.3.2.4.17-R4.5 圖片滿版字體優化驗收候選";
 const API_BASE_URL="https://shitou-agent-fib-api.d318426.workers.dev";
 
 // V40：延續 GIS-KY 英文名稱修正；新增「戰術頸線突破」與「Fib B正式突破」角色隔離，避免B尚未突破卻被寫成支撐。
@@ -21136,7 +21136,7 @@ function drawAbcValueRowV3329(ctx,x,y,w,key,color,label,value,date,unit="元"){
   if(n(value)!==null&&date)drawReportTextBoxV377734(ctx,dateCompactV3328(date),x+w-dateW-10,y+7,dateW,32,{maxSize:14,minSize:10,maxLines:1,align:"right",weight:750,color:P.muted});
 }
 
-// R5.3.2.4.16｜大盤圖片專用 ABC 列。只放大展示層並重新分配欄寬，
+// R5.3.2.4.17｜大盤圖片專用 ABC 列。只放大展示層並重新分配欄寬，
 // 數值與日期仍直接使用既有 marketInfographicStateV3328 結果。
 function drawMarketAbcValueRowV532415(ctx,x,y,w,key,color,label,value,date){
   const P=infoPaletteV3328(),rowH=56,dateW=122,labelW=96,valueX=x+54+labelW,valueW=w-54-labelW-dateW-16;
@@ -22746,7 +22746,7 @@ function renderMarketInfographicV3328(data){
   scenarios.forEach((t,i)=>{
     const scenarioH=184;
     rrV3328(ctx,48,sy,712,scenarioH,12,scFills[i],scColors[i],2);
-    // R5.3.2.4.16｜用卡片現有寬度放大劇本；文字盒依實際內容自動退階，完整保留而不互相覆蓋。
+    // R5.3.2.4.17｜用卡片現有寬度放大劇本；文字盒依實際內容自動退階，完整保留而不互相覆蓋。
     drawFitSingleLineStrictV3661(ctx,`${i===0?"✅":i===1?"▶":"✖"} 劇本${i+1}`,68,sy+38,650,
       {maxSize:35,minSize:26,weight:950,color:scColors[i]});
     drawReportTextBoxV377734(ctx,t,68,sy+61,670,scenarioH-72,{maxSize:31,minSize:23,maxLines:4,weight:850,color:P.text,verticalAlign:"top"});
@@ -25062,15 +25062,18 @@ function momentumRatioPlainV37772(waveRR,nearestRR,waveFormal=true,nearestUsesWa
 function getMomentumTimeModeV377715(createdAt){
   const s=String(createdAt||"");
   const m=s.match(/(?:^|\s)(\d{1,2}):(\d{2})(?::\d{2})?/);
+  const dateMatch=s.match(/(\d{4})[\/-](\d{1,2})[\/-](\d{1,2})/);
   const hour=m?Number(m[1]):null;
   const minute=m?Number(m[2]):null;
   const mins=(hour!==null&&minute!==null)?hour*60+minute:null;
+  const weekday=dateMatch?new Date(Date.UTC(Number(dateMatch[1]),Number(dateMatch[2])-1,Number(dateMatch[3]))).getUTCDay():null;
+  const isWeekend=weekday===0||weekday===6;
 
   // 純顯示層：不參與行情抓取、交易日、DeepScan、候選或排序計算。
   let key="PREOPEN";
-  if(mins!==null&&mins>=15*60)key="AFTER_CLOSE";
-  else if(mins!==null&&mins>=13*60+30)key="SETTLING";
-  else if(mins!==null&&mins>=8*60+30)key="INTRADAY";
+  if(!isWeekend&&mins!==null&&mins>=15*60)key="AFTER_CLOSE";
+  else if(!isWeekend&&mins!==null&&mins>=13*60+30)key="SETTLING";
+  else if(!isWeekend&&mins!==null&&mins>=8*60+30)key="INTRADAY";
 
   if(key==="AFTER_CLOSE")return {
     key,afterClose:true,
@@ -30928,7 +30931,7 @@ buildReportText=function(report){
 // 本層只讀取既有結果，不改 ABC、N字、Pivot、Swing、Fib、月線、三週期分數、
 // RSI、OBV、CMF、支撐壓力、原有價位與共用操作檢查。教材訊號永遠不能單獨開啟執行。
 // ========================================================================
-const V46_RELEASE_LABEL="石頭少爺 Agent V47 研究候選版｜R5.3.2.4.16-R4.5 圖片滿版字體優化驗收候選";
+const V46_RELEASE_LABEL="石頭少爺 Agent V47 研究候選版｜R5.3.2.4.17-R4.5 圖片滿版字體優化驗收候選";
 const V46_EDUCATION_CACHE=new WeakMap();
 const V46_CONTEXT_CACHE=new WeakMap();
 

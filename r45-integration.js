@@ -1,9 +1,9 @@
-/* R5.3.2.4.16-R4.5 research candidate: image layout typography optimization. */
+/* R5.3.2.4.17-R4.5 research candidate: image layout typography optimization. */
 (function(){
 'use strict';
 
-const RELEASE='石頭少爺 Agent V47 研究候選版｜R5.3.2.4.16-R4.5 圖片滿版字體優化驗收候選';
-const FILE_VERSION='V47_R5.3.2.4.16-R4.5_圖片滿版字體優化驗收候選';
+const RELEASE='石頭少爺 Agent V47 研究候選版｜R5.3.2.4.17-R4.5 圖片滿版字體優化驗收候選';
+const FILE_VERSION='V47_R5.3.2.4.17-R4.5_圖片滿版字體優化驗收候選';
 const E=window.ShitouTechnicalEvidenceR45;
 window.R45_RELEASE_LABEL=RELEASE;
 window.R45_FILE_VERSION=FILE_VERSION;
@@ -13,7 +13,8 @@ function activeText(value){
     .replaceAll('石頭少爺 Agent V47 正式版｜R5.3.2.4.13-R4.4 五本教材策略保留｜雙選股圖片字體自適應優化版',RELEASE)
     .replaceAll('V47_R5.3.2.4.13-R4.4_五本教材策略保留_雙選股圖片字體自適應優化版',FILE_VERSION)
     .replaceAll('石頭少爺 Agent V47 正式版｜R5.3.2.4.12 顯示與共用狀態一致性收尾版',RELEASE)
-    .replaceAll('V47_R5.3.2.4.12_顯示與共用狀態一致性收尾版',FILE_VERSION);
+    .replaceAll('V47_R5.3.2.4.12_顯示與共用狀態一致性收尾版',FILE_VERSION)
+    .replace(/R5\.3\.2\.4\.13-R4\.4/g,'R5.3.2.4.17-R4.5');
 }
 window.r45ActiveText=activeText;
 
@@ -136,7 +137,7 @@ function scanText(scan,kind){
     const report=candidate?.report||{};
     const code=report.stock||report.code||'代號不明';
     const name=report.name||candidate.name||'';
-    const evidence=E.analyze(report,{kind});
+    const evidence=E.analyze({...report,stageSafety:candidate?.stageSafety??report?.stageSafety,stage:candidate?.stage??report?.stage},{kind});
     return `${index+1}. ${name}（${code}）\n${E.plain(evidence).join('\n')}`;
   }).join('\n\n');
 }
