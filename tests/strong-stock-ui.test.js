@@ -86,5 +86,16 @@ ctx.window=ctx;vm.runInNewContext(fs.readFileSync('strong-stock-ui-v47.js','utf8
  check('other scan buttons restored after third scan',()=>{
   assert.equal(el('momentumScanButton').disabled,false);assert.equal(el('dayTradeScanButton').disabled,false);
  });
+ ctx.loadDayTradeMarketBundleV377736=async()=>({...bundle,meta:{...bundle.meta,targetTradeDate:'20260918',completedTradeDate:'20260918',twseQuoteDate:'20260918',tpexQuoteDate:'20260918'}});
+ await ctx.runStrongStockScanV47();
+ check('old snapshot is blocked and displays actionable source-date diagnostics',()=>{
+  assert.equal(ctx.STRONG_STOCK_TEST_API_V47.getLast(),null);
+  assert.match(el('strongStockError').textContent,/2026-09-18 舊市場快照/);
+  assert.match(el('strongStockError').textContent,/Worker 日期：目標日 20260918／上市 20260918／上櫃 20260918/);
+  assert.match(el('strongStockError').textContent,/本次未進行選股/);
+  assert.match(el('strongStockProgressText').textContent,/查詢已中止/);
+  assert.equal(el('strongStockProgressBar').style.width,'0%');
+  assert.equal(el('momentumScanButton').disabled,false);
+ });
  console.log(`TOTAL ${count}/${count}`);
 })().catch(error=>{console.error(error);process.exitCode=1;});
