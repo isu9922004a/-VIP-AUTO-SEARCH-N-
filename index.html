@@ -21086,12 +21086,12 @@ function drawConditionalAbcHintV42(ctx,st,x,y,w,h){
   const message=hasA
     ? "A 已形成｜等待反彈形成 B，這不是走勢預測"
     : "新ABC尚未建立｜等待 A→B，這不是走勢預測";
-  const boxW=Math.max(290,Math.min(468,w*.56));
-  const boxH=40;
-  const boxX=x+w-boxW-8;
-  const boxY=y+h-boxH-8;
-  rrV3328(ctx,boxX,boxY,boxW,boxH,9,"rgba(255,255,255,.96)","#cbd5e1",1.5);
-  drawFitSingleLineStrictV3661(ctx,message,boxX+12,boxY+24,boxW-24,{maxSize:15,minSize:10,weight:850,color:"#475569"});
+  const boxW=Math.max(300,Math.min(438,w*.58));
+  const boxH=34;
+  const boxX=x+w-boxW-6;
+  const boxY=Math.max(182,y-34);
+  rrV3328(ctx,boxX,boxY,boxW,boxH,9,"rgba(255,255,255,.98)","#cbd5e1",1.2);
+  drawFitSingleLineStrictV3661(ctx,message,boxX+10,boxY+21,boxW-20,{maxSize:13.5,minSize:10,weight:850,color:"#475569"});
   ctx.restore();
 }
 
