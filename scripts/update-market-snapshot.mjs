@@ -340,6 +340,29 @@ async function readJsonIfExists(file) {
   try { return JSON.parse(await fs.readFile(file, 'utf8')); } catch { return null; }
 }
 
+// 防止 GitHub Actions「執行成功」卻只把上週五資料重新標為今天產出的檔案。
+// 沒有交易所休市日行事曆時採保守拒絕；不會補造不存在的當日成交資料。
+export function verifySnapshotAdvancement(snapshot, previous, now = new Date()) {
+  const date = normalizeMarketDate(snapshot?.tradeDate);
+  const old = normalizeMarketDate(previous?.tradeDate);
+  if (!date) throw new Error('盤後快照缺少有效交易日；拒絕發布');
+  if (old && date < old) throw new Error(`資料來源交易日倒退：新的 ${date} 早於現有 ${old}；保留上一份快照`);
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit',
+    hour:'2-digit',minute:'2-digit',hourCycle:'h23'
+  }).formatToParts(now);
+  const get = type => String(parts.find(p => p.type === type)?.value || '');
+  const today = `${get('year')}${get('month')}${get('day')}`;
+  const weekday = new Date(`${get('year')}-${get('month')}-${get('day')}T00:00:00Z`).getUTCDay();
+  const afterCutoff = Number(get('hour')) * 60 + Number(get('minute')) >= 17 * 60 + 35;
+  if (date > today) throw new Error(`來源交易日 ${date} 晚於台灣今天 ${today}；拒絕發布`);
+  if (date === today && !afterCutoff) throw new Error(`台灣 ${today} 尚未達 17:35 盤後保守發布時段；拒絕發布`);
+  if (weekday >= 1 && weekday <= 5 && afterCutoff && date !== today) {
+    throw new Error(`GitHub Actions 盤後檢查：上市、上櫃仍是 ${date}，未取得 ${today} 同日完整資料（也可能休市）；保留上一份快照，稍後重試`);
+  }
+  return { tradeDate:date, taipeiToday:today, priorDate:old, changed:date!==old };
+}
+
 async function cleanupArchives() {
   await fs.mkdir(ARCHIVE_DIR, { recursive:true });
   const names = (await fs.readdir(ARCHIVE_DIR)).filter(x => /^\d{4}-\d{2}-\d{2}\.json$/.test(x)).sort();
@@ -347,11 +370,31 @@ async function cleanupArchives() {
   await Promise.all(remove.map(name => fs.unlink(path.join(ARCHIVE_DIR, name))));
 }
 
+// 不能用全市場「多數日期」取代每一檔的原始日期；避免少數前一日行情被重新貼上今日標籤。
+export function assertSourceQuoteDates(rows, market, targetDate) {
+  let checked = 0;
+  for (const row of Array.isArray(rows) ? rows : []) {
+    const code = String(firstAny(row, [
+      'Code','SecuritiesCompanyCode','SecuritiesCode','CompanyCode','股票代號','證券代號','代號'
+    ]) ?? '').trim();
+    if (!isOrdinaryCode(code)) continue;
+    const rawDate = row?.Date ?? row?.date ?? row?.日期 ?? row?.TradeDate ?? row?.TradingDate ?? row?.['交易日期'];
+    const date = normalizeMarketDate(rawDate);
+    if (!date || date !== targetDate) {
+      throw new Error(`${market} 官方逐檔日期驗證失敗｜${code}｜來源 ${date || '缺少日期'}｜目標 ${targetDate}；不發布混日快照`);
+    }
+    checked++;
+  }
+  return checked;
+}
+
 export async function buildSnapshot({twseQuoteRows,tpexQuoteRows,twseCompanyRows,tpexCompanyRows,sourceMeta={}}) {
   const twseDate = latestMarketQuoteDate(twseQuoteRows);
   const tpexDate = latestMarketQuoteDate(tpexQuoteRows);
   if (!twseDate || !tpexDate) throw new Error(`市場日期無法判斷｜TWSE ${twseDate || '未知'}｜TPEx ${tpexDate || '未知'}`);
   if (twseDate !== tpexDate) throw new Error(`兩市場最新完成交易日不同｜TWSE ${twseDate}｜TPEx ${tpexDate}｜保留上一份完整快照`);
+  assertSourceQuoteDates(twseQuoteRows, 'TWSE', twseDate);
+  assertSourceQuoteDates(tpexQuoteRows, 'TPEx', tpexDate);
 
   if (twseQuoteRows.length < 800) throw new Error(`TWSE 原始行情筆數不足：${twseQuoteRows.length}`);
   if (tpexQuoteRows.length < 300) throw new Error(`TPEx 原始行情筆數不足：${tpexQuoteRows.length}`);
@@ -466,6 +509,7 @@ export async function main() {
   });
 
   const previous = await readJsonIfExists(LATEST_PATH);
+  verifySnapshotAdvancement(snapshot, previous);
   if (previous?.contentSha256 === snapshot.contentSha256) {
     console.log(`No content change. Current complete trade date remains ${snapshot.tradeDate}.`);
     return;
