@@ -1071,6 +1071,16 @@ body.dark .v46-reason,body.dark .v46-note,body.dark .v46-family{color:#d2dae7}bo
 @media(max-width:680px){.daytrade-key-legend{display:grid;grid-template-columns:1fr}.daytrade-key-legend span{border-radius:10px}}
 </style>
 
+<style>
+/* Third strategy styles remain isolated from the first two scanners. */
+.strong-stock-shortcut{border:1px solid #a1c2d5;border-radius:14px;padding:19px;margin-top:19px;background:var(--card,#f7fbff)}
+.strong-stock-actions,.strong-stock-image-actions{display:flex;flex-wrap:wrap;gap:9px;margin:12px 0}
+.strong-stock-actions .btn{min-height:46px}.strong-stock-result{display:none}
+.strong-stock-row{padding:13px;margin:10px 0;border-left:5px solid #24628a;line-height:1.8;overflow-wrap:anywhere}
+.strong-stock-progress{height:8px;background:#e2e8f0;border-radius:10px;overflow:hidden;margin-top:12px}
+.strong-stock-progress>div{width:0;height:100%;background:#24628a;transition:width .15s}
+.strong-stock-reminder{background:#fff8df;border:1px solid #e9d588;border-radius:10px;padding:12px;line-height:1.7}
+</style>
 </head>
 
 <body>
@@ -1175,6 +1185,25 @@ body.dark .v46-reason,body.dark .v46-note,body.dark .v46-family{color:#d2dae7}bo
         <div id="dayTradeProgressText" class="momentum-progress-text">等待開始...</div>
       </div>
       <div id="dayTradeError" class="error"></div>
+    </div>
+
+
+    <div class="strong-stock-shortcut" id="strongStockShortcut">
+      <div class="section-title">🔎 第三套｜強勢標股濾網（獨立策略）</div>
+      <div class="section-subtitle">專找隔日可能續強的準備起漲、首次突破、突破後續攻型態；不使用主升段／當沖原公式，不以選股分數宣稱勝率。</div>
+      <div class="strong-stock-reminder">📌 查詢前請先記分，再按「查詢強勢標股濾網」。只使用已完成的盤後日K，建議交易日17:35後查詢；市場、上市、上櫃與個股交易日不一致時直接停止。</div>
+      <div class="rule" style="margin-top:12px"><label for="strongStockDeepLimit">完整日K深入分析範圍：</label>
+        <select id="strongStockDeepLimit" style="padding:9px;max-width:100%;border-radius:8px">
+          <option value="70">快篩前70檔</option><option value="140" selected>快篩前140檔</option><option value="all">全部快篩合格股（可能需較久）</option>
+        </select><div class="meta">先快篩完整市場，金融與生技依官方產業分類排除。上限外僅屬尚未分析，不得算成淘汰或全市場零候選。</div>
+      </div>
+      <div class="strong-stock-actions">
+        <button id="strongStockScanButton" class="btn" type="button" onclick="runStrongStockScanV47()">🔎 查詢強勢標股濾網</button>
+        <button id="strongStockStopButton" class="momentum-stop-btn show" type="button" onclick="stopStrongStockScanV47()" disabled>■ 停止</button>
+      </div>
+      <div class="strong-stock-progress"><div id="strongStockProgressBar"></div></div>
+      <div id="strongStockProgressText" class="meta">等待盤後查詢…</div>
+      <div id="strongStockError" class="error"></div>
     </div>
 
     <div id="loading" class="loading">⏳ 正在取得股票資料並分析...</div>
@@ -1283,6 +1312,28 @@ body.dark .v46-reason,body.dark .v46-note,body.dark .v46-family{color:#d2dae7}bo
         <button id="copyDayTradeAllCandidatesImageWatermarkButton" class="copy-btn watermark-image-btn" type="button" onclick="copyDayTradeAllCandidatesImageV377727(true)">📋🛡️ 複製全部選股圖片（浮水印）</button>
       </div>
       <div id="dayTradeImageMessage" class="copy-message"></div>
+    </section>
+  </section>
+
+
+  <section id="strongStockResult" class="momentum-result strong-stock-result">
+    <section class="panel">
+      <div class="section-title">🔎 強勢標股濾網｜已確認候選排行（第三套獨立策略）</div>
+      <div id="strongStockMeta" class="meta">-</div>
+      <div id="strongStockSummary" class="rule" style="margin-top:12px;line-height:1.8;overflow-wrap:anywhere">-</div>
+      <div class="strong-stock-reminder" style="margin-top:12px">A 準備起漲／B 首次突破／C 突破後續攻。排名僅為篩選優先序，不是勝率；隔日仍需核對量價、關鍵價與風險。</div>
+      <div id="strongStockList" class="momentum-list"></div>
+      <div class="strong-stock-image-actions">
+        <button class="copy-btn" type="button" onclick="copyStrongStockTextV47()">📋 一鍵複製全部文字報告</button>
+        <button class="copy-btn" type="button" onclick="downloadStrongStockTextV47()">📄 下載完整 TXT</button>
+        <button id="strongStockTopImage" class="copy-btn image-btn" type="button" onclick="showStrongStockImageV47(false,false)">🖼️ 前八名圖片報告</button>
+        <button class="copy-btn" type="button" onclick="copyStrongStockImageV47(false)">📋 複製前八名圖片報告</button>
+        <button class="copy-btn watermark-image-btn" type="button" onclick="showStrongStockImageV47(false,true)">🛡️ 前八名浮水印圖片</button>
+        <button id="strongStockAllImage" class="copy-btn image-btn" type="button" onclick="showStrongStockImageV47(true,false)">🖼️ 全部候選完整圖片報告（多頁ZIP）</button>
+        <button class="copy-btn" type="button" onclick="copyStrongStockImageV47(true)">📋 複製全部候選圖片（多頁改ZIP）</button>
+        <button class="copy-btn watermark-image-btn" type="button" onclick="showStrongStockImageV47(true,true)">🛡️ 全部候選浮水印圖片</button>
+      </div>
+      <div id="strongStockMessage" class="copy-message"></div>
     </section>
   </section>
 
@@ -34437,6 +34488,8 @@ document.querySelectorAll(".version-pill,footer strong").forEach(el=>{if(/石頭
 <script src="./technical-evidence-r45.js"></script>
 <script src="./r45-integration.js"></script>
 <script src="./r45-report-suite.js"></script>
+<script src="./strong-stock-filter-v47.js"></script>
+<script src="./strong-stock-ui-v47.js"></script>
 </body>
 
 </html>

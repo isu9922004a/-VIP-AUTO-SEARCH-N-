@@ -684,6 +684,8 @@ window.downloadDayTradeAllCandidatesImageV1=(withWatermark=false)=>generateSumma
 window.copyDayTradeTop8ImageV377727=(withWatermark=false)=>copyFirst(()=>generateDetailed('daytrade',withWatermark),'dayTradeImageMessage');
 window.copyDayTradeAllCandidatesImageV377727=(withWatermark=false)=>copyFirst(()=>generateSummary('daytrade',withWatermark),'dayTradeImageMessage');
 
+// Additive shared preview entrypoint for the independent third scanner; existing report generation unchanged.
+window.strongStockShowPagesV47=showPages;
 window.R45_REPORT_TEST_API=Object.freeze({
   release:RELEASE,detailSize:{...DETAIL},summarySize:{...SUMMARY},summaryRows,buildSummaryPages,buildTop8IphoneReport,
   paginateDetailed,singleLongDetailed,fitIphoneStockReport,prepareStockBaseForIphone,appendStockCompactEvidence,appendEvidence,removeScanIndustryAppend,evidenceLines,zip,blob,
