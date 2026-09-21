@@ -21081,11 +21081,17 @@ function drawStockCoreLevelsV42(ctx,st,x,y,w){
 
 function drawConditionalAbcHintV42(ctx,st,x,y,w,h){
   if(st?.A!==null&&st?.B!==null)return;
-  ctx.save();ctx.globalAlpha=.78;ctx.strokeStyle="#64748b";ctx.lineWidth=3;ctx.setLineDash([12,9]);
-  const x1=x+w*.63,y1=y+h*.40,x2=x+w*.74,y2=y+h*.63,x3=x+w*.87,y3=y+h*.35;
-  ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.lineTo(x3,y3);ctx.stroke();ctx.setLineDash([]);
-  rrV3328(ctx,x+w*.47,y+h-48,w*.50,38,9,"rgba(255,255,255,.92)","#94a3b8",1.5);
-  drawFitSingleLineStrictV3661(ctx,"灰色虛線：等拉回止穩A → 再找反彈B｜情境示意，並非預測",x+w*.49,y+h-22,w*.46,{maxSize:15,minSize:10,weight:850,color:"#475569"});
+  ctx.save();
+  const hasA=st?.A!==null&&st?.A!==undefined;
+  const message=hasA
+    ? "A 已形成｜等待反彈形成 B，這不是走勢預測"
+    : "新ABC尚未建立｜等待 A→B，這不是走勢預測";
+  const boxW=Math.max(290,Math.min(468,w*.56));
+  const boxH=40;
+  const boxX=x+w-boxW-8;
+  const boxY=y+h-boxH-8;
+  rrV3328(ctx,boxX,boxY,boxW,boxH,9,"rgba(255,255,255,.96)","#cbd5e1",1.5);
+  drawFitSingleLineStrictV3661(ctx,message,boxX+12,boxY+24,boxW-24,{maxSize:15,minSize:10,weight:850,color:"#475569"});
   ctx.restore();
 }
 
