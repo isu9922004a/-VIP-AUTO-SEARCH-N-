@@ -21079,19 +21079,22 @@ function drawStockCoreLevelsV42(ctx,st,x,y,w){
   drawReportTextBoxV377734(ctx,`${barrier}｜${next}｜${shortSupport}｜${structure}\n📌 使用方式：${plan.disclaimer}`,x,y+350,w,70,{maxSize:17,minSize:11,maxLines:2,weight:850,color:P.text,verticalAlign:"top"});
 }
 
+// 個股真實日K與資料不足示意模式共用：ABC提示固定放在右側價位標籤下方的獨立留白區。
+// 價位標籤最低繪至 y=527；K線範圍最右 x=1348；下方三叉戟說明位於 x=604～1324。
+// 因此只在 x=1360～1556、y=548～632 繪製，不遮蔽K棒、壓／撐／預、標題、量柱或圖例。
 function drawConditionalAbcHintV42(ctx,st,x,y,w,h){
   if(st?.A!==null&&st?.B!==null)return;
-  ctx.save();
   const hasA=st?.A!==null&&st?.A!==undefined;
-  const message=hasA
-    ? "A 已形成｜等待反彈形成 B，這不是走勢預測"
-    : "新ABC尚未建立｜等待 A→B，這不是走勢預測";
-  const boxW=Math.max(300,Math.min(438,w*.58));
-  const boxH=34;
-  const boxX=x+w-boxW-6;
-  const boxY=Math.max(182,y-34);
+  const lines=hasA
+    ? ["A 已形成","等待反彈形成 B","這不是走勢預測"]
+    : ["新ABC尚未建立","等待 A→B","這不是走勢預測"];
+  const boxX=1360,boxY=548,boxW=196,boxH=84;
+  ctx.save();
   rrV3328(ctx,boxX,boxY,boxW,boxH,9,"rgba(255,255,255,.98)","#cbd5e1",1.2);
-  drawFitSingleLineStrictV3661(ctx,message,boxX+10,boxY+21,boxW-20,{maxSize:13.5,minSize:10,weight:850,color:"#475569"});
+  lines.forEach((line,i)=>drawFitSingleLineStrictV3661(
+    ctx,line,boxX+10,boxY+22+i*22,boxW-20,
+    {maxSize:16,minSize:12,weight:i===0?900:850,color:"#475569"}
+  ));
   ctx.restore();
 }
 
