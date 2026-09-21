@@ -10,6 +10,12 @@
   const fmt=(value,digits=2)=>value!==null&&value!==undefined&&value!==''&&Number.isFinite(Number(value))?Number(value).toFixed(digits):'資料不足';
   const displayError=(text,type='error')=>{const el=id('Error');if(el){el.style.display='block';el.style.color=type==='warn'?'var(--yellow)':'var(--red)';el.textContent=text;}};
   const note=text=>{const el=id('Message');if(el)el.textContent=text;};
+  const marketDateDiagnostic=meta=>{
+    const m=meta||{},items=[['目標日',m.targetTradeDate||m.completedTradeDate],['上市',m.twseQuoteDate],['上櫃',m.tpexQuoteDate]]
+      .filter(([,value])=>value!==null&&value!==undefined&&String(value).trim())
+      .map(([label,value])=>`${label} ${value}`);
+    return items.length?`｜Worker 日期：${items.join('／')}`:'';
+  };
   function marketPool(bundle,limit){
     const audit={financial:0,biotech:0,unknown:0,invalidQuote:0,missingLiquidity:0,illiquid:0};const ready=[];
     for(const [code,q] of bundle.map){
@@ -81,7 +87,7 @@
     try{
       const bundle=await loadDayTradeMarketBundleV377736();
       const meta=bundle.meta||{},market=F.validateMarket(meta,bundle.snapshotRows,new Date());
-      if(!market.ok)throw new Error(market.reason);
+      if(!market.ok)throw new Error(`${market.reason}${marketDateDiagnostic(meta)}｜本次未進行選股；請等待官方資料更新並確認 Market Worker 已同步後重試。`);
       const pool=marketPool(bundle,limit?.value||'140'),total=pool.deep.length;
       if(!total)throw new Error('無有效深度分析範圍；請檢查市場及產業資料');
       const candidates=[],issues=[];let done=0,data=0,failed=0,rejected=0;
@@ -115,7 +121,14 @@
       else if(err){err.style.display='none';}
       note(`本次快照已固定（${last.dataDate}），所有文字及圖片均使用同一份結果。`);
       return last;
-    }catch(error){last=null;displayError(`❌ 強勢標股掃描未產生有效結果：${error?.message||error}`);throw error;}
+    }catch(error){
+      last=null;
+      const progressText=id('ProgressText'),progressBar=id('ProgressBar');
+      if(progressText)progressText.textContent='本次查詢已中止；沒有產生新的選股結果。';
+      if(progressBar)progressBar.style.width='0%';
+      displayError(`❌ 強勢標股掃描未產生有效結果：${error?.message||error}`);
+      throw error;
+    }
     finally{running=false;originalButtons.forEach((element,i)=>element.disabled=originalButtonState[i]);if(button){button.disabled=false;button.textContent='🔎 查詢強勢標股濾網';}if(stop)stop.disabled=true;if(limit)limit.disabled=false;}
   }
   function stop(){stopped=true;const button=id('ScanButton');if(button)button.textContent='停止請求中，保留已完成結果…';}
