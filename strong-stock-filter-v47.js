@@ -75,12 +75,20 @@
         Math.abs(displayed-final.close)>Math.max(0.02,final.close*0.0001) ||
         Math.abs(market-final.close)>Math.max(0.02,final.close*0.0001))
       return invalid('市場報價、個股收盤與日K收盤不同價／不同日');
-    // The historical series uses the same canonical shares unit as the existing FIB Worker.
-    if (report?.dailySeriesMeta?.volumeUnit && !/shares|股/i.test(String(report.dailySeriesMeta.volumeUnit)))
-      return invalid('成交量單位不明，不能直接比較量比');
+    // Preserve historical OHLCV as-is. Never guess a 1,000x conversion from a ratio:
+    // venue-specific lots/shares and asynchronous official updates require provenance.
+    const dailyUnit=String(report?.dailySeriesMeta?.volumeUnit||'shares (legacy FIB dailySeries)').trim();
+    const marketUnit=String(quote?.volumeUnit||'shares (Market Worker canonical)').trim();
+    if(!/shares|股/i.test(dailyUnit)||!/shares|股/i.test(marketUnit))
+      return invalid(`成交量單位不能確認：市場 ${marketUnit}／日K ${dailyUnit}；不自動乘除1000`);
     const quoteVolume=number(quote?.volume);
-    if(!(quoteVolume>0) || Math.abs(quoteVolume-final.volume)>Math.max(100,quoteVolume*.02))
-      return invalid('同日市場與個股日K成交量缺失或不一致（股數單位）');
+    if(!(quoteVolume>0) || !(final.volume>0))
+      return invalid(`同日成交量缺失：${marketDate} 市場 ${quoteVolume??'-'} 股／日K ${final.volume??'-'} 股`);
+    if(Math.abs(quoteVolume-final.volume)>Math.max(100,quoteVolume*.02)){
+      const ratio=quoteVolume/final.volume;
+      const hint=(ratio>950&&ratio<1050)||(ratio>.00095&&ratio<.00105)?'；疑似股／張單位差，需核對來源，未自動轉換':'';
+      return invalid(`同日市場與個股日K成交量不一致：${marketDate} 市場 ${quoteVolume} 股／日K ${final.volume} 股（比值 ${ratio.toFixed(3)}）${hint}`);
+    }
     return {status:'OK',rows,date:marketDate};
   }
   const average=(rows,key)=>rows.reduce((sum,row)=>sum+row[key],0)/rows.length;
