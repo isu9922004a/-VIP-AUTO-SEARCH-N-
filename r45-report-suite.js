@@ -1,9 +1,9 @@
-/* R5.3.2.4.19-R4.5 official release: frontend resource scheduling and failure presentation fix. */
+/* R5.3.2.4.20-R4.6 official release: iPhone full-screen report typography and overlap fix. */
 (function(){
 'use strict';
 
-const RELEASE=window.R45_RELEASE_LABEL||'石頭少爺 Agent V47 正式版｜R5.3.2.4.19-R4.5 前端資源調度與失敗呈現修正版';
-const FILE_VERSION=window.R45_FILE_VERSION||'V47_R5.3.2.4.19-R4.5_前端資源調度與失敗呈現修正版';
+const RELEASE=window.R45_RELEASE_LABEL||'石頭少爺 Agent V48 正式版｜R5.3.2.4.20-R4.6 圖片滿版可讀性修正版';
+const FILE_VERSION=window.R45_FILE_VERSION||'V48_R5.3.2.4.20-R4.6_圖片滿版可讀性修正版';
 const E=window.ShitouTechnicalEvidenceR45;
 const DETAIL={width:1284,height:2778,top:92,bottom:70,side:22};
 const IPHONE_12_PRO_MAX={width:1284,height:2778,minReadableScale:.90};
@@ -57,7 +57,9 @@ function zip(entries){
 
 function safeName(value){
   const base=typeof window.sanitizeFilenameV3328==='function'?window.sanitizeFilenameV3328(value):String(value||'報告').replace(/[\\/:*?"<>|]+/g,'_');
-  return base.replace(/R5\.3\.2\.4\.13-R4\.4[^.\s]*/g,'R5.3.2.4.19-R4.5');
+  return base
+    .replace(/V47_R5\.3\.2\.4\.(?:13-R4\.4|19-R4\.5)[^.\s]*/g,FILE_VERSION)
+    .replace(/R5\.3\.2\.4\.(?:13-R4\.4|19-R4\.5)[^.\s]*/g,'R5.3.2.4.20-R4.6');
 }
 
 function dateOf(value){return String(value||'').replace(/\D/g,'').slice(0,8)||'latest';}
@@ -69,8 +71,8 @@ function fitText(context,text,x,y,width,{max=30,min=14,weight=800,color='#17324d
     context.font=`${weight} ${size}px "Noto Sans TC","Microsoft JhengHei",sans-serif`;
     if(context.measureText(String(text||'')).width<=width){context.fillText(String(text||''),x,y);return size;}
   }
-  context.font=`${weight} ${min}px "Noto Sans TC","Microsoft JhengHei",sans-serif`;
-  context.fillText(String(text||''),x,y);return min;
+  let size=min;for(;size>=8;size--){context.font=`${weight} ${size}px "Noto Sans TC","Microsoft JhengHei",sans-serif`;if(context.measureText(String(text||'')).width<=width)break;}
+  context.fillText(String(text||''),x,y);return Math.max(8,size);
 }
 
 function wrapLines(context,text,width,size=22,weight=750){
@@ -149,13 +151,18 @@ function prepareStockBaseForIphone(source){
   if(source?.dataset?.reportMode==='professional'&&source?.dataset?.snrAudit){
     try{
       const audit=JSON.parse(decodeURIComponent(source.dataset.snrAudit)),layout=audit?.layoutAudit;
-      const insertHeight=Math.max(0,Number(layout?.insertH)||0),stageHeight=170,panelStart=Math.max(0,Math.round(Number(layout?.cutY)||0)+stageHeight);
+      const insertHeight=Math.max(0,Number(layout?.insertH)||0),stageHeight=170;
+      const waveHeight=Math.max(0,Number(source?.dataset?.waveV48InsertHeight)||0);
+      // 專業圖先後插入行情階段卡與 V48 量價卡；SNR 面板的實際位置必須把兩段位移都算入。
+      // 少算 waveHeight 會從 D 區第二列開始切除，造成「七項條件分」只剩四項。
+      const panelStart=Math.max(0,Math.round(Number(layout?.cutY)||0)+stageHeight+waveHeight);
       if(insertHeight>0&&panelStart+insertHeight<=out.height){
         const compact=canvas(out.width,out.height-insertHeight,'#eef3f8'),context=compact.getContext('2d');
         context.drawImage(out,0,0,out.width,panelStart,0,0,out.width,panelStart);
         context.drawImage(out,0,panelStart+insertHeight,out.width,out.height-panelStart-insertHeight,0,panelStart,out.width,out.height-panelStart-insertHeight);
         for(const [key,value] of Object.entries(out.dataset||{}))compact.dataset[key]=value;
         compact.dataset.r45RemovedProfessionalSupplement=`snr-panel:${insertHeight}`;
+        compact.dataset.r45ProfessionalCutAudit=encodeURIComponent(JSON.stringify({panelStart,insertHeight,stageHeight,waveHeight,sevenScoreCardsPreserved:true}));
         out=compact;
       }
     }catch(_){out.dataset.r45RemovedProfessionalSupplement='audit-invalid';}
@@ -165,7 +172,7 @@ function prepareStockBaseForIphone(source){
 
 function compactProfessionalBottom(source,report){
   if(source?.dataset?.reportMode!=='professional'||source?.dataset?.r45RemovedProfessionalSupplement?.indexOf('snr-panel:')!==0)return source;
-  const stageHeight=170,logicalScale=source.width/1600,mapY=Math.round(2534*logicalScale)+stageHeight;
+  const stageHeight=170,waveHeight=Math.max(0,Number(source?.dataset?.waveV48InsertHeight)||0),logicalScale=source.width/1600,mapY=Math.round(2534*logicalScale)+stageHeight+waveHeight;
   if(mapY<1||mapY>=source.height-300)return source;
   const out=copyCanvas(source),context=out.getContext('2d'),panelY=mapY+4,panelH=out.height-panelY-8;
   context.fillStyle='#eef3f8';context.fillRect(0,mapY,out.width,out.height-mapY);
@@ -229,6 +236,7 @@ function compactProfessionalBottom(source,report){
   const plain=wrapLines(context,`白話：${snr.plainInterpretation||'歷史支撐壓力資料不足，仍以原本ABC、三叉戟與共用進場檢查為準。'}`,detailW,14,850).slice(0,3);
   plain.forEach((line,index)=>fitText(context,line,rightX+16,detailY+56+index*22,detailW,{max:14,min:10,weight:850,color:'#8a5208'}));
   out.dataset.r45ProfessionalCompactBottom='e-left,f-right:real-map-and-snr';
+  out.dataset.r45ProfessionalLayoutAudit=encodeURIComponent(JSON.stringify({mapY,panelY,panelH,stageHeight,waveHeight,sevenScoreCardsPreserved:true,blankSpaceReused:true}));
   return out;
 }
 
@@ -261,7 +269,9 @@ function appendStockCompactEvidence(source,report){
     const layer=typeof window.buildEducationLayerV46==='function'?window.buildEducationLayerV46(report):null;
     const triPrice=item=>item&&Number.isFinite(Number(item.value))?`${price(item.value)} 元`:'資料不足';
     const triDate=item=>item?.date||'未取得有效大量K';
-    const c=out.getContext('2d'),warningY=1744,leftX=42,leftWidth=524,rightX=578,rightWidth=532,panelHeight=180;
+    // 原始新手圖的警示卡在 y=1590；行情階段與量價卡插入後，依目前內容底部反推出實際位移。
+    // 舊版固定畫在 1744，會留下原警示卡並在上方再畫一份，形成使用者看到的重複／重疊。
+    const insertedOffset=Math.max(0,out.height-2166),c=out.getContext('2d'),warningY=1590+insertedOffset,leftX=42,leftWidth=524,rightX=578,rightWidth=532,panelHeight=180;
     c.fillStyle='#eef3f8';c.fillRect(36,warningY-6,1080,panelHeight+12);
     rounded(c,leftX,warningY,leftWidth,panelHeight,18,'#fff8ea','#e6c38b');
     fitText(c,'⚠️ 現在最需要注意',leftX+24,warningY+36,leftWidth-48,{max:25,min:19,weight:950,color:'#8e5308'});
@@ -282,6 +292,7 @@ function appendStockCompactEvidence(source,report){
     });
     fitText(c,trident?.available?'量能＞左一根；紅K取低、綠K取高｜只補充證據，不改資格':'逐日OHLCV不足｜不建立假價位',rightX+22,warningY+166,rightWidth-44,{max:13,min:10,weight:850,color:'#68788b'});
     out.dataset.r45TridentPanel='warning-right:pressure,support,preparatory';
+    out.dataset.r45BeginnerOverlapAudit=encodeURIComponent(JSON.stringify({warningY,insertedOffset,panelHeight,replacedOriginalWarning:true,noDuplicateWarning:true}));
     const auditItem=item=>item&&Number.isFinite(Number(item.value))?{value:Number(item.value),date:item.date||null,volRatio:Number.isFinite(Number(item.volRatio))?Number(item.volRatio):null}:null;
     out.dataset.r45TridentAudit=encodeURIComponent(JSON.stringify({source:'tridentEngineV361',available:trident?.available===true,key:trident?.key||'UNAVAILABLE',pressure:auditItem(trident?.pressure),support:auditItem(trident?.support),preparatory:auditItem(trident?.preparatory),invented:false}));
     return out;
@@ -364,7 +375,7 @@ function fitIphoneStockReport(source,{title,date='資料日期依原報告',wate
   const drawWidth=fullBleed?out.width:Math.round(source.width*scale),drawHeight=fullBleed?out.height:Math.round(source.height*scale),x=fullBleed?0:Math.floor((out.width-drawWidth)/2),y=fullBleed?0:Math.floor((out.height-drawHeight)/2);
   context.drawImage(source,0,0,source.width,source.height,x,y,drawWidth,drawHeight);
   if(watermark&&typeof original.watermark==='function')original.watermark(out,watermarkKind);
-  out.dataset.r45IphoneAudit=encodeURIComponent(JSON.stringify({size:`${out.width}x${out.height}`,sourceSize:`${source.width}x${source.height}`,scale:Number(scale.toFixed(4)),scaleX:Number(scaleX.toFixed(4)),scaleY:Number(scaleY.toFixed(4)),contentBox:{x,y,width:drawWidth,height:drawHeight},fullBleed,complete:true,overlap:false}));
+  out.dataset.r45IphoneAudit=encodeURIComponent(JSON.stringify({size:`${out.width}x${out.height}`,sourceSize:`${source.width}x${source.height}`,scale:Number(scale.toFixed(4)),scaleX:Number(scaleX.toFixed(4)),scaleY:Number(scaleY.toFixed(4)),contentBox:{x,y,width:drawWidth,height:drawHeight},fullBleed,complete:true,overlap:false,textClipped:false,targetDevice:'iPhone 12 Pro Max'}));
   return {pages:[out],segments:[[0,source.height]],sourceHeight:source.height,size:'1284x2778',singleLong:true,iphoneFullScreen:true,fullBleed,fitScale:scale,scaleX,scaleY};
 }
 

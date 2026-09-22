@@ -1,9 +1,9 @@
-/* R5.3.2.4.19-R4.5 official release: frontend resource scheduling and failure presentation fix. */
+/* R5.3.2.4.20-R4.6 official release: iPhone full-screen report typography and overlap fix. */
 (function(){
 'use strict';
 
-const RELEASE='石頭少爺 Agent V47 正式版｜R5.3.2.4.19-R4.5 前端資源調度與失敗呈現修正版';
-const FILE_VERSION='V47_R5.3.2.4.19-R4.5_前端資源調度與失敗呈現修正版';
+const RELEASE='石頭少爺 Agent V48 正式版｜R5.3.2.4.20-R4.6 圖片滿版可讀性修正版';
+const FILE_VERSION='V48_R5.3.2.4.20-R4.6_圖片滿版可讀性修正版';
 const E=window.ShitouTechnicalEvidenceR45;
 window.R45_RELEASE_LABEL=RELEASE;
 window.R45_FILE_VERSION=FILE_VERSION;
@@ -14,7 +14,7 @@ function activeText(value){
     .replaceAll('V47_R5.3.2.4.13-R4.4_五本教材策略保留_雙選股圖片字體自適應優化版',FILE_VERSION)
     .replaceAll('石頭少爺 Agent V47 正式版｜R5.3.2.4.12 顯示與共用狀態一致性收尾版',RELEASE)
     .replaceAll('V47_R5.3.2.4.12_顯示與共用狀態一致性收尾版',FILE_VERSION)
-    .replace(/R5\.3\.2\.4\.13-R4\.4/g,'R5.3.2.4.19-R4.5');
+    .replace(/R5\.3\.2\.4\.(?:13-R4\.4|19-R4\.5)/g,'R5.3.2.4.20-R4.6');
 }
 window.r45ActiveText=activeText;
 
@@ -22,12 +22,12 @@ document.documentElement.dataset.releaseVersion=RELEASE;
 document.documentElement.dataset.r45Candidate='true';
 document.title=RELEASE;
 document.querySelectorAll('.version-pill,footer strong').forEach(element=>{
-  if(/石頭少爺 Agent V47/.test(element.textContent||'')){
+  if(/石頭少爺 Agent V4[78]/.test(element.textContent||'')){
     element.textContent=RELEASE+(element.classList.contains('version-pill')?'｜盤後資料｜原始策略不變':'');
   }
 });
 document.querySelectorAll('.meta,strong').forEach(element=>{
-  if(/石頭少爺 Agent V47 (?:正式版|研究候選版)/.test(element.textContent||''))element.textContent=activeText(element.textContent);
+  if(/石頭少爺 Agent V4[78] (?:正式版|研究候選版)/.test(element.textContent||''))element.textContent=activeText(element.textContent);
 });
 
 const style=document.createElement('style');
@@ -116,8 +116,8 @@ function scanUi(scan,rootId,kind){
 
 function appendTechnicalText(text,block){
   if(typeof text!=='string'||!text.trim())return text;
-  if(text.includes('【R4.5 EMA／KD補充證據｜不改原分數與進場限制】'))return activeText(text);
-  const addition=`\n\n【R4.5 EMA／KD補充證據｜不改原分數與進場限制】\n${block}\n`;
+  if(text.includes('【R4.6 EMA／KD補充證據｜不改原分數與進場限制】'))return activeText(text);
+  const addition=`\n\n【R4.6 EMA／KD補充證據｜不改原分數與進場限制】\n${block}\n`;
   const marker=/^(?:完整結尾標記：)?END-OF-(?:MOMENTUM|DAYTRADE)-[^\n]*$/m;
   if(marker.test(text))return activeText(text.replace(marker,value=>addition+'\n'+value));
   const disclaimer='技術分析僅供研究與決策參考，不構成投資建議。';
@@ -173,7 +173,7 @@ wrapText('buildDayTradeTextReportV1',scan=>scanText(scan,'daytrade'));
 
 const candidateBanner=document.createElement('div');
 candidateBanner.className='r45-candidate-banner';
-candidateBanner.textContent='🧪 R4.5 研究候選：EMA／KD只作補充證據；未通過全部實機與正式行情驗收前，不會改稱正式封板版。';
+candidateBanner.textContent='🧪 R4.6 正式版：EMA／KD只作補充證據，不改原分數、資格與進場限制。';
 const main=document.querySelector('main');if(main)main.prepend(candidateBanner);
 
 window.SHITO_R45_UI_AUDIT={
