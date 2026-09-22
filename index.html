@@ -1,4 +1,4 @@
-<!-- 石頭少爺 Agent V47 正式版｜R5.3.2.4.19-R4.5 前端資源調度與失敗呈現修正版：只調整前端請求節奏、有限重試與失敗呈現；原有選股公式、分數、資格、排序、Worker 契約及既有圖片展示成果全部保留。 -->
+<!-- 石頭少爺 Agent V48 正式版｜量價波段核心｜三盤＋8/21/55日線＋5/13/34日量潮：只調整前端請求節奏、有限重試與失敗呈現；原有選股公式、分數、資格、排序、Worker 契約及既有圖片展示成果全部保留。 -->
 <!DOCTYPE html>
 
 <html lang="zh-TW">
@@ -9,7 +9,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>石頭少爺 Agent V47 正式版｜R5.3.2.4.19-R4.5 前端資源調度與失敗呈現修正版</title>
+<title>石頭少爺 Agent V48 正式版｜量價波段核心｜三盤＋8/21/55日線＋5/13/34日量潮</title>
 
 <style>
 
@@ -1091,9 +1091,9 @@ body.dark .v46-reason,body.dark .v46-note,body.dark .v46-family{color:#d2dae7}bo
 
     <h1>🪨 石頭少爺 Agent</h1>
 
-    <p>盤後個股判讀＋三重選股把關＋區段量價防守＋主升段／當沖產業輪動</p>
+    <p>盤後個股判讀＋大盤／產業／個股強弱＋三盤量價波段＋主升段／當沖風險確認</p>
 
-    <span class="version-pill">石頭少爺 Agent V47 正式版｜R5.3.2.4.19-R4.5 前端資源調度與失敗呈現修正版｜盤後資料｜原始策略不變</span>
+    <span class="version-pill">石頭少爺 Agent V48 正式版｜量價波段核心｜三盤＋8/21/55日線＋5/13/34日量潮｜盤後資料｜強勢飆股新版主軸</span>
 
   </div>
 
@@ -1189,9 +1189,9 @@ body.dark .v46-reason,body.dark .v46-note,body.dark .v46-family{color:#d2dae7}bo
 
 
     <div class="strong-stock-shortcut" id="strongStockShortcut">
-      <div class="section-title">🔎 第三套｜強勢標股濾網（獨立策略）</div>
-      <div class="section-subtitle">專找隔日可能續強的準備起漲、首次突破、突破後續攻型態；不使用主升段／當沖原公式，不以選股分數宣稱勝率。</div>
-      <div class="strong-stock-reminder">📌 查詢前請先記分，再按「查詢強勢標股濾網」。僅使用已完成的盤後日K；交易日17:35後可開始檢查，但不保證資料已同步，請以市場、上市、上櫃及個股交易日一致為準。未更新時請稍後重試，勿使用舊快照。</div>
+      <div class="section-title">🔎 第三套｜強勢飆股濾網（獨立策略）</div>
+      <div class="section-subtitle">新版主軸改為「三盤轉折＋8／21／55日線＋5／13／34日量潮」：先找真正轉強，再分辨主升、量縮整理與退潮；條件分只代表結構完整度，不是勝率。</div>
+      <div class="strong-stock-reminder">📌 查詢前請先記分，再按「查詢強勢飆股濾網」。只用已完成盤後日K；先看三盤轉折，再看8／21／55日線與5／13／34日量潮是否接力。資料日期不同就直接停止，不拿舊資料硬算。</div>
       <div class="meta">資料實際取自 Market Worker 的 ALL_STOCKS；GitHub 專案內 latest.json 更新，不代表 Worker 一定已同步。</div>
       <div class="rule" style="margin-top:12px"><label for="strongStockDeepLimit">完整日K深入分析範圍：</label>
         <select id="strongStockDeepLimit" style="padding:9px;max-width:100%;border-radius:8px">
@@ -1199,7 +1199,7 @@ body.dark .v46-reason,body.dark .v46-note,body.dark .v46-family{color:#d2dae7}bo
         </select><div class="meta">先快篩完整市場，金融與生技依官方產業分類排除。上限外僅屬尚未分析，不得算成淘汰或全市場零候選。</div>
       </div>
       <div class="strong-stock-actions">
-        <button id="strongStockScanButton" class="btn" type="button" onclick="runStrongStockScanV47()">🔎 查詢強勢標股濾網</button>
+        <button id="strongStockScanButton" class="btn" type="button" onclick="runStrongStockScanV47()">🔎 查詢強勢飆股濾網</button>
         <button id="strongStockStopButton" class="momentum-stop-btn show" type="button" onclick="stopStrongStockScanV47()" disabled>■ 停止</button>
       </div>
       <div class="strong-stock-progress"><div id="strongStockProgressBar"></div></div>
@@ -1319,10 +1319,10 @@ body.dark .v46-reason,body.dark .v46-note,body.dark .v46-family{color:#d2dae7}bo
 
   <section id="strongStockResult" class="momentum-result strong-stock-result">
     <section class="panel">
-      <div class="section-title">🔎 強勢標股濾網｜已確認候選排行（第三套獨立策略）</div>
+      <div class="section-title">🔎 強勢飆股濾網｜已確認候選排行（第三套獨立策略）</div>
       <div id="strongStockMeta" class="meta">-</div>
       <div id="strongStockSummary" class="rule" style="margin-top:12px;line-height:1.8;overflow-wrap:anywhere">-</div>
-      <div class="strong-stock-reminder" style="margin-top:12px">A 準備起漲／B 首次突破／C 突破後續攻。排名僅為篩選優先序，不是勝率；隔日仍需核對量價、關鍵價與風險。</div>
+      <div class="strong-stock-reminder" style="margin-top:12px">S＝強中強、A＝條件完整、B＝可觀察。排序先看量價結構完整度，再看三盤、均線與量潮；不是勝率，隔日仍要確認觀察價與防守價。</div>
       <div id="strongStockList" class="momentum-list"></div>
       <div class="strong-stock-image-actions">
         <button class="copy-btn" type="button" onclick="copyStrongStockTextV47()">📋 一鍵複製全部文字報告</button>
@@ -1861,7 +1861,7 @@ body.dark .v46-reason,body.dark .v46-note,body.dark .v46-family{color:#d2dae7}bo
 
       <div class="section-title">⑥ 一鍵複製分析報告</div>
 
-      <div class="hint">以既有穩定核心為母版；ABC／Fib／N字、突破品質2.0、三叉戟、量價位置化、動態防守、歷史量價研究檢查、白話進出場與圖片版型全部保留。盤前只預算價位，盤中價格與量能請搭配券商即時行情自行確認。</div>
+      <div class="hint">既有 ABC／Fib／N字與防守結構保留作輔助；新增三盤、8／21／55日線與5／13／34日量潮作共用量價判讀。報告優先用白話說明「現在在哪一段、為什麼強弱、要守哪裡」。盤後只做已完成資料判讀，盤中仍須用券商即時行情確認。</div>
 
       <div class="copy-actions">
 
@@ -1913,7 +1913,7 @@ body.dark .v46-reason,body.dark .v46-note,body.dark .v46-family{color:#d2dae7}bo
   </div>
 </div>
 
-<footer class="footer"><strong>石頭少爺 Agent V47 正式版｜R5.3.2.4.19-R4.5 前端資源調度與失敗呈現修正版</strong><br>本頁使用最近完成交易日的盤後資料，不是即時看盤；網頁、文字與圖片報告共用同一份分析結果。EMA／KD與歷史支撐壓力只補充證據，不會改寫原有分數、資格、排序或進場檢查。<br>技術分析僅供研究與決策參考，不構成投資建議；所有分數都是條件評估，不是勝率或上漲機率。</footer>
+<footer class="footer"><strong>石頭少爺 Agent V48 正式版｜量價波段核心｜三盤＋8/21/55日線＋5/13/34日量潮</strong><br>本頁使用最近完成交易日的盤後資料，不是即時看盤；網頁、文字與圖片報告共用同一份分析結果。舊有 ABC／Fib／N字、EMA／KD與歷史支撐壓力仍保留作輔助；新版量價核心會在明確三盤跌破且21日線轉弱時取消正式順位，強勢飆股濾網則改用新版量價主軸。<br>技術分析僅供研究與決策參考，不構成投資建議；所有分數都是條件評估，不是勝率或上漲機率。</footer>
 
 <script>
 // V40｜三週期盤後適配度＋Decision Layer整合版。Worker分數為主，前端舊公式保留fallback；不使用盤中假資料。
@@ -2161,7 +2161,7 @@ body.dark .v46-reason,body.dark .v46-note,body.dark .v46-family{color:#d2dae7}bo
 // 不新增艾略特1～5浪或ABC修正浪計數。
 // ========================================================================
 
-const V40_RELEASE_LABEL="石頭少爺 Agent V47 正式版｜R5.3.2.4.19-R4.5 前端資源調度與失敗呈現修正版";
+const V40_RELEASE_LABEL="石頭少爺 Agent V48 正式版｜量價波段核心｜三盤＋8/21/55日線＋5/13/34日量潮";
 const API_BASE_URL="https://shitou-agent-fib-api.d318426.workers.dev";
 
 // V40：延續 GIS-KY 英文名稱修正；新增「戰術頸線突破」與「Fib B正式突破」角色隔離，避免B尚未突破卻被寫成支撐。
@@ -31050,7 +31050,7 @@ buildReportText=function(report){
 // 本層只讀取既有結果，不改 ABC、N字、Pivot、Swing、Fib、月線、三週期分數、
 // RSI、OBV、CMF、支撐壓力、原有價位與共用操作檢查。教材訊號永遠不能單獨開啟執行。
 // ========================================================================
-const V46_RELEASE_LABEL="石頭少爺 Agent V47 正式版｜R5.3.2.4.19-R4.5 前端資源調度與失敗呈現修正版";
+const V46_RELEASE_LABEL="石頭少爺 Agent V48 正式版｜量價波段核心｜三盤＋8/21/55日線＋5/13/34日量潮";
 const V46_EDUCATION_CACHE=new WeakMap();
 const V46_CONTEXT_CACHE=new WeakMap();
 
@@ -34490,7 +34490,7 @@ function runR43Acceptance(){
 }
 const R43_ACCEPTANCE=runR43Acceptance();window.R43_ACCEPTANCE=R43_ACCEPTANCE;document.documentElement.dataset.r43Acceptance=encodeURIComponent(JSON.stringify(R43_ACCEPTANCE));
 // 最終版本字樣同步。
-const R43_RELEASE_LABEL="石頭少爺 Agent V47 正式版｜R5.3.2.4.13-R4.4 五本教材策略保留｜雙選股圖片字體自適應優化版";
+const R43_RELEASE_LABEL="石頭少爺 Agent V48 正式版｜量價波段核心｜三盤＋8/21/55日線＋5/13/34日量潮";
 document.documentElement.dataset.releaseVersion=R43_RELEASE_LABEL;document.title=R43_RELEASE_LABEL;
 document.querySelectorAll(".version-pill,footer strong").forEach(el=>{if(/石頭少爺 Agent V47/.test(el.textContent||""))el.textContent=R43_RELEASE_LABEL+(el.classList?.contains("version-pill")?"｜盤後資料｜雙通道＋自動擴掃":"");});
 </script>
@@ -34498,8 +34498,10 @@ document.querySelectorAll(".version-pill,footer strong").forEach(el=>{if(/石頭
 <script src="./technical-evidence-r45.js"></script>
 <script src="./r45-integration.js"></script>
 <script src="./r45-report-suite.js"></script>
+<script src="./shitou-wave-core-v48.js"></script>
 <script src="./strong-stock-filter-v47.js"></script>
 <script src="./strong-stock-ui-v47.js"></script>
+<script src="./shitou-wave-ui-v48.js"></script>
 </body>
 
 </html>
