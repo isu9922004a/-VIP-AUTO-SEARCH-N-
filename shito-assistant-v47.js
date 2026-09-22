@@ -191,7 +191,13 @@ function appendAssistantCanvasV47(base,e,industry=null){
   // 網頁、文字報告與底層公司／法人／大戶／產業資料不變；緊縮高度以利 iPhone 12 Pro Max 單頁滿版。
   if(!e)return base;const extra=138,out=document.createElement("canvas");out.width=base.width;out.height=base.height+extra;const c=out.getContext("2d");c.drawImage(base,0,0);c.fillStyle="#eef3f8";c.fillRect(0,base.height,out.width,extra);
   const p=e.anchoredVolumeProfileEvidence,y=base.height+10;c.fillStyle="#fff";c.strokeStyle="#b9cadd";c.lineWidth=2;c.beginPath();c.roundRect(36,y,out.width-72,116,14);c.fill();c.stroke();c.fillStyle="#153a67";c.font="950 24px 'Noto Sans TC','Microsoft JhengHei',sans-serif";c.fillText(`📍 主要成交密集區（估算）：${p.status==="pass"?range(p.pocLower,p.pocUpper):p.label}`,56,y+34);c.fillStyle="#34445a";c.font="850 18px 'Noto Sans TC','Microsoft JhengHei',sans-serif";wrapCanvasText(c,`${p.pocRole||"資料不足"}｜${p.pocRetestState||"資料不足"}`,56,y+66,out.width-112,23,1);c.font="800 15px 'Noto Sans TC','Microsoft JhengHei',sans-serif";c.fillStyle="#657286";wrapCanvasText(c,`資料 ${p.anchorStartDate||"-"}～${p.anchorEndDate||"-"}｜48格價格區估算，不是逐筆成交分布`,56,y+94,out.width-112,20,1);
-  out.dataset.reportMode=base.dataset.reportMode||"";out.dataset.language=base.dataset.language||"plain-zh-TW";out.dataset.snrAudit=base.dataset.snrAudit||"";out.dataset.layoutAudit=base.dataset.layoutAudit||"";out.dataset.r45AssistantAppendHeight=String(extra);out.dataset.r45ImageBlocksRemoved="assistant-heading,company-card,capital-card,holder-card,industry-panel,strength-risk-panel";out.dataset.r45ImageBlocksKept="major-volume-zone";return out;
+  // V48 D區修復：量價波段卡是在此函式之前插入；後續 iPhone 滿版壓縮會依 waveV48InsertHeight 計算 SNR 面板真正切點。
+  // 若這裡遺失 wave metadata，會提早約一個量價卡高度切除內容，造成 D. 七項條件分第二列被裁掉。只傳遞版面 metadata，不改任何分析、分數或價位。
+  out.dataset.reportMode=base.dataset.reportMode||"";out.dataset.language=base.dataset.language||"plain-zh-TW";out.dataset.snrAudit=base.dataset.snrAudit||"";out.dataset.layoutAudit=base.dataset.layoutAudit||"";
+  if(base.dataset.waveV48InsertY)out.dataset.waveV48InsertY=base.dataset.waveV48InsertY;
+  if(base.dataset.waveV48InsertHeight)out.dataset.waveV48InsertHeight=base.dataset.waveV48InsertHeight;
+  if(base.dataset.waveV48LayoutAudit)out.dataset.waveV48LayoutAudit=base.dataset.waveV48LayoutAudit;
+  out.dataset.r45AssistantAppendHeight=String(extra);out.dataset.r45ImageBlocksRemoved="assistant-heading,company-card,capital-card,holder-card,industry-panel,strength-risk-panel";out.dataset.r45ImageBlocksKept="major-volume-zone";return out;
 }
 
 const originalBuild=window.buildReportText;
