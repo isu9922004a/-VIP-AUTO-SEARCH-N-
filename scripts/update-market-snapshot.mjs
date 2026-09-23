@@ -1,6 +1,7 @@
 #!/usr/bin/env node
-// 石頭少爺 Agent R5.3.2.4.13-R4.1｜GitHub Actions 完成交易日校正版
-// 修正：當 TWSE STOCK_DAY_ALL 落後 TPEx 最新交易日時，以 TWSE 官方 MI_INDEX 指定日行情補齊後再建立完整快照。
+// 石頭少爺 Agent R5.3.2.4.20-R4.7｜GitHub Actions 雙市場同日補抓修正版
+// 修正：不只處理 TWSE / TPEx 彼此日期落差；台灣交易日 17:35 後若兩邊 latest 同時停在舊日，
+// 會主動以 TWSE MI_INDEX + TPEx dailyQuotes 指定「今天」補抓。兩市場都完整且同日才允許覆蓋 latest.json。
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import crypto from 'node:crypto';
@@ -15,6 +16,7 @@ export const SOURCES = Object.freeze({
   twseQuotes: 'https://openapi.twse.com.tw/v1/exchangeReport/STOCK_DAY_ALL',
   twseQuotesByDateBase: 'https://www.twse.com.tw/exchangeReport/MI_INDEX',
   tpexQuotes: 'https://www.tpex.org.tw/openapi/v1/tpex_mainboard_daily_close_quotes',
+  tpexQuotesByDateBase: 'https://www.tpex.org.tw/www/zh-tw/afterTrading/dailyQuotes',
   twseCompanies: 'https://openapi.twse.com.tw/v1/opendata/t187ap03_L',
   tpexCompanies: 'https://www.tpex.org.tw/openapi/v1/mopsfin_t187ap03_O'
 });
@@ -304,28 +306,107 @@ async function fetchTwseQuotesByDate(date) {
   return { rows, finalUrl:res.finalUrl, status:res.status, contentType:res.contentType, attempt:res.attempt, source:'MI_INDEX_BY_DATE' };
 }
 
-export async function reconcileLatestTradeDate(twseQuotes, tpexQuotes) {
+function slashDate(date) {
+  return /^\d{8}$/.test(String(date || ''))
+    ? `${date.slice(0,4)}/${date.slice(4,6)}/${date.slice(6,8)}`
+    : '';
+}
+
+function tpexDailyQuotesUrl(date) {
+  const u = new URL(SOURCES.tpexQuotesByDateBase);
+  u.searchParams.set('date', slashDate(date));
+  u.searchParams.set('type', 'EW');
+  u.searchParams.set('response', 'json');
+  return u.toString();
+}
+
+export function extractTpexDailyQuoteRows(payload, targetDate) {
+  if (!payload || typeof payload !== 'object' || !Array.isArray(payload.tables)) return [];
+  const payloadDate = normalizeMarketDate(payload.date);
+  if (payloadDate && payloadDate !== targetDate) return [];
+  const candidates = [];
+  for (const table of payload.tables) {
+    const fields = Array.isArray(table?.fields) ? table.fields.map(x => String(x ?? '').trim()) : [];
+    const data = Array.isArray(table?.data) ? table.data : [];
+    const joined = fields.join('|');
+    if (!/代號/.test(joined) || !/收盤/.test(joined) || !/開盤/.test(joined) || !/最高/.test(joined) || !/最低/.test(joined) || !/成交股數/.test(joined)) continue;
+    const rows = data.map(values => {
+      if (!Array.isArray(values)) return null;
+      const row = { Date:targetDate };
+      for (let i=0;i<fields.length;i++) row[fields[i]] = values[i];
+      return row;
+    }).filter(Boolean);
+    if (rows.length) candidates.push(rows);
+  }
+  if (!candidates.length) return [];
+  return candidates.sort((a,b) => b.length-a.length)[0];
+}
+
+async function fetchTpexQuotesByDate(date) {
+  const url = tpexDailyQuotesUrl(date);
+  const res = await fetchJsonValue(url, `TPEx dailyQuotes ${date}`);
+  const stat = String(res.data?.stat || res.data?.status || '').trim();
+  if (stat && !/^ok$/i.test(stat)) throw new Error(`TPEx 指定日 ${date} 尚無完整行情｜stat ${stat}`);
+  const rows = extractTpexDailyQuoteRows(res.data, date);
+  if (rows.length < 600) throw new Error(`TPEx 指定日 ${date} 行情解析不足：${rows.length} 筆${stat ? `｜stat ${stat}` : ''}`);
+  return { rows, finalUrl:res.finalUrl, status:res.status, contentType:res.contentType, attempt:res.attempt, source:'TPEX_DAILY_QUOTES_BY_DATE' };
+}
+
+export function taipeiMarketClock(now = new Date()) {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit',
+    hour:'2-digit',minute:'2-digit',hourCycle:'h23'
+  }).formatToParts(now);
+  const get = type => String(parts.find(p => p.type === type)?.value || '');
+  const today = `${get('year')}${get('month')}${get('day')}`;
+  const weekday = new Date(`${get('year')}-${get('month')}-${get('day')}T00:00:00Z`).getUTCDay();
+  const minutes = Number(get('hour')) * 60 + Number(get('minute'));
+  return { today, weekday, minutes, weekdayTradingCandidate:weekday >= 1 && weekday <= 5, afterCutoff:minutes >= 17 * 60 + 35 };
+}
+
+export async function reconcileLatestTradeDate(twseQuotes, tpexQuotes, options = {}) {
   let twse = twseQuotes;
-  const tpex = tpexQuotes;
+  let tpex = tpexQuotes;
   let twseDate = latestMarketQuoteDate(twse.rows);
-  const tpexDate = latestMarketQuoteDate(tpex.rows);
+  let tpexDate = latestMarketQuoteDate(tpex.rows);
   const events = [];
-  if (!twseDate || !tpexDate) return { twse, tpex, twseDate, tpexDate, events };
+  const fetchTwseByDate = options.fetchTwseByDate || fetchTwseQuotesByDate;
+  const fetchTpexByDate = options.fetchTpexByDate || fetchTpexQuotesByDate;
+  const clock = taipeiMarketClock(options.now || new Date());
+  if (!twseDate || !tpexDate) return { twse, tpex, twseDate, tpexDate, events, clock };
 
   if (twseDate < tpexDate) {
     events.push(`TWSE latest ${twseDate} 落後 TPEx ${tpexDate}，改查 TWSE 指定日 ${tpexDate}`);
-    const upgraded = await fetchTwseQuotesByDate(tpexDate);
+    const upgraded = await fetchTwseByDate(tpexDate);
     const upgradedDate = latestMarketQuoteDate(upgraded.rows);
-    if (upgradedDate === tpexDate) {
-      twse = upgraded;
-      twseDate = upgradedDate;
-      events.push(`TWSE 指定日校正成功：${twseDate}`);
-    } else {
-      events.push(`TWSE 指定日校正未對齊：${upgradedDate || '未知'}`);
-    }
+    if (upgradedDate === tpexDate) { twse = upgraded; twseDate = upgradedDate; events.push(`TWSE 指定日校正成功：${twseDate}`); }
+    else events.push(`TWSE 指定日校正未對齊：${upgradedDate || '未知'}`);
+  } else if (tpexDate < twseDate) {
+    events.push(`TPEx latest ${tpexDate} 落後 TWSE ${twseDate}，改查 TPEx 指定日 ${twseDate}`);
+    const upgraded = await fetchTpexByDate(twseDate);
+    const upgradedDate = latestMarketQuoteDate(upgraded.rows);
+    if (upgradedDate === twseDate) { tpex = upgraded; tpexDate = upgradedDate; events.push(`TPEx 指定日校正成功：${tpexDate}`); }
+    else events.push(`TPEx 指定日校正未對齊：${upgradedDate || '未知'}`);
   }
 
-  return { twse, tpex, twseDate, tpexDate, events };
+  // R4.7 核心：兩邊 latest 可能「一起」停在昨天。平日盤後不可因為兩邊相等就誤認完整。
+  // 主動查今天的官方指定日資料；只有 TWSE + TPEx 都完整且同日，才一起升級。
+  if (clock.weekdayTradingCandidate && clock.afterCutoff && twseDate === tpexDate && twseDate < clock.today) {
+    events.push(`兩市場 latest 同停 ${twseDate}，台灣 ${clock.today} 已過 17:35；主動補查今天 TWSE＋TPEx 指定日行情`);
+    const [twseToday, tpexToday] = await Promise.all([fetchTwseByDate(clock.today), fetchTpexByDate(clock.today)]);
+    const twseTodayDate = latestMarketQuoteDate(twseToday.rows);
+    const tpexTodayDate = latestMarketQuoteDate(tpexToday.rows);
+    if (twseTodayDate !== clock.today || tpexTodayDate !== clock.today) {
+      throw new Error(`今天指定日補抓未對齊｜TWSE ${twseTodayDate || '未知'}｜TPEx ${tpexTodayDate || '未知'}｜目標 ${clock.today}`);
+    }
+    twse = twseToday;
+    tpex = tpexToday;
+    twseDate = twseTodayDate;
+    tpexDate = tpexTodayDate;
+    events.push(`雙市場今天指定日補抓成功：${clock.today}`);
+  }
+
+  return { twse, tpex, twseDate, tpexDate, events, clock };
 }
 
 function sha256Json(value) {
@@ -436,6 +517,7 @@ export async function buildSnapshot({twseQuoteRows,tpexQuoteRows,twseCompanyRows
       twseQuotes: SOURCES.twseQuotes,
       twseQuotesByDateBase: SOURCES.twseQuotesByDateBase,
       tpexQuotes: SOURCES.tpexQuotes,
+      tpexQuotesByDateBase: SOURCES.tpexQuotesByDateBase,
       twseCompanies: SOURCES.twseCompanies,
       tpexCompanies: SOURCES.tpexCompanies
     },
@@ -495,10 +577,10 @@ export async function main() {
         finalDate:finalTwseDate
       },
       tpexQuotes: {
-        status:tpexQuotes.status,
-        finalUrl:tpexQuotes.finalUrl,
-        attempt:tpexQuotes.attempt,
-        source:'tpex_mainboard_daily_close_quotes',
+        status:reconciled.tpex.status,
+        finalUrl:reconciled.tpex.finalUrl,
+        attempt:reconciled.tpex.attempt,
+        source:reconciled.tpex.source || 'tpex_mainboard_daily_close_quotes',
         initialDate:initialTpexDate,
         finalDate:finalTpexDate
       },
