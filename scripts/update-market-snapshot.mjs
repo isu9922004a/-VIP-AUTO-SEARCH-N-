@@ -375,6 +375,7 @@ export async function reconcileLatestTradeDate(twseQuotes, tpexQuotes, options =
   const clock = taipeiMarketClock(options.now || new Date());
   if (!twseDate || !tpexDate) return { twse, tpex, twseDate, tpexDate, events, clock };
 
+  // 先處理兩市場 latest 來源彼此不同日。
   if (twseDate < tpexDate) {
     events.push(`TWSE latest ${twseDate} 落後 TPEx ${tpexDate}，改查 TWSE 指定日 ${tpexDate}`);
     const upgraded = await fetchTwseByDate(tpexDate);
