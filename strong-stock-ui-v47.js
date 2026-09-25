@@ -30,7 +30,7 @@
   const isCpuError=value=>/exceeded\s*CPU|CPU\s*time\s*limit|CPU.*(?:超限|用量)|1102|script.*exceeded/i.test(String(value||''));
   const isRetryable=value=>/CPU|1102|timeout|timed out|aborted|failed to fetch|network|HTTP\s*(?:429|5\d\d)|服務暫時|連線|逾時|分析未回傳/i.test(String(value||''));
   const statusTitle=scan=>scan.fullMarketCertified?'完整市場驗證報告':'部分驗證報告｜非全市場完整排名';
-  const RELEASE_R493='石頭少爺 Agent V49 正式版｜R5.3.2.4.26-R4.9.3｜選股一致性與完整性修正版';
+  const RELEASE_R493='石頭少爺 Agent V49 正式版｜R5.3.2.4.28-R4.9.3｜主升中文名稱＋個股圖片版面安全修正版';
   const triggerMeta=c=>{
     const close=F.number(c?.close),trigger=F.number(c?.trigger);
     const crossed=close!==null&&trigger!==null&&close>=trigger;

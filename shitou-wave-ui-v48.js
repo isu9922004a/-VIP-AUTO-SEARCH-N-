@@ -1,13 +1,14 @@
 /* V49 共同白話顯示層：量價波段＋費波回撤量尺，接到個股／大盤／主升／當沖文字與圖片；不改既有資料來源與原硬性風控。 */
 (function(root){'use strict';
 const W=root.ShitouWaveCoreV48;if(!W)return;
-const RELEASE=W.RELEASE||'石頭少爺 Agent V49 正式版｜R5.3.2.4.26-R4.9.3｜選股一致性與完整性修正版';
+const RELEASE=W.RELEASE||'石頭少爺 Agent V49 正式版｜R5.3.2.4.28-R4.9.3｜主升中文名稱＋個股圖片版面安全修正版';
 const esc=s=>String(s??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 function analyze(x){return W.analyzeReport(x?.report||x);}
 function fibShort(a){const f=a?.fib;if(!f?.ok)return '📏 波段量尺：資料不足，不硬算';const pos=f.inRange&&f.band?`📍${f.band.label} 約 ${f.band.low.toFixed(2)}～${f.band.high.toFixed(2)}`:`📍${f.positionText||'已離開0%～100%回撤區'}`;return `📏 ${f.directionText} ${f.ratioText}｜${f.zone.label}｜${pos}｜${f.priceConfirm?'✅已有價格確認':'🟡仍等價格確認'}`;}
 function compact(a){if(!a?.ok)return '量價波段資料不足';const g=W.grade(a);return `${g.label}｜${a.phaseLabel}｜${a.threeBreakout?'✅三盤突破':a.threeBreakdown?'⚠️三盤跌破':'三盤未轉折'}｜${fibShort(a)}`;}
 function prependOnce(text,block,key='【📚 新版量價波段判讀】'){const s=String(text||'');return s.includes(key)?s:`${block}\n\n${s}`;}
-function multiBlock(scan,title){const list=(scan?.candidates||[]).slice(0,8);if(!list.length)return `【📚 ${title}】\n目前沒有可分析候選。`;return `【📚 ${title}】\n${list.map((c,i)=>{const a=analyze(c);return `${i+1}. ${c?.name||c?.report?.name||c?.report?.stock||c?.code||'-'}｜${compact(a)}${a?.risk?.length?`｜⚠️ ${a.risk.slice(0,2).join('、')}`:''}`;}).join('\n')}\n白話規則：先看三盤、價格三線和量能三線，再用費波回撤量「這一波吐回多少」。比例只是一個區域量尺，不是碰到61.8%就會反彈；最後仍要等價格與成交量確認。`;}
+function candidateDisplayName(c){if(typeof root.momentumSafeStockNameV377712==='function')return root.momentumSafeStockNameV377712(c);return c?.name||c?.report?.name||c?.report?.stock||c?.code||'-';}
+function multiBlock(scan,title){const list=(scan?.candidates||[]).slice(0,8);if(!list.length)return `【📚 ${title}】\n目前沒有可分析候選。`;return `【📚 ${title}】\n${list.map((c,i)=>{const a=analyze(c);return `${i+1}. ${candidateDisplayName(c)}｜${compact(a)}${a?.risk?.length?`｜⚠️ ${a.risk.slice(0,2).join('、')}`:''}`;}).join('\n')}\n白話規則：先看三盤、價格三線和量能三線，再用費波回撤量「這一波吐回多少」。比例只是一個區域量尺，不是碰到61.8%就會反彈；最後仍要等價格與成交量確認。`;}
 function cardHtml(a,title='📚 新版量價波段＋回撤量尺'){
  if(!a?.ok)return `<div class="rule wave-v49-card"><strong>${title}</strong><br>資料不足，保留原系統判讀，不硬補結論。</div>`;
  const g=W.grade(a),f=a.fib;const fibPos=f?.inRange&&f?.band?`<strong>📍 目前觀察帶：</strong>${esc(f.band.label)}，約 <b>${f.band.low.toFixed(2)}～${f.band.high.toFixed(2)}</b>`:`<strong>📍 目前位置：</strong>${esc(f?.positionText||'已離開0%～100%回撤區')}`;const fib=f?.ok?`<div class="wave-fib-line"><strong>📏 波段量尺：</strong>${esc(f.directionText)} ${esc(f.ratioText)}｜<strong>${esc(f.zone.label)}</strong><br>${fibPos}｜${f.priceConfirm?'✅ 已有價格確認':'🟡 仍要等價格確認'}<br><span class="wave-note">${f.inRange?'比例只描述回吐／回補幅度，不是精準反轉點。':'已越過波段端點，不再硬套23.6%～100%回撤區。'}</span></div>`:'<div class="wave-fib-line"><strong>📏 波段量尺：</strong>找不到已確認完整波段，這一層不硬算。</div>';
