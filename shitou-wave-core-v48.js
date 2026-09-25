@@ -2,7 +2,7 @@
 (function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;if(root)root.ShitouWaveCoreV48=api;})(typeof globalThis!=='undefined'?globalThis:null,function(){
 'use strict';
 const MODEL='SHITOU_WAVE_CORE_V49_FIB_RETRACE';
-const RELEASE='石頭少爺 Agent V49 正式版｜R5.3.2.4.25-R4.9.2｜量價波段＋費波回撤共振｜強勢飆股輕量全市場掃描版';
+const RELEASE='石頭少爺 Agent V49 正式版｜R5.3.2.4.26-R4.9.3｜選股一致性與完整性修正版';
 const FIB_RATIOS=Object.freeze([0,.236,.382,.5,.618,.786,1]);
 const num=v=>{if(v===null||v===undefined||v==='')return null;const n=Number(typeof v==='string'?v.replace(/,/g,''):v);return Number.isFinite(n)?n:null;};
 const avg=a=>a.length?a.reduce((s,x)=>s+x,0)/a.length:null;
@@ -59,21 +59,46 @@ function analyzeFib(bars,context={}){
   const ratioPct=swing.direction==='UP'?(swing.end.price-close)/span*100:(close-swing.end.price)/span*100;
   const levels={};for(const r of FIB_RATIOS)levels[String(r)]=fibLevelPrice(swing,r);
   const z=fibZone(swing.direction,ratioPct);
-  const bounded=clamp(ratioPct,0,100)/100;
-  let lower=0,upper=.236;
-  for(let i=0;i<FIB_RATIOS.length-1;i++){if(bounded>=FIB_RATIOS[i]&&bounded<=FIB_RATIOS[i+1]){lower=FIB_RATIOS[i];upper=FIB_RATIOS[i+1];break;}}
-  const p1=fibLevelPrice(swing,lower),p2=fibLevelPrice(swing,upper);
-  const zoneLow=Math.min(p1,p2),zoneHigh=Math.max(p1,p2);
+  const inRange=ratioPct>=0&&ratioPct<=100;
+  let band=null;
+  if(inRange){
+    const bounded=ratioPct/100;
+    let lower=0,upper=.236;
+    for(let i=0;i<FIB_RATIOS.length-1;i++){if(bounded>=FIB_RATIOS[i]&&bounded<=FIB_RATIOS[i+1]){lower=FIB_RATIOS[i];upper=FIB_RATIOS[i+1];break;}}
+    const p1=fibLevelPrice(swing,lower),p2=fibLevelPrice(swing,upper);
+    const zoneLow=Math.min(p1,p2),zoneHigh=Math.max(p1,p2);
+    const bandText=`${(lower*100).toFixed(lower===0?0:1)}%～${(upper*100).toFixed(1)}%`;
+    band={lower,upper,label:bandText,low:zoneLow,high:zoneHigh,inRange:true};
+  }
   const priceConfirm=swing.direction==='UP'
     ?!!(context.threeBreakout||(context.ma8!==null&&close>context.ma8&&context.maSlope?.ma8>=0&&context.mvSlope?.mv5>0))
     :!!(context.threeBreakdown||(context.ma8!==null&&close<context.ma8&&context.maSlope?.ma8<=0));
-  const ratioText=ratioPct<0?`${Math.abs(ratioPct).toFixed(1)}% 超越原波段端點`:`${ratioPct.toFixed(1)}%`;
-  const bandText=`${(lower*100).toFixed(lower===0?0:1)}%～${(upper*100).toFixed(1)}%`;
-  const directionText=swing.direction==='UP'?'上漲波段回吐':'下跌波段反彈回補';
-  const plain=swing.direction==='UP'
-    ?`前一段從 ${swing.start.price.toFixed(2)} 漲到 ${swing.end.price.toFixed(2)}，目前約回吐 ${ratioText}，屬於「${z.label}」。這只是量尺，不代表到某個比例就一定反彈。`
-    :`前一段從 ${swing.start.price.toFixed(2)} 跌到 ${swing.end.price.toFixed(2)}，目前約反彈回補 ${ratioText}，屬於「${z.label}」。這只是量尺，不代表到某個比例就一定反轉。`;
-  return {ok:true,direction:swing.direction,directionText,start:swing.start,end:swing.end,span,ratioPct,ratioText,zone:z,levels,band:{lower,upper,label:bandText,low:zoneLow,high:zoneHigh},priceConfirm,plain};
+  let ratioText,positionText,directionText,plain;
+  if(ratioPct<0){
+    const ext=Math.abs(ratioPct).toFixed(1);
+    directionText=swing.direction==='UP'?'上漲波段突破延伸':'下跌波段跌破延伸';
+    ratioText=`已超越原波段端點 ${ext}%`;
+    positionText='已離開0%～100%回撤區，進入突破／延伸階段';
+    plain=swing.direction==='UP'
+      ?`前一段從 ${swing.start.price.toFixed(2)} 漲到 ${swing.end.price.toFixed(2)}，現價已突破前波高點並向上延伸；不再用「回吐幾%」描述，也不硬套回撤區間。`
+      :`前一段從 ${swing.start.price.toFixed(2)} 跌到 ${swing.end.price.toFixed(2)}，現價已跌破前波低點並向下延伸；不再用「反彈回補幾%」描述，也不硬套回撤區間。`;
+  }else if(ratioPct>100){
+    const over=(ratioPct-100).toFixed(1);
+    directionText=swing.direction==='UP'?'上漲波段結構失守':'下跌波段完全回補';
+    ratioText=`已超過原波段100%端點 ${over}%`;
+    positionText=swing.direction==='UP'?'已完全回吐原上漲波段並跌破起漲點':'已完全回補原下跌波段並突破起跌點';
+    plain=swing.direction==='UP'
+      ?`前一段從 ${swing.start.price.toFixed(2)} 漲到 ${swing.end.price.toFixed(2)}，現價已把原上漲波段全部吐回，並跌破原波段起點；不再顯示78.6%～100%的回撤區。`
+      :`前一段從 ${swing.start.price.toFixed(2)} 跌到 ${swing.end.price.toFixed(2)}，現價已把原跌勢全部回補，並突破原波段起跌點；不再顯示78.6%～100%的回補區。`;
+  }else{
+    directionText=swing.direction==='UP'?'上漲波段回吐':'下跌波段反彈回補';
+    ratioText=`${ratioPct.toFixed(1)}%`;
+    positionText=`目前位於 ${band?.label||'-'} 回撤區`;
+    plain=swing.direction==='UP'
+      ?`前一段從 ${swing.start.price.toFixed(2)} 漲到 ${swing.end.price.toFixed(2)}，目前約回吐 ${ratioText}，屬於「${z.label}」。這只是量尺，不代表到某個比例就一定反彈。`
+      :`前一段從 ${swing.start.price.toFixed(2)} 跌到 ${swing.end.price.toFixed(2)}，目前約反彈回補 ${ratioText}，屬於「${z.label}」。這只是量尺，不代表到某個比例就一定反轉。`;
+  }
+  return {ok:true,direction:swing.direction,directionText,start:swing.start,end:swing.end,span,ratioPct,ratioText,zone:z,levels,band,inRange,positionText,priceConfirm,plain};
 }
 function fibTieRank(fib){
   if(!fib?.ok)return 6;if(fib.zone.key==='BROKEN')return 9;if(fib.zone.key==='STRUCTURE_RISK')return 7;
@@ -121,7 +146,7 @@ function analyzeBars(source){const bars=normalizeBars(source);if(bars.length<60)
 }
 function analyzeReport(report){return analyzeBars(report?.dailySeries||report?.bars||report?.history||[]);}
 function grade(a){if(!a?.ok)return {key:'DATA',label:'資料不足'};if(a.phase==='WEAKENING')return {key:'REJECT',label:'轉弱排除'};if(a.score>=82&&(a.phase==='LAUNCH'||a.phase==='MAIN_ADVANCE'))return {key:'S',label:'強中強'};if(a.score>=68&&['LAUNCH','MAIN_ADVANCE','HEALTHY_PULLBACK'].includes(a.phase))return {key:'A',label:'條件完整'};if(a.score>=55&&a.phase!=='WEAKENING')return {key:'B',label:'可觀察'};return {key:'WATCH',label:'等待更完整'};}
-function fibText(fib){if(!fib?.ok)return '波段量尺：找不到已確認的完整波段，這一層不硬算。';return `波段量尺：${fib.directionText} ${fib.ratioText}｜${fib.zone.label}｜📍目前落在 ${fib.band.label} 區間（約 ${fib.band.low.toFixed(2)}～${fib.band.high.toFixed(2)}）｜${fib.priceConfirm?'✅ 已有價格確認':'🟡 仍要等價格確認'}；比例只是量尺，不是反轉保證。`;}
+function fibText(fib){if(!fib?.ok)return '波段量尺：找不到已確認的完整波段，這一層不硬算。';const pos=fib.inRange&&fib.band?`📍目前落在 ${fib.band.label} 區間（約 ${fib.band.low.toFixed(2)}～${fib.band.high.toFixed(2)}）`:`📍${fib.positionText||'已離開0%～100%回撤區'}`;return `波段量尺：${fib.directionText} ${fib.ratioText}｜${fib.zone.label}｜${pos}｜${fib.priceConfirm?'✅ 已有價格確認':'🟡 仍要等價格確認'}；比例只是量尺，不是反轉保證。`;}
 function textBlock(a,title='量價波段白話判讀'){if(!a?.ok)return `【${title}】\n資料不足：${a?.reason||'無法計算'}`;const g=grade(a);return `【${title}】\n目前位置：${g.label}｜${a.phaseLabel}｜條件分 ${a.score}/100（不是勝率）\n白話：${a.plain}\n價格三線：${a.maText}\n量能三線：${a.mvText}\n三盤：${a.threeBreakout?'✅ 三盤突破':a.threeBreakdown?'⚠️ 三盤跌破':'尚未出現新的三盤轉折'}\n${fibText(a.fib)}\n🎯 觀察價：${a.trigger.toFixed(2)}｜🛡️ 防守參考：${a.support.toFixed(2)}\n依據：${a.evidence.length?a.evidence.join('、'):'目前沒有足夠的轉強證據'}${a.risk.length?`\n⚠️ 風險：${a.risk.join('、')}`:''}`;}
 return Object.freeze({MODEL,RELEASE,FIB_RATIOS,num,sma,normalizeBars,confirmedPivots,selectCompletedSwing,fibLevelPrice,fibZone,analyzeFib,fibTieRank,analyzeBars,analyzeReport,grade,fibText,textBlock});
 });
