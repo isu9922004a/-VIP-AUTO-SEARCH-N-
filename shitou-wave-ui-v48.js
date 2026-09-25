@@ -1,7 +1,7 @@
 /* V49 共同白話顯示層：量價波段＋費波回撤量尺，接到個股／大盤／主升／當沖文字與圖片；不改既有資料來源與原硬性風控。 */
 (function(root){'use strict';
 const W=root.ShitouWaveCoreV48;if(!W)return;
-const RELEASE=W.RELEASE||'石頭少爺 Agent V49 正式版｜R5.3.2.4.23-R4.9｜量價波段＋費波回撤共振｜強勢飆股輕量全市場掃描版';
+const RELEASE=W.RELEASE||'石頭少爺 Agent V49 正式版｜R5.3.2.4.24-R4.9.1｜量價波段＋費波回撤共振｜強勢飆股輕量全市場掃描版';
 const esc=s=>String(s??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 function analyze(x){return W.analyzeReport(x?.report||x);}
 function fibShort(a){const f=a?.fib;if(!f?.ok)return '📏 波段量尺：資料不足，不硬算';return `📏 ${f.directionText} ${f.ratioText}｜${f.zone.label}｜📍${f.band.label} 約 ${f.band.low.toFixed(2)}～${f.band.high.toFixed(2)}｜${f.priceConfirm?'✅已有價格確認':'🟡仍等價格確認'}`;}
