@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// 石頭少爺 Agent R5.3.2.4.24-R4.9.1｜GitHub Actions 官方休市日曆修正版
+// 石頭少爺 Agent R5.3.2.4.25-R4.9.2｜GitHub Actions 官方休市日曆修正版
 // 修正：交易日判斷改讀 TWSE 官方開休市日曆；休市日保留最近完成交易日，不再把星期一～五一律視為必須有當日行情。
 // 若官方日曆暫時抓取失敗，2026 年使用已核對的官方休市日備援；其他年份維持保守拒絕，不補造行情。
 import fs from 'node:fs/promises';
