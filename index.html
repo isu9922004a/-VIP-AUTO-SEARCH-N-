@@ -1,4 +1,4 @@
-<!-- 石頭少爺 Agent V49 正式版｜R5.3.2.4.21-R4.7｜量價波段＋費波回撤共振：三盤＋價格三線＋量能三線為主軸；費波只用來量回撤位置，不把比例當精準反轉點。原有資料來源、硬性風控、ABC/N字與既有 Worker 契約保留。 -->
+<!-- 石頭少爺 Agent V49 正式版｜R5.3.2.4.22-R4.8｜量價波段＋費波回撤共振｜官方休市日曆修正版：三盤＋價格三線＋量能三線為主軸；費波只用來量回撤位置，不把比例當精準反轉點。原有資料來源、硬性風控、ABC/N字與既有 Worker 契約保留。 -->
 <!DOCTYPE html>
 
 <html lang="zh-TW">
@@ -9,7 +9,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>石頭少爺 Agent V49 正式版｜R5.3.2.4.21-R4.7｜量價波段＋費波回撤共振</title>
+<title>石頭少爺 Agent V49 正式版｜R5.3.2.4.22-R4.8｜量價波段＋費波回撤共振｜官方休市日曆修正版</title>
 
 <style>
 
@@ -1093,7 +1093,7 @@ body.dark .v46-reason,body.dark .v46-note,body.dark .v46-family{color:#d2dae7}bo
 
     <p>盤後個股判讀＋大盤／產業／個股強弱＋三盤量價波段＋主升段／當沖風險確認</p>
 
-    <span class="version-pill">石頭少爺 Agent V49 正式版｜R5.3.2.4.21-R4.7｜量價波段＋費波回撤共振｜盤後資料｜強勢飆股新版主軸</span>
+    <span class="version-pill">石頭少爺 Agent V49 正式版｜R5.3.2.4.22-R4.8｜量價波段＋費波回撤共振｜官方休市日曆修正版｜盤後資料｜強勢飆股新版主軸</span>
 
   </div>
 
@@ -1147,7 +1147,7 @@ body.dark .v46-reason,body.dark .v46-note,body.dark .v46-family{color:#d2dae7}bo
         <button id="momentumScanButton" class="btn momentum-btn" type="button" onclick="runMomentumScanV3769()">🚀 主動式主升掃描</button>
         <button id="momentumStopButton" class="momentum-stop-btn" type="button" onclick="stopMomentumScanV3762()">■ 停止掃描</button>
       </div>
-      <div class="momentum-reminder">⏰ 時段提醒：00:00～08:29 為非交易時段／盤前參考；08:30～13:29 為盤中參考；13:30～14:59 為收盤資料整理中；15:00 後為完整盤後模式。此處只改顯示語意，不影響掃描資料或候選判定。</div>
+      <div class="momentum-reminder">⏰ 時段提醒：只有「實際開市日」才依盤中／盤後時段切換；週末或證交所公告休市日，一律使用最近完成交易日資料，不會要求不存在的當日行情。此處只改顯示語意，不影響選股公式。</div>
       <div id="momentumProgress" class="momentum-progress">
         <div class="momentum-progress-track"><div id="momentumProgressBar" class="momentum-progress-bar"></div></div>
         <div id="momentumProgressText" class="momentum-progress-text">等待開始...</div>
@@ -1913,7 +1913,7 @@ body.dark .v46-reason,body.dark .v46-note,body.dark .v46-family{color:#d2dae7}bo
   </div>
 </div>
 
-<footer class="footer"><strong>石頭少爺 Agent V49 正式版｜R5.3.2.4.21-R4.7｜量價波段＋費波回撤共振</strong><br>本頁使用最近完成交易日的盤後資料，不是即時看盤；網頁、文字與圖片報告共用同一份分析結果。三盤、價格三線與量能三線負責判斷方向，費波回撤只負責量「這一波吐回多少」；ABC／N字、KD、歷史支撐壓力仍保留作輔助。明確三盤跌破且強弱分界線轉弱時才啟動正式風險保護，不會只因碰到某個費波比例就淘汰或買進。<br>技術分析僅供研究與決策參考，不構成投資建議；所有分數都是條件評估，不是勝率或上漲機率。</footer>
+<footer class="footer"><strong>石頭少爺 Agent V49 正式版｜R5.3.2.4.22-R4.8｜量價波段＋費波回撤共振｜官方休市日曆修正版</strong><br>本頁使用最近完成交易日的盤後資料，不是即時看盤；網頁、文字與圖片報告共用同一份分析結果。三盤、價格三線與量能三線負責判斷方向，費波回撤只負責量「這一波吐回多少」；ABC／N字、KD、歷史支撐壓力仍保留作輔助。明確三盤跌破且強弱分界線轉弱時才啟動正式風險保護，不會只因碰到某個費波比例就淘汰或買進。<br>技術分析僅供研究與決策參考，不構成投資建議；所有分數都是條件評估，不是勝率或上漲機率。</footer>
 
 <script>
 // V40｜三週期盤後適配度＋Decision Layer整合版。Worker分數為主，前端舊公式保留fallback；不使用盤中假資料。
@@ -2161,7 +2161,7 @@ body.dark .v46-reason,body.dark .v46-note,body.dark .v46-family{color:#d2dae7}bo
 // 不新增艾略特1～5浪或ABC修正浪計數。
 // ========================================================================
 
-const V40_RELEASE_LABEL="石頭少爺 Agent V49 正式版｜R5.3.2.4.21-R4.7｜量價波段＋費波回撤共振";
+const V40_RELEASE_LABEL="石頭少爺 Agent V49 正式版｜R5.3.2.4.22-R4.8｜量價波段＋費波回撤共振｜官方休市日曆修正版";
 const API_BASE_URL="https://shitou-agent-fib-api.d318426.workers.dev";
 
 // V40：延續 GIS-KY 英文名稱修正；新增「戰術頸線突破」與「Fib B正式突破」角色隔離，避免B尚未突破卻被寫成支撐。
@@ -25130,6 +25130,22 @@ function momentumRatioPlainV37772(waveRR,nearestRR,waveFormal=true,nearestUsesWa
   };
 }
 
+
+const TWSE_OFFICIAL_CLOSED_V49=Object.freeze({
+  '2026-01-01':'中華民國開國紀念日','2026-02-12':'春節休市','2026-02-13':'春節休市',
+  '2026-02-16':'農曆春節','2026-02-17':'農曆春節','2026-02-18':'農曆春節','2026-02-19':'農曆春節','2026-02-20':'農曆春節',
+  '2026-02-27':'和平紀念日補假','2026-04-03':'兒童節補假','2026-04-06':'清明節補假','2026-05-01':'勞動節',
+  '2026-06-19':'端午節','2026-09-25':'中秋節','2026-09-28':'教師節','2026-10-09':'國慶日補假',
+  '2026-10-26':'臺灣光復暨金門古寧頭大捷紀念日補假','2026-12-25':'行憲紀念日'
+});
+function twseClosedDateV49(iso){
+  const m=String(iso||'').match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})$/);if(!m)return {closed:false,name:null};
+  const d=`${m[1]}-${String(m[2]).padStart(2,'0')}-${String(m[3]).padStart(2,'0')}`;
+  const wd=new Date(d+'T00:00:00Z').getUTCDay();
+  if(wd===0||wd===6)return {closed:true,name:'週末'};
+  const name=TWSE_OFFICIAL_CLOSED_V49[d];return name?{closed:true,name}:{closed:false,name:null};
+}
+
 function getMomentumTimeModeV377715(createdAt){
   const s=String(createdAt||"");
   const m=s.match(/(?:^|\s)(\d{1,2}):(\d{2})(?::\d{2})?/);
@@ -25138,13 +25154,14 @@ function getMomentumTimeModeV377715(createdAt){
   const minute=m?Number(m[2]):null;
   const mins=(hour!==null&&minute!==null)?hour*60+minute:null;
   const weekday=dateMatch?new Date(Date.UTC(Number(dateMatch[1]),Number(dateMatch[2])-1,Number(dateMatch[3]))).getUTCDay():null;
-  const isWeekend=weekday===0||weekday===6;
+  const isoDate=dateMatch?`${dateMatch[1]}-${String(dateMatch[2]).padStart(2,"0")}-${String(dateMatch[3]).padStart(2,"0")}`:null;
+  const closed=isoDate?twseClosedDateV49(isoDate):{closed:weekday===0||weekday===6,name:weekday===0||weekday===6?"週末":null};
 
-  // 純顯示層：不參與行情抓取、交易日、DeepScan、候選或排序計算。
+  // 純顯示層：休市日不再誤顯示成「盤後完整」。不參與選股公式與排名。
   let key="PREOPEN";
-  if(!isWeekend&&mins!==null&&mins>=15*60)key="AFTER_CLOSE";
-  else if(!isWeekend&&mins!==null&&mins>=13*60+30)key="SETTLING";
-  else if(!isWeekend&&mins!==null&&mins>=8*60+30)key="INTRADAY";
+  if(!closed.closed&&mins!==null&&mins>=15*60)key="AFTER_CLOSE";
+  else if(!closed.closed&&mins!==null&&mins>=13*60+30)key="SETTLING";
+  else if(!closed.closed&&mins!==null&&mins>=8*60+30)key="INTRADAY";
 
   if(key==="AFTER_CLOSE")return {
     key,afterClose:true,
@@ -25176,15 +25193,16 @@ function getMomentumTimeModeV377715(createdAt){
     imageTimingLine:"📈 盤中參考｜盤中行情尚未完整｜建議收盤後再次確認",
     modeLabel:"📈 盤中參考"
   };
+  const closedLabel=closed.closed?`休市日${closed.name?`（${closed.name}）`:""}`:"非交易時段／盤前";
   return {
     key:"PREOPEN",afterClose:false,
-    uiTitle:"🚀 主動式主升掃描｜非交易時段參考候選排行",
-    imageTitle:"🚀 主升動能掃描｜非交易時段參考排行",
-    textTitle:"🚀 主動式主升掃描｜非交易時段參考文字戰報",
-    compactTextTitle:"🚀 主動式主升掃描｜非交易時段參考精簡完整戰報",
-    timingNote:"📌 目前為非交易時段／盤前參考模式；使用最近已完成交易日資料進行判讀。",
-    imageTimingLine:"🌙 非交易時段／盤前參考｜使用最近已完成交易日資料｜波段價差比不是勝率",
-    modeLabel:"🌙 非交易時段／盤前參考"
+    uiTitle:`🚀 主動式主升掃描｜${closedLabel}參考候選排行`,
+    imageTitle:`🚀 主升動能掃描｜${closedLabel}參考排行`,
+    textTitle:`🚀 主動式主升掃描｜${closedLabel}參考文字戰報`,
+    compactTextTitle:`🚀 主動式主升掃描｜${closedLabel}參考精簡完整戰報`,
+    timingNote:`📌 目前為${closedLabel}；使用最近已完成交易日資料進行判讀，不要求不存在的今日盤後資料。`,
+    imageTimingLine:`🌙 ${closedLabel}｜使用最近已完成交易日資料｜波段價差比不是勝率`,
+    modeLabel:`🌙 ${closedLabel}`
   };
 }
 
@@ -31062,7 +31080,7 @@ buildReportText=function(report){
 // 本層只讀取既有結果，不改 ABC、N字、Pivot、Swing、Fib、月線、三週期分數、
 // RSI、OBV、CMF、支撐壓力、原有價位與共用操作檢查。教材訊號永遠不能單獨開啟執行。
 // ========================================================================
-const V46_RELEASE_LABEL="石頭少爺 Agent V49 正式版｜R5.3.2.4.21-R4.7｜量價波段＋費波回撤共振";
+const V46_RELEASE_LABEL="石頭少爺 Agent V49 正式版｜R5.3.2.4.22-R4.8｜量價波段＋費波回撤共振｜官方休市日曆修正版";
 const V46_EDUCATION_CACHE=new WeakMap();
 const V46_CONTEXT_CACHE=new WeakMap();
 
@@ -34502,7 +34520,7 @@ function runR43Acceptance(){
 }
 const R43_ACCEPTANCE=runR43Acceptance();window.R43_ACCEPTANCE=R43_ACCEPTANCE;document.documentElement.dataset.r43Acceptance=encodeURIComponent(JSON.stringify(R43_ACCEPTANCE));
 // 最終版本字樣同步。
-const R43_RELEASE_LABEL="石頭少爺 Agent V49 正式版｜R5.3.2.4.21-R4.7｜量價波段＋費波回撤共振";
+const R43_RELEASE_LABEL="石頭少爺 Agent V49 正式版｜R5.3.2.4.22-R4.8｜量價波段＋費波回撤共振｜官方休市日曆修正版";
 document.documentElement.dataset.releaseVersion=R43_RELEASE_LABEL;document.title=R43_RELEASE_LABEL;
 document.querySelectorAll(".version-pill,footer strong").forEach(el=>{if(/石頭少爺 Agent V47/.test(el.textContent||""))el.textContent=R43_RELEASE_LABEL+(el.classList?.contains("version-pill")?"｜盤後資料｜雙通道＋自動擴掃":"");});
 </script>

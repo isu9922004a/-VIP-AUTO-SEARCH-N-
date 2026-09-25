@@ -1,4 +1,5 @@
-/* 強勢飆股濾網 V49 R4.8：三盤＋價格三線＋量能三線為主軸，費波回撤只作位置量尺；\n   日期 Gate 會辨識官方休市日，休市時沿用最近完成交易日，不再把星期一～五一律當成交易日。 */
+/* 強勢飆股濾網 V49 R4.8：三盤＋價格三線＋量能三線為主軸，費波回撤只作位置量尺；
+   日期 Gate 會辨識官方休市日，休市時沿用最近完成交易日，不再把星期一～五一律當成交易日。 */
 (function(root,factory){const api=factory(root?.ShitouWaveCoreV48);if(typeof module==='object'&&module.exports){let W=null;try{W=require('./shitou-wave-core-v48.js');}catch(_){}module.exports=factory(W);}else if(root)root.ShitouStrongStockFilterV47=api;})(typeof globalThis!=='undefined'?globalThis:null,function(W){
 'use strict';
 const MODEL='STRONG_STOCK_FILTER_V49_WAVE_FIB';
