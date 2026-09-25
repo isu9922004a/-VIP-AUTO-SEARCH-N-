@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-// 石頭少爺 Agent R5.3.2.4.20-R4.7｜GitHub Actions 雙市場同日補抓修正版
-// 修正：不只處理 TWSE / TPEx 彼此日期落差；台灣交易日 17:35 後若兩邊 latest 同時停在舊日，
-// 會主動以 TWSE MI_INDEX + TPEx dailyQuotes 指定「今天」補抓。兩市場都完整且同日才允許覆蓋 latest.json。
+// 石頭少爺 Agent R5.3.2.4.22-R4.8｜GitHub Actions 官方休市日曆修正版
+// 修正：交易日判斷改讀 TWSE 官方開休市日曆；休市日保留最近完成交易日，不再把星期一～五一律視為必須有當日行情。
+// 若官方日曆暫時抓取失敗，2026 年使用已核對的官方休市日備援；其他年份維持保守拒絕，不補造行情。
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import crypto from 'node:crypto';
@@ -18,7 +18,8 @@ export const SOURCES = Object.freeze({
   tpexQuotes: 'https://www.tpex.org.tw/openapi/v1/tpex_mainboard_daily_close_quotes',
   tpexQuotesByDateBase: 'https://www.tpex.org.tw/www/zh-tw/afterTrading/dailyQuotes',
   twseCompanies: 'https://openapi.twse.com.tw/v1/opendata/t187ap03_L',
-  tpexCompanies: 'https://www.tpex.org.tw/openapi/v1/mopsfin_t187ap03_O'
+  tpexCompanies: 'https://www.tpex.org.tw/openapi/v1/mopsfin_t187ap03_O',
+  twseHolidaySchedule: 'https://openapi.twse.com.tw/v1/holidaySchedule/holidaySchedule'
 });
 
 const TAIWAN_INDUSTRY_NAME_MAP = Object.freeze({
@@ -352,7 +353,34 @@ async function fetchTpexQuotesByDate(date) {
   return { rows, finalUrl:res.finalUrl, status:res.status, contentType:res.contentType, attempt:res.attempt, source:'TPEX_DAILY_QUOTES_BY_DATE' };
 }
 
-export function taipeiMarketClock(now = new Date()) {
+const FALLBACK_TWSE_CLOSED_2026 = Object.freeze({
+  '20260101':'中華民國開國紀念日','20260212':'市場無交易','20260213':'市場無交易',
+  '20260216':'農曆春節','20260217':'農曆春節','20260218':'農曆春節','20260219':'農曆春節','20260220':'農曆春節',
+  '20260227':'和平紀念日補假','20260403':'兒童節補假','20260406':'清明節補假','20260501':'勞動節',
+  '20260619':'端午節','20260925':'中秋節','20260928':'教師節','20261009':'國慶日補假',
+  '20261026':'臺灣光復暨金門古寧頭大捷紀念日補假','20261225':'行憲紀念日'
+});
+export function buildTwseMarketCalendar(rows, source=SOURCES.twseHolidaySchedule) {
+  const closures=[], specialTradingDates=[];
+  for (const row of Array.isArray(rows)?rows:[]) {
+    const date=normalizeMarketDate(row?.Date ?? row?.date); if(!date) continue;
+    const name=String(row?.Name ?? row?.name ?? '').trim();
+    const description=String(row?.Description ?? row?.description ?? '').replace(/<br\s*\/?\s*>/gi,' ').trim();
+    const explicitTrading=/開始交易日|最後交易日|補行交易/.test(name) && !/無交易|休市/.test(name);
+    if(explicitTrading) specialTradingDates.push({date,name,description});
+    else closures.push({date,name:name||'官方休市日',description});
+  }
+  return {ready:closures.length>0,source,closures,specialTradingDates};
+}
+export function marketCalendarClosure(calendar,date) {
+  const d=normalizeMarketDate(date); if(!d) return null;
+  const hit=(Array.isArray(calendar?.closures)?calendar.closures:[]).find(x=>normalizeMarketDate(x?.date)===d);
+  if(hit) return {date:d,name:String(hit.name||'官方休市日'),source:calendar?.source||SOURCES.twseHolidaySchedule};
+  const fallback=FALLBACK_TWSE_CLOSED_2026[d];
+  return fallback?{date:d,name:fallback,source:'TWSE 2026 官方休市日備援'}:null;
+}
+
+export function taipeiMarketClock(now = new Date(), calendar = null) {
   const parts = new Intl.DateTimeFormat('en-CA', {
     timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit',
     hour:'2-digit',minute:'2-digit',hourCycle:'h23'
@@ -361,7 +389,10 @@ export function taipeiMarketClock(now = new Date()) {
   const today = `${get('year')}${get('month')}${get('day')}`;
   const weekday = new Date(`${get('year')}-${get('month')}-${get('day')}T00:00:00Z`).getUTCDay();
   const minutes = Number(get('hour')) * 60 + Number(get('minute'));
-  return { today, weekday, minutes, weekdayTradingCandidate:weekday >= 1 && weekday <= 5, afterCutoff:minutes >= 17 * 60 + 35 };
+  const closure=marketCalendarClosure(calendar,today);
+  const isWeekend=weekday===0||weekday===6;
+  return { today, weekday, minutes, officialClosure:closure, marketClosed:isWeekend||!!closure,
+    weekdayTradingCandidate:weekday >= 1 && weekday <= 5 && !closure, afterCutoff:minutes >= 17 * 60 + 35 };
 }
 
 export async function reconcileLatestTradeDate(twseQuotes, tpexQuotes, options = {}) {
@@ -372,7 +403,7 @@ export async function reconcileLatestTradeDate(twseQuotes, tpexQuotes, options =
   const events = [];
   const fetchTwseByDate = options.fetchTwseByDate || fetchTwseQuotesByDate;
   const fetchTpexByDate = options.fetchTpexByDate || fetchTpexQuotesByDate;
-  const clock = taipeiMarketClock(options.now || new Date());
+  const clock = taipeiMarketClock(options.now || new Date(), options.calendar || null);
   if (!twseDate || !tpexDate) return { twse, tpex, twseDate, tpexDate, events, clock };
 
   // 先處理兩市場 latest 來源彼此不同日。
@@ -437,12 +468,13 @@ export function verifySnapshotAdvancement(snapshot, previous, now = new Date()) 
   const today = `${get('year')}${get('month')}${get('day')}`;
   const weekday = new Date(`${get('year')}-${get('month')}-${get('day')}T00:00:00Z`).getUTCDay();
   const afterCutoff = Number(get('hour')) * 60 + Number(get('minute')) >= 17 * 60 + 35;
+  const closure=marketCalendarClosure(snapshot?.marketCalendar,today);
   if (date > today) throw new Error(`來源交易日 ${date} 晚於台灣今天 ${today}；拒絕發布`);
   if (date === today && !afterCutoff) throw new Error(`台灣 ${today} 尚未達 17:35 盤後保守發布時段；拒絕發布`);
-  if (weekday >= 1 && weekday <= 5 && afterCutoff && date !== today) {
-    throw new Error(`GitHub Actions 盤後檢查：上市、上櫃仍是 ${date}，未取得 ${today} 同日完整資料（也可能休市）；保留上一份快照，稍後重試`);
+  if (weekday >= 1 && weekday <= 5 && afterCutoff && date !== today && !closure) {
+    throw new Error(`GitHub Actions 盤後檢查：上市、上櫃仍是 ${date}，未取得 ${today} 同日完整資料；保留上一份快照，稍後重試`);
   }
-  return { tradeDate:date, taipeiToday:today, priorDate:old, changed:date!==old };
+  return { tradeDate:date, taipeiToday:today, priorDate:old, changed:date!==old, marketClosed:!!closure, marketClosureName:closure?.name||null };
 }
 
 async function cleanupArchives() {
@@ -470,7 +502,7 @@ export function assertSourceQuoteDates(rows, market, targetDate) {
   return checked;
 }
 
-export async function buildSnapshot({twseQuoteRows,tpexQuoteRows,twseCompanyRows,tpexCompanyRows,sourceMeta={}}) {
+export async function buildSnapshot({twseQuoteRows,tpexQuoteRows,twseCompanyRows,tpexCompanyRows,sourceMeta={},marketCalendar=null}) {
   const twseDate = latestMarketQuoteDate(twseQuoteRows);
   const tpexDate = latestMarketQuoteDate(tpexQuoteRows);
   if (!twseDate || !tpexDate) throw new Error(`市場日期無法判斷｜TWSE ${twseDate || '未知'}｜TPEx ${tpexDate || '未知'}`);
@@ -503,6 +535,7 @@ export async function buildSnapshot({twseQuoteRows,tpexQuoteRows,twseCompanyRows
     tradeDate: twseDate,
     tradeDateIso: isoDate(twseDate),
     marketCoverageReady: true,
+    marketCalendar: marketCalendar?.ready?marketCalendar:null,
     rows,
     counts: {
       twseRawQuotes: twseQuoteRows.length,
@@ -520,7 +553,8 @@ export async function buildSnapshot({twseQuoteRows,tpexQuoteRows,twseCompanyRows
       tpexQuotes: SOURCES.tpexQuotes,
       tpexQuotesByDateBase: SOURCES.tpexQuotesByDateBase,
       twseCompanies: SOURCES.twseCompanies,
-      tpexCompanies: SOURCES.tpexCompanies
+      tpexCompanies: SOURCES.tpexCompanies,
+      twseHolidaySchedule: SOURCES.twseHolidaySchedule
     },
     sourceMeta
   };
@@ -541,6 +575,14 @@ export async function main() {
     fetchJsonArray(SOURCES.twseCompanies, 'TWSE company list'),
     fetchJsonArray(SOURCES.tpexCompanies, 'TPEx company list')
   ]);
+  let marketCalendar={ready:false,source:SOURCES.twseHolidaySchedule,closures:[],specialTradingDates:[]};
+  try {
+    const holiday=await fetchJsonArray(SOURCES.twseHolidaySchedule,'TWSE holiday schedule');
+    marketCalendar=buildTwseMarketCalendar(holiday.rows,SOURCES.twseHolidaySchedule);
+    console.log(`TWSE market calendar: closures ${marketCalendar.closures.length}｜special trading dates ${marketCalendar.specialTradingDates.length}`);
+  } catch (error) {
+    console.warn(`TWSE market calendar unavailable; 2026 fallback only｜${error?.message||error}`);
+  }
 
   const initialTwseDate = latestMarketQuoteDate(twseLatest.rows);
   const initialTpexDate = latestMarketQuoteDate(tpexQuotes.rows);
@@ -548,7 +590,7 @@ export async function main() {
 
   let reconciled;
   try {
-    reconciled = await reconcileLatestTradeDate(twseLatest, tpexQuotes);
+    reconciled = await reconcileLatestTradeDate(twseLatest, tpexQuotes, {calendar:marketCalendar});
   } catch (error) {
     throw new Error(`完成交易日校正失敗｜TWSE ${initialTwseDate || '未知'}｜TPEx ${initialTpexDate || '未知'}｜${error?.message || error}`);
   }
@@ -564,6 +606,7 @@ export async function main() {
   }
 
   const snapshot = await buildSnapshot({
+    marketCalendar,
     twseQuoteRows: reconciled.twse.rows,
     tpexQuoteRows: reconciled.tpex.rows,
     twseCompanyRows: twseCompanies.rows,
