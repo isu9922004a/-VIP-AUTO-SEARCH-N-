@@ -1,5 +1,5 @@
-/* 強勢飆股濾網 V49 R4.8：三盤＋價格三線＋量能三線為主軸，費波回撤只作位置量尺；
-   日期 Gate 會辨識官方休市日，休市時沿用最近完成交易日，不再把星期一～五一律當成交易日。 */
+/* 強勢飆股濾網 V49 R4.9：三盤＋價格三線＋量能三線為主軸，費波回撤只作位置量尺；
+   DAILY_ONLY 只改資料取得方式，不改正式選股公式；並保留 R4.8 官方休市日防呆。 */
 (function(root,factory){const api=factory(root?.ShitouWaveCoreV48);if(typeof module==='object'&&module.exports){let W=null;try{W=require('./shitou-wave-core-v48.js');}catch(_){}module.exports=factory(W);}else if(root)root.ShitouStrongStockFilterV47=api;})(typeof globalThis!=='undefined'?globalThis:null,function(W){
 'use strict';
 const MODEL='STRONG_STOCK_FILTER_V49_WAVE_FIB';
@@ -18,6 +18,10 @@ function marketClosedStateV49(meta,today){
   const weekday=new Date(today+'T00:00:00Z').getUTCDay();
   if(weekday===0||weekday===6)return {closed:true,name:'週末'};
   if(meta?.todayMarketClosed===true)return {closed:true,name:String(meta?.marketClosureName||'官方休市日')};
+  const closures=Array.isArray(meta?.marketCalendar?.closures)?meta.marketCalendar.closures:[];
+  const compact=today.replace(/-/g,'');
+  const hit=closures.find(x=>String(x?.date||'').replace(/-/g,'')===compact);
+  if(hit)return {closed:true,name:String(hit?.name||'官方休市日')};
   const name=FALLBACK_TWSE_CLOSED_V49[today];
   return name?{closed:true,name}:{closed:false,name:null};
 }
@@ -30,10 +34,7 @@ function validateMarket(meta,marketRowCount,now=new Date()){
   const closed=marketClosedStateV49(meta,today);
   if(today===target&&minutes<17*60+35&&!closed.closed)return {ok:false,reason:'當日盤後資料整理期間；建議 17:35 後再查詢'};
   if(target>today)return {ok:false,reason:'市場快照日期在未來'};
-  if(target!==today&&minutes>=15*60&&!closed.closed){
-    const weekday=new Date(today+'T00:00:00Z').getUTCDay();
-    if(weekday>=1&&weekday<=5)return {ok:false,reason:`目前仍是 ${target} 舊市場快照，尚未取得 ${today} 最新盤後資料`};
-  }
+  if(target!==today&&minutes>=15*60&&!closed.closed){const weekday=new Date(today+'T00:00:00Z').getUTCDay();if(weekday>=1&&weekday<=5)return {ok:false,reason:`目前仍是 ${target} 舊市場快照，尚未取得 ${today} 最新盤後資料`};}
   return {ok:true,date:target,marketClosed:closed.closed,marketClosureName:closed.name};
 }
 function officialIndustry(record){const code=String(record?.industryCode??'').trim(),name=String(record?.industryName||record?.industry||'').trim();if(!code&&!name)return {key:'UNKNOWN',reason:'官方產業別缺失'};if(code==='17'||/金融|銀行|保險|證券|金控/.test(name))return {key:'FINANCIAL'};if(code==='22'||/生技|醫療|製藥|藥品|生物科技|醫材/.test(name))return {key:'BIOTECH'};return {key:'OK'};}

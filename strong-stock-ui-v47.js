@@ -66,6 +66,7 @@
   function remember(cache,item,result,marketDate){
     const cacheableData=result.status==='DATA'&&cacheableDataReason(result.reason);
     if(result.eligible!==true&&result.status!=='REJECT'&&!cacheableData)return false;
+    // R4.9：候選/確定淘汰照舊快取；同一快照下確定性的 DATA 也暫存，避免每次重打 Worker。
     const {report,...compact}=result;
     cache.map.set(item.code,{...compact,cacheableData,code:item.code,name:item.name,verifiedDate:marketDate});
     return true;
@@ -101,7 +102,7 @@
         else outcomes.set(item.code,{...outcome,attempts:attempt});
       }
       pending=retry;
-      if(pending.length&&!stopped)await sleep(RETRY_GAP);
+      if(pending.length&&!stopped)await sleep(pending.some(x=>isCpuError(outcomes.get(x.code)?.reason))?CPU_RETRY_GAP:RETRY_GAP);
     }
     for(const item of pending)if(!outcomes.has(item.code))outcomes.set(item.code,{status:'FAILED',eligible:false,reason:'DAILY_ONLY 批次重試後仍未取得資料',attempts:2});
     return {outcomes,requests};
@@ -165,7 +166,7 @@
       `資料不足${scan.data}｜服務失敗${scan.failed}（CPU ${scan.cpuFailed}）｜確定不符${scan.rejected}｜已驗證候選${scan.candidates.length}｜S${scan.counts.S}／A${scan.counts.A}／B${scan.counts.B}`,
       scan.fullMarketCertified?'本次完整市場與所有候選驗證完成。':'⚠️ 部分驗證：本次名單與排序僅代表成功驗證的股票，不是全市場完整排名；失敗、資料不足、未分析者均未判斷。',
       ...(scan.breaker?[`⚠️ 資源熔斷：${scan.breaker}；剩餘 ${scan.pending} 檔尚未分析，請先處理 Worker CPU 問題。`]:[]),
-      '新版主軸：先看三盤轉折，再看短線抱單線／強弱分界線／趨勢方向線與三層量能有沒有接力；最後用費波量尺判斷前波回吐多少。比例不是買點，仍要等價格確認；S＝強中強，A＝條件完整，B＝可觀察。',
+      '新版主軸：先看三盤轉折，再看短線抱單線／強弱分界線／趨勢方向線與三層量能有沒有接力；最後用費波量尺判斷前波回吐多少。R4.9 掃描只批次取得完成日K，正式選股公式沒有放寬。比例不是買點，仍要等價格確認；S＝強中強，A＝條件完整，B＝可觀察。',
       '僅使用完成日K；金融、生技依官方產業分類排除；資料不同日、缺漏或超限時如實標記；排序分不代表勝率。', `━━━━━━━━━━ ${scan.fullMarketCertified?'全部已入選股票':'本次已驗證候選（非全市場名次）'} ━━━━━━━━━━`];
     scan.candidates.forEach((c,i)=>lines.push(`${i+1}. ${c.name}（${c.code}）｜${c.status} ${c.label}｜條件分 ${c.score}（非勝率）｜收盤 ${fmt(c.close)}｜日期 ${c.date}\n   🎯觀察價 ${fmt(c.trigger)}｜🛡️防守參考 ${fmt(c.support)}｜前兩根高點 ${fmt(c.referenceHigh)}｜今日量／短線攻擊量 ${fmt(c.volumeMultiple)}倍｜距強弱分界線 ${fmt(c.ma21GapPct??c.ma20GapPct)}%\n   目前位置 ${c.phaseLabel||'待確認'}｜${c.reason}\n   均線：${c.maText||'資料不足'}\n   量能：${c.mvText||'資料不足'}${c.evidence?.length?`\n   依據：${c.evidence.join('、')}`:''}${c.risk?.length?`\n   ⚠️風險：${c.risk.join('、')}`:''}`));
     if(!scan.candidates.length)lines.push(scan.fullMarketCertified?'全市場已驗證且未入選。':'無已驗證候選：尚有未分析／資料不足／服務失敗，禁止推論全市場不合格。');
