@@ -247,7 +247,11 @@ function appendStockCompactEvidence(source,report){
   const mode=source?.dataset?.reportMode;
   if(mode==='professional'||mode==='beginner'){
     const out=copyCanvas(source),context=out.getContext('2d');
-    const x=590,y=mode==='professional'?132:166,width=526,height=mode==='professional'?136:124;
+    // R4.9.4：右上「主要成交密集區」資訊卡改為右靠窄版，避免壓到左側「量價波段＋回撤量尺」圖表。
+    const panel=mode==='professional'
+      ?{x:644,y:132,width:468,height:136}
+      :{x:590,y:166,width:526,height:124};
+    const {x,y,width,height}=panel;
     rounded(context,x,y,width,height,13,'#f8fbff','#8da3ba');context.fillStyle='#27648a';context.fillRect(x,y,8,height);
     fitText(context,`📍 主要成交密集區 ${zone}`,x+20,y+25,width-34,{max:19,min:14,weight:950,color:'#153a67'});
     fitText(context,`日RSI 5T ${rsi}｜EMA21 ${ema(21)}`,x+20,y+50,width-34,{max:16,min:11,weight:950,color:'#314f6c'});

@@ -22449,13 +22449,17 @@ function renderStockInfographicV3328(report){
   drawStockTopChartV365(ctx,report,st);
   ctx.restore();
 
-  // ===== R4.9.3-LAYOUT-TARGET｜D 區比照核准圖一：6 張窄卡＋1 張量價資金寬卡 =====
-  // 只修專業個股長圖的顯示版面。分析資料、分數、ABC／N字、費波、價位與交易判斷完全沿用原結果。
-  // 圖一的穩定比例：前 6 張條件卡各 190px，最後「量價資金二次確認」352px；總寬精準填滿 1552px。
+  // ===== R4.9.3-LAYOUT-HOTFIX｜D 區 7 張卡固定同一列 =====
+  // 目的：專業長圖後續還會經過「行情階段插卡」與「歷史支撐壓力合成」。
+  // 舊版把 D 區拆成兩列，後續合成流程在部分輸出尺寸下會把第二列視為下個區塊的起點，
+  // 導致 E/F 區把 D 第二列整段蓋掉。這裡只改排版：七個既有欄位與原始數值完全不變。
   const dTitleY=2154;
-  const cardsX=24,cardsY=2192,dGap=10,dSmallW=190,dMoneyW=352,ch=196;
-  const dX=i=>cardsX+i*(dSmallW+dGap);
-  const dMoneyX=dX(6);
+  const cardsX=24,cardsY=2192,dGap=10,dCount=7;
+  const cw=(1552-dGap*(dCount-1))/dCount;
+  // D 區每張卡加高，避免長標題／數值／說明文字在卡片底部被裁切。
+  // 只調整個股長圖垂直版面，不更動任何分數、判斷或資料來源。
+  const ch=196;
+  const dX=i=>cardsX+i*(cw+dGap);
   const dBottom=cardsY+ch;
 
   drawFitSingleLineStrictV3661(
@@ -22468,62 +22472,59 @@ function renderStockInfographicV3328(report){
   if(st.tradeability){
     const td=st.tradeability.dayTradePreMarket||{},ts=st.tradeability.shortSwing||{},tl=st.tradeability.longSwing||{};
     const gateR422=executionContextV45R4(st);
+    const scoreLabelR422=x=>gateR422.executionAllowed?plainDecisionScoreV377735("fit",x).label:"分數可觀察｜目前不可執行";
     const dl=st.decisionLayer||{};
     const tone=x=>x?.key==="PRIORITY"?"orange":x?.key==="ACTIONABLE"?"green":x?.key==="WATCH"?"blue":"red";
-    const fitLabel=x=>gateR422.executionAllowed?plainDecisionScoreV377735("fit",x).label:"分數可觀察";
-    const entry=plainDecisionScoreV377735("entry",dl.entryQuality);
-    const remainingScore=plainScoreValueV377735(dl?.remainingOpportunity);
-    const remainRaw=remainingScore===null?"條件分未提供":`條件分 ${Math.round(remainingScore)}/100（不是勝率）`;
-    const riskChase=plainDecisionScoreV377735("chase",dl?.chaseRisk);
-    const riskExit=plainDecisionScoreV377735("exit",dl?.exitRisk);
-    const riskValue=`追價${riskChase.short}｜轉弱${riskExit.short}`;
-    const riskSub=`追價 ${riskChase.score===null?"-":Math.round(riskChase.score)}/100｜轉弱 ${riskExit.score===null?"-":Math.round(riskExit.score)}/100`;
+    const meat=n(dl?.remainingOpportunity?.upsidePct);
+    const riskPlain=plainRiskPairV44R4(report,dl);
     const mf=st.moneyFlow;
 
-    // 1｜明日當沖：比照圖一的短標題、條件分與「不是勝率」欄位。
-    drawMetricCardV3328(ctx,dX(0),cardsY,dSmallW,ch,
-      "明天適不適合當沖",
-      fitLabel(td),
+    // 1～7 全部固定在同一列；只改座標，不改任何計分或判斷來源。
+    drawMetricCardV3328(ctx,dX(0),cardsY,cw,ch,
+      "明天適不適合當沖｜越高越符合",
+      scoreLabelR422(td),
       plainDecisionScoreV377735("fit",td).raw,
       tone(td));
 
-    // 2｜找買點：沿用原 entryQuality，只縮短顯示文字，避免在窄卡內越界。
-    drawMetricCardV3328(ctx,dX(1),cardsY,dSmallW,ch,
-      "找買點｜越高越符合",
-      gateR422.executionAllowed?entry.label:"目前不可執行",
-      entry.raw,
+    drawMetricCardV3328(ctx,dX(1),cardsY,cw,ch,
+      "現在適不適合找買點｜越高越符合",
+      plainDecisionScoreV377735("entry",dl.entryQuality).label,
+      plainDecisionScoreV377735("entry",dl.entryQuality).raw,
       "blue");
 
-    // 3｜短波段。
-    drawMetricCardV3328(ctx,dX(2),cardsY,dSmallW,ch,
-      "做幾天到幾週",
-      fitLabel(ts),
+    drawMetricCardV3328(ctx,dX(2),cardsY,cw,ch,
+      "做幾天到幾週｜越高越符合",
+      scoreLabelR422(ts),
       plainDecisionScoreV377735("fit",ts).raw,
       tone(ts));
 
-    // 4｜執行條件／剩餘空間：保留原 decisionLayer 分數，不再塞長句或價位進窄卡。
-    drawMetricCardV3328(ctx,dX(3),cardsY,dSmallW,ch,
-      "執行條件｜越高越符合",
-      gateR422.executionAllowed?"條件已通過":"目前不可執行",
-      remainRaw,
-      gateR422.executionAllowed?"green":"red");
+    if(!gateR422.executionAllowed){
+      drawMetricCardV3328(ctx,dX(3),cardsY,cw,ch,
+        "目前仍不適合執行",
+        gateR422.primaryBlocker?.label||"目前不可執行",
+        "壓力距離與空間比只留在進階價格地圖，不作進場許可",
+        "red");
+    }else{
+      drawMetricCardV3328(ctx,dX(3),cardsY,cw,ch,
+        "離下一個壓力還有多遠",
+        meat===null?"尚未確認":`約 ${fmt(meat,1)}%`,
+        "還有空間不代表一定會漲到；仍要看最近支撐與可能賺賠",
+        "green");
+    }
 
-    // 5｜長波段／續抱。
-    drawMetricCardV3328(ctx,dX(4),cardsY,dSmallW,ch,
-      "長期續抱",
-      fitLabel(tl),
+    drawMetricCardV3328(ctx,dX(4),cardsY,cw,ch,
+      "長期續抱｜越高越符合",
+      scoreLabelR422(tl),
       plainDecisionScoreV377735("fit",tl).raw,
       tone(tl));
 
-    // 6｜追價／轉弱警訊：改成窄卡專用短句；原 chaseRisk / exitRisk 分數完全不變。
-    drawMetricCardV3328(ctx,dX(5),cardsY,dSmallW,ch,
-      "追價／轉弱警訊",
-      riskValue,
-      riskSub,
-      Math.max(riskChase.score??0,riskExit.score??0)>=70?"red":Math.max(riskChase.score??0,riskExit.score??0)>=40?"orange":"green");
+    drawMetricCardV3328(ctx,dX(5),cardsY,cw,ch,
+      "追價風險與轉弱警訊｜越低越安全",
+      riskPlain.label,
+      riskPlain.note,
+      riskPlain.color);
 
-    // 7｜量價資金固定使用圖一的寬卡，避免 0/100、CMF 與確認文字被裁切。
-    drawMetricCardV3328(ctx,dMoneyX,cardsY,dMoneyW,ch,
+    drawMetricCardV3328(ctx,dX(6),cardsY,cw,ch,
       "量價資金二次確認｜不是勝率",
       mf?.available?`${mf.level.icon} ${fmt(mf.moneyFlowScore,0)}／100`:"暫不評分",
       mf?.available?`${mf.confirmation.icon}${mf.confirmation.label}｜CMF20 ${fmt(mf.cmf.cmf20,3)} ${mf.cmf.direction.icon}${mf.cmf.direction.label}`:(mf?.reason||"量價資金資料不足"),
@@ -22534,22 +22535,63 @@ function renderStockInfographicV3328(report){
       ?`${st.launch3730.icon} 再攻成立｜${st.launch3730.volumeKey==="SURGE"?"量價同步":"價格先行"}`
       :`${st.launch3730.icon} ${st.launch3730.label}`;
     const launchCardSub3737=st.launch3730.key==="REATTACK_HIGH"
-      ?`⚠️ 高檔不追${st.launch3730.volumeRatio!==null?`｜3日量比 ${fmt(st.launch3730.volumeRatio,2)}×`:""}`
-      :`${st.launch3730.threeKey==="UP"?"短線往上轉":st.launch3730.threeKey==="DOWN"?"短線往下轉":"短線未選方向"}`;
+      ?`⚠️ 高檔不追${st.launch3730.volumeRatio!==null?`｜短線3日量比 ${fmt(st.launch3730.volumeRatio,2)}×`:"｜短線3日量比資料不足"}`
+      :`${st.launch3730.threeKey==="UP"?"短線往上轉":st.launch3730.threeKey==="DOWN"?"短線往下轉":"短線未選方向"}${st.launch3730.volumeRatio!==null?`｜短線3日量比 ${fmt(st.launch3730.volumeRatio,2)}×`:"｜短線3日量比資料不足"}`;
 
-    drawMetricCardV3328(ctx,dX(0),cardsY,dSmallW,ch,"長期趨勢",st.monthlyMeta.label,st.monthlyStatus==="PASS"?`20月均線 ${fmt(st.monthMa)} 元`:st.monthlyMeta.short,"green");
-    drawMetricCardV3328(ctx,dX(1),cardsY,dSmallW,ch,"ABC進度",`${displayStage.icon} ${displayStage.label}`,`${displayStage.progressText} 階段`,displayStage.icon==="🔴"||displayStage.icon==="⚠️"?"red":"blue");
-    drawMetricCardV3328(ctx,dX(2),cardsY,dSmallW,ch,"目前大方向",`${st.marketPhase360.icon} ${st.marketPhase360.label}`,`把握度 ${st.marketPhase360.confidence}`,st.marketPhase360.icon==="🔴"||st.marketPhase360.icon==="⚠️"?"red":"blue");
-    drawMetricCardV3328(ctx,dX(3),cardsY,dSmallW,ch,"最近有沒有轉強",launchCardValue3737,launchCardSub3737,st.launch3730.color||"orange");
-    drawMetricCardV3328(ctx,dX(4),cardsY,dSmallW,ch,"20日均線",st.ma===null?"資料不足":`${fmt(st.ma)} 元`,st.s.maCtx.gapPct!==null?`距離 ${fmtSignedPct(st.s.maCtx.gapPct)}`:st.s.maCtx.slopeClass.label,"green");
-    drawMetricCardV3328(ctx,dX(5),cardsY,dSmallW,ch,"突破品質",breakoutQualityBadgeV360(st.breakoutQuality360),st.breakoutQuality360.key==="WAIT"?"條件尚未完成":`覆蓋 ${st.breakoutQuality360.coverageLabel}`,st.breakoutQuality360.nPhase==="WEAKENING"?"orange":"purple");
-    drawMetricCardV3328(ctx,dMoneyX,cardsY,dMoneyW,ch,"量價資金二次確認｜不是勝率",mf?.available?`${mf.level.icon} ${fmt(mf.moneyFlowScore,0)}／100`:"暫不評分",mf?.available?`${mf.confirmation.icon}${mf.confirmation.label}｜CMF20 ${fmt(mf.cmf.cmf20,3)} ${mf.cmf.direction.icon}${mf.cmf.direction.label}`:(mf?.reason||"量價資金資料不足"),mf?.available?mf.level.tone:"gray");
+    drawMetricCardV3328(ctx,dX(0),cardsY,cw,ch,
+      "長期趨勢是否守住",
+      st.monthlyMeta.label,
+      st.monthlyStatus==="PASS"?`20月均線 ${fmt(st.monthMa)} 元`:st.monthlyMeta.short,
+      "green");
+
+    drawMetricCardV3328(ctx,dX(1),cardsY,cw,ch,
+      "ABC目前走到哪一步",
+      `${displayStage.icon} ${displayStage.label}`,
+      `${displayStage.progressText} 階段`,
+      displayStage.icon==="🔴"||displayStage.icon==="⚠️"?"red":"blue");
+
+    drawMetricCardV3328(ctx,dX(2),cardsY,cw,ch,
+      "目前大方向",
+      `${st.marketPhase360.icon} ${st.marketPhase360.label}`,
+      `判斷把握度 ${st.marketPhase360.confidence}`,
+      st.marketPhase360.icon==="🔴"||st.marketPhase360.icon==="⚠️"?"red":"blue");
+
+    drawMetricCardV3328(ctx,dX(3),cardsY,cw,ch,
+      "最近有沒有轉強",
+      launchCardValue3737,
+      launchCardSub3737,
+      st.launch3730.color||"orange");
+
+    drawMetricCardV3328(ctx,dX(4),cardsY,cw,ch,
+      "日線20日均線",
+      st.ma===null?"資料不足":`${fmt(st.ma)} 元`,
+      st.s.maCtx.gapPct!==null?`距離 ${fmtSignedPct(st.s.maCtx.gapPct)}｜${st.s.maCtx.slopeClass.label}`:st.s.maCtx.slopeClass.label,
+      "green");
+
+    drawMetricCardV3328(ctx,dX(5),cardsY,cw,ch,
+      "這次突破的品質",
+      breakoutQualityBadgeV360(st.breakoutQuality360),
+      st.breakoutQuality360.key==="WAIT"
+        ?(st.breakoutQuality360.priceHighContext?.confirmed
+            ?"價格已創高｜新ABC無B，暫不評0–10分"
+            :"新ABC／突破條件未完成，暫不評0–10分")
+        :st.breakoutQuality360.nPhase==="WEAKENING"
+          ?"原突破評分｜目前先修復B"
+          :`覆蓋 ${st.breakoutQuality360.coverageLabel}｜0–10分≠勝率`,
+      st.breakoutQuality360.nPhase==="WEAKENING"?"orange":"purple");
+
+    drawMetricCardV3328(ctx,dX(6),cardsY,cw,ch,
+      "量價資金二次確認｜不是勝率",
+      mf?.available?`${mf.level.icon} ${fmt(mf.moneyFlowScore,0)}／100`:"暫不評分",
+      mf?.available?`${mf.confirmation.icon}${mf.confirmation.label}｜CMF20 ${fmt(mf.cmf.cmf20,3)} ${mf.cmf.direction.icon}${mf.cmf.direction.label}`:(mf?.reason||"量價資金資料不足"),
+      mf?.available?mf.level.tone:"gray");
   }
 
-  // ===== E/F. 比照核准圖一：D 區完整結束後再開始 E/F =====
-  // D 卡片本身已使用圖一的固定寬度與短文案；E/F 只需保留 34px 安全距離即可，不會再蓋住 D 區內容。
-  const mapY=dBottom+34,mapH=744;
-  const safeMapY=Math.max(mapY,dBottom+34);
+  // ===== E/F. 進階價位與歷史支撐壓力：永遠排在 D 區完整七卡之後 =====
+  // E/F 起點直接依 D 區實際底部計算，不再使用任何舊固定 y，也不再依賴第二列。
+  // E/F 再往下留 42px 安全距離；D 區所有卡片完整結束後才開始畫 E/F。
+  const mapY=dBottom+42,mapH=744;
+  const safeMapY=Math.max(mapY,dBottom+42);
   rrV3328(ctx,24,safeMapY,1552,mapH,14,P.white,P.blue,2);
   // V40｜A區首眼三分區：
   // 左＝價格作戰地圖；中＝完整日RSI 5T；右＝突破真假判讀。
@@ -32434,6 +32476,9 @@ function insertStageCanvasCardV53245(base,stage,title="📈 行情階段",insert
   if(!base||typeof base.getContext!=="function")return base;
   const canvas=document.createElement("canvas");canvas.width=base.width;canvas.height=base.height+height;const c=canvas.getContext("2d");
   c.fillStyle="#eef3f8";c.fillRect(0,0,canvas.width,canvas.height);c.drawImage(base,0,0,base.width,insertY,0,0,base.width,insertY);
+  // R4.9.4：清掉母圖在切接點殘留的深色接縫線，避免新手簡易圖頁首下方出現不明黑線。
+  c.fillStyle='#eef3f8';
+  c.fillRect(0,Math.max(0,insertY-2),canvas.width,4);
   const x=36,y=insertY+12,w=canvas.width-72,h=height-24,color=v53245StageColor(stage),fill=v53245StageFill(stage);
   if(typeof v46CanvasRound==="function")v46CanvasRound(c,x,y,w,h,16,fill,color);else{c.fillStyle=fill;c.fillRect(x,y,w,h);c.strokeStyle=color;c.lineWidth=3;c.strokeRect(x,y,w,h);}
   c.fillStyle=color;c.fillRect(x,y,9,h);c.font="900 19px 'Noto Sans TC','Microsoft JhengHei',sans-serif";c.textBaseline="top";c.fillText(title,x+27,y+15);
