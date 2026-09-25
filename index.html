@@ -22456,7 +22456,9 @@ function renderStockInfographicV3328(report){
   const dTitleY=2154;
   const cardsX=24,cardsY=2192,dGap=10,dCount=7;
   const cw=(1552-dGap*(dCount-1))/dCount;
-  const ch=154;
+  // D 區每張卡加高，避免長標題／數值／說明文字在卡片底部被裁切。
+  // 只調整個股長圖垂直版面，不更動任何分數、判斷或資料來源。
+  const ch=196;
   const dX=i=>cardsX+i*(cw+dGap);
   const dBottom=cardsY+ch;
 
@@ -22587,8 +22589,9 @@ function renderStockInfographicV3328(report){
 
   // ===== E/F. 進階價位與歷史支撐壓力：永遠排在 D 區完整七卡之後 =====
   // E/F 起點直接依 D 區實際底部計算，不再使用任何舊固定 y，也不再依賴第二列。
-  const mapY=dBottom+30,mapH=744;
-  const safeMapY=Math.max(mapY,dBottom+30);
+  // E/F 再往下留 42px 安全距離；D 區所有卡片完整結束後才開始畫 E/F。
+  const mapY=dBottom+42,mapH=744;
+  const safeMapY=Math.max(mapY,dBottom+42);
   rrV3328(ctx,24,safeMapY,1552,mapH,14,P.white,P.blue,2);
   // V40｜A區首眼三分區：
   // 左＝價格作戰地圖；中＝完整日RSI 5T；右＝突破真假判讀。
