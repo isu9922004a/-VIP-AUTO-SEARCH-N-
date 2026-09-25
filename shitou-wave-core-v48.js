@@ -2,7 +2,7 @@
 (function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;if(root)root.ShitouWaveCoreV48=api;})(typeof globalThis!=='undefined'?globalThis:null,function(){
 'use strict';
 const MODEL='SHITOU_WAVE_CORE_V49_FIB_RETRACE';
-const RELEASE='石頭少爺 Agent V49 正式版｜R5.3.2.4.24-R4.9.1｜量價波段＋費波回撤共振｜強勢飆股輕量全市場掃描版';
+const RELEASE='石頭少爺 Agent V49 正式版｜R5.3.2.4.25-R4.9.2｜量價波段＋費波回撤共振｜強勢飆股輕量全市場掃描版';
 const FIB_RATIOS=Object.freeze([0,.236,.382,.5,.618,.786,1]);
 const num=v=>{if(v===null||v===undefined||v==='')return null;const n=Number(typeof v==='string'?v.replace(/,/g,''):v);return Number.isFinite(n)?n:null;};
 const avg=a=>a.length?a.reduce((s,x)=>s+x,0)/a.length:null;
