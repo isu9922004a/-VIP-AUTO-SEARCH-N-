@@ -1,4 +1,4 @@
-/* Strong Stock V49 R4.9.1 — DAILY_ONLY 批次完成日K；三盤＋價格三線＋量能三線＋費波判斷公式不變。 */
+/* Strong Stock V49 R4.9.2.2 — DAILY_ONLY 批次完成日K；三盤＋價格三線＋量能三線＋費波判斷公式不變。 */
 (function(root){
   'use strict';
   const F=root.ShitouStrongStockFilterV47;
