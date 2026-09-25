@@ -1,4 +1,4 @@
-<!-- 石頭少爺 Agent V48 正式版｜量價波段核心｜三盤＋8/21/55日線＋5/13/34日量潮：只調整前端請求節奏、有限重試與失敗呈現；原有選股公式、分數、資格、排序、Worker 契約及既有圖片展示成果全部保留。 -->
+<!-- 石頭少爺 Agent V49 正式版｜R5.3.2.4.21-R4.7｜量價波段＋費波回撤共振：三盤＋價格三線＋量能三線為主軸；費波只用來量回撤位置，不把比例當精準反轉點。原有資料來源、硬性風控、ABC/N字與既有 Worker 契約保留。 -->
 <!DOCTYPE html>
 
 <html lang="zh-TW">
@@ -9,7 +9,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>石頭少爺 Agent V48 正式版｜R5.3.2.4.20-R4.6 圖片滿版可讀性修正版</title>
+<title>石頭少爺 Agent V49 正式版｜R5.3.2.4.21-R4.7｜量價波段＋費波回撤共振</title>
 
 <style>
 
@@ -1093,7 +1093,7 @@ body.dark .v46-reason,body.dark .v46-note,body.dark .v46-family{color:#d2dae7}bo
 
     <p>盤後個股判讀＋大盤／產業／個股強弱＋三盤量價波段＋主升段／當沖風險確認</p>
 
-    <span class="version-pill">石頭少爺 Agent V48 正式版｜R5.3.2.4.20-R4.6 圖片滿版可讀性修正版｜盤後資料｜強勢飆股新版主軸</span>
+    <span class="version-pill">石頭少爺 Agent V49 正式版｜R5.3.2.4.21-R4.7｜量價波段＋費波回撤共振｜盤後資料｜強勢飆股新版主軸</span>
 
   </div>
 
@@ -1128,14 +1128,14 @@ body.dark .v46-reason,body.dark .v46-note,body.dark .v46-family{color:#d2dae7}bo
       <div class="market-action-row">
         <button id="marketAnalyzeButton" class="btn market-btn" type="button" onclick="analyzeMarketIndex()">📈 一鍵分析台股大盤加權指數</button>
       </div>
-      <div class="hint">按一次即可取得臺灣加權股價指數的正式盤後資料；大盤與個股使用相同的 A／B／C 結構判讀方式。</div>
+      <div class="hint">按一次取得臺灣加權股價指數正式盤後資料；先看市場是順風、震盪還是偏弱，再看價格三線、量能三線與波段回撤位置。ABC／N字保留作輔助，不把單一比例當成反轉答案。</div>
       <div id="marketLoading" class="loading">⏳ 正在取得臺灣加權股價指數資料並分析...</div>
       <div id="marketError" class="error"></div>
     </div>
 
     <div class="momentum-shortcut">
       <div class="section-title" style="font-size:16px;margin-bottom:8px">🚀 主動式主升掃描</div>
-      <div class="section-subtitle" style="margin-bottom:10px">盤後分兩步掃描：先用上市／上櫃全市場行情快速篩選，再完整分析較符合條件的股票。正式 S／A／B 候選必須先確認有效 C；尚未找到 C 的股票只列入等待觀察，不參與正式主升排行。</div>
+      <div class="section-subtitle" style="margin-bottom:10px">盤後分兩步掃描：先從全市場找已經轉強的股票，再用三盤、價格三線、量能三線與波段回撤位置做二次確認。原本 ABC／N字仍保留作結構輔助；回撤比例只告訴你「吐回多少」，不會因碰到 61.8% 就自動列為買點。</div>
       <div class="rule" style="margin-bottom:10px;overflow-wrap:anywhere">
         <label for="momentumDeepLimit">主升深入分析範圍：</label>
         <select id="momentumDeepLimit" style="max-width:100%;padding:8px;border-radius:8px">
@@ -1158,9 +1158,9 @@ body.dark .v46-reason,body.dark .v46-note,body.dark .v46-family{color:#d2dae7}bo
     <div class="daytrade-shortcut">
       <div class="section-title" style="font-size:16px;margin-bottom:8px">⚡ 明日當沖盤前適配（已檢查突破警訊）</div>
       <div class="section-subtitle" style="margin-bottom:10px">
-        盤後先找下一交易日觀察股：低位轉強、突破確認、強勢延續都只是候選類型；前段名次由突破觸發、最近上方關卡空間、流動性、近端壓力與隔日可執行性共同決定。
-        先用成交活躍度、20日均線與量價變化篩選，再用完整日K檢查資金流、量價累積、突破品質、長上影、爆量滯漲與過熱風險。
-        允許 0 檔，不會為了湊名次而放寬假突破淘汰條件。
+        盤後先找下一交易日觀察股：低位轉強、突破確認、強勢延續都只是候選類型。先檢查量價與關鍵價位，再用波段回撤量尺確認目前是在淺回、正常整理還是深度回檔；比例不是明天的買點。
+        原本流動性、假突破、長上影、爆量滯漲與過熱風險全部保留，不會因新增費波量尺就放寬。
+        允許 0 檔，不會為了湊名次而降低安全標準。
       </div>
       <div class="rule" style="margin-bottom:10px;overflow-wrap:anywhere">
         <label for="dayTradeDeepLimit">深入分析範圍：</label>
@@ -1190,8 +1190,8 @@ body.dark .v46-reason,body.dark .v46-note,body.dark .v46-family{color:#d2dae7}bo
 
     <div class="strong-stock-shortcut" id="strongStockShortcut">
       <div class="section-title">🔎 第三套｜強勢飆股濾網（獨立策略）</div>
-      <div class="section-subtitle">新版主軸改為「三盤轉折＋8／21／55日線＋5／13／34日量潮」：先找真正轉強，再分辨主升、量縮整理與退潮；條件分只代表結構完整度，不是勝率。</div>
-      <div class="strong-stock-reminder">📌 查詢前請先記分，再按「查詢強勢飆股濾網」。只用已完成盤後日K；先看三盤轉折，再看8／21／55日線與5／13／34日量潮是否接力。資料日期不同就直接停止，不拿舊資料硬算。</div>
+      <div class="section-subtitle">新版主軸為「三盤轉折＋價格三線＋量能三線＋波段回撤量尺」：先找真正轉強，再量這一波已回吐多少；費波比例只描述位置，不保證反轉。條件分只代表結構完整度，不是勝率。</div>
+      <div class="strong-stock-reminder">📌 查詢前請先記分，再按「查詢強勢飆股濾網」。只用已完成盤後日K；先看三盤與價格／量能是否轉強，再用回撤量尺看目前位置。看到 50%、61.8% 只代表進入觀察區，最後仍要等價格確認。資料日期不同就直接停止，不拿舊資料硬算。</div>
       <div class="meta">資料實際取自 Market Worker 的 ALL_STOCKS；GitHub 專案內 latest.json 更新，不代表 Worker 一定已同步。</div>
       <div class="rule" style="margin-top:12px"><label for="strongStockDeepLimit">完整日K深入分析範圍：</label>
         <select id="strongStockDeepLimit" style="padding:9px;max-width:100%;border-radius:8px">
@@ -1220,7 +1220,7 @@ body.dark .v46-reason,body.dark .v46-note,body.dark .v46-family{color:#d2dae7}bo
           <div id="momentumHeroTitle" class="momentum-hero-title">🚀 主動式主升掃描｜候選排行</div>
           <div id="momentumMeta" class="meta">-</div>
         </div>
-        <div class="meta" style="text-align:right">石頭少爺 Agent V47 正式版｜R5.3.2.4.13-R4.4 五本教材策略保留｜雙選股圖片字體自適應優化版<br>盤後量價資金二次確認；三週期原始分數完整保留</div>
+        <div class="meta" style="text-align:right">石頭少爺 Agent V49 正式版｜R5.3.2.4.21-R4.7｜主升量價＋回撤位置版<br>盤後量價資金二次確認；三週期原始分數完整保留</div>
       </div>
       <div class="momentum-reminder">📌 判讀原則：排名是「主升型態相似度／位置品質」篩選，不是上漲保證。盈虧比是有效上下關卡的動態價差比，不是勝率；高檔延伸、RSI過熱或MA20乖離過大會另外警示。</div>
       <div class="momentum-summary-grid">
@@ -1262,7 +1262,7 @@ body.dark .v46-reason,body.dark .v46-note,body.dark .v46-family{color:#d2dae7}bo
           <div id="dayTradeMeta" class="meta">-</div>
         </div>
         <div class="meta" style="text-align:right">
-          石頭少爺 Agent V47 正式版｜R5.3.2.4.12 顯示與共用狀態一致性收尾版<br>
+          石頭少爺 Agent V49 正式版｜R5.3.2.4.21-R4.7｜當沖量價＋回撤位置版<br>
           當沖掃描排序分與三週期適配分分開呈現，不混合計算
         </div>
       </div>
@@ -1322,7 +1322,7 @@ body.dark .v46-reason,body.dark .v46-note,body.dark .v46-family{color:#d2dae7}bo
       <div class="section-title">🔎 強勢飆股濾網｜已確認候選排行（第三套獨立策略）</div>
       <div id="strongStockMeta" class="meta">-</div>
       <div id="strongStockSummary" class="rule" style="margin-top:12px;line-height:1.8;overflow-wrap:anywhere">-</div>
-      <div class="strong-stock-reminder" style="margin-top:12px">S＝強中強、A＝條件完整、B＝可觀察。排序先看量價結構完整度，再看三盤、均線與量潮；不是勝率，隔日仍要確認觀察價與防守價。</div>
+      <div class="strong-stock-reminder" style="margin-top:12px">S＝強中強、A＝條件完整、B＝可觀察。排序先看量價結構，再用回撤量尺補充位置；不是勝率，也不是碰到某個比例就買。隔日仍要確認觀察價與防守價。</div>
       <div id="strongStockList" class="momentum-list"></div>
       <div class="strong-stock-image-actions">
         <button class="copy-btn" type="button" onclick="copyStrongStockTextV47()">📋 一鍵複製全部文字報告</button>
@@ -1347,7 +1347,7 @@ body.dark .v46-reason,body.dark .v46-note,body.dark .v46-family{color:#d2dae7}bo
           <div id="marketChange" class="market-index-change flat">-</div>
         </div>
         <div style="text-align:right">
-          <div class="meta"><strong>石頭少爺 Agent V47 正式版｜R5.3.2.4.13-R4.4 五本教材策略保留｜雙選股圖片字體自適應優化版</strong></div>
+          <div class="meta"><strong>石頭少爺 Agent V49 正式版｜R5.3.2.4.21-R4.7｜主升量價＋回撤位置版</strong></div>
           <div id="marketDate" class="meta">-</div>
           <div id="marketSource" class="meta">-</div>
         </div>
@@ -1913,7 +1913,7 @@ body.dark .v46-reason,body.dark .v46-note,body.dark .v46-family{color:#d2dae7}bo
   </div>
 </div>
 
-<footer class="footer"><strong>石頭少爺 Agent V48 正式版｜量價波段核心｜三盤＋8/21/55日線＋5/13/34日量潮</strong><br>本頁使用最近完成交易日的盤後資料，不是即時看盤；網頁、文字與圖片報告共用同一份分析結果。舊有 ABC／Fib／N字、EMA／KD與歷史支撐壓力仍保留作輔助；新版量價核心會在明確三盤跌破且21日線轉弱時取消正式順位，強勢飆股濾網則改用新版量價主軸。<br>技術分析僅供研究與決策參考，不構成投資建議；所有分數都是條件評估，不是勝率或上漲機率。</footer>
+<footer class="footer"><strong>石頭少爺 Agent V49 正式版｜R5.3.2.4.21-R4.7｜量價波段＋費波回撤共振</strong><br>本頁使用最近完成交易日的盤後資料，不是即時看盤；網頁、文字與圖片報告共用同一份分析結果。三盤、價格三線與量能三線負責判斷方向，費波回撤只負責量「這一波吐回多少」；ABC／N字、KD、歷史支撐壓力仍保留作輔助。明確三盤跌破且強弱分界線轉弱時才啟動正式風險保護，不會只因碰到某個費波比例就淘汰或買進。<br>技術分析僅供研究與決策參考，不構成投資建議；所有分數都是條件評估，不是勝率或上漲機率。</footer>
 
 <script>
 // V40｜三週期盤後適配度＋Decision Layer整合版。Worker分數為主，前端舊公式保留fallback；不使用盤中假資料。
@@ -2161,7 +2161,7 @@ body.dark .v46-reason,body.dark .v46-note,body.dark .v46-family{color:#d2dae7}bo
 // 不新增艾略特1～5浪或ABC修正浪計數。
 // ========================================================================
 
-const V40_RELEASE_LABEL="石頭少爺 Agent V48 正式版｜量價波段核心｜三盤＋8/21/55日線＋5/13/34日量潮";
+const V40_RELEASE_LABEL="石頭少爺 Agent V49 正式版｜R5.3.2.4.21-R4.7｜量價波段＋費波回撤共振";
 const API_BASE_URL="https://shitou-agent-fib-api.d318426.workers.dev";
 
 // V40：延續 GIS-KY 英文名稱修正；新增「戰術頸線突破」與「Fib B正式突破」角色隔離，避免B尚未突破卻被寫成支撐。
@@ -24498,6 +24498,14 @@ function scanImageMeasureCtxR44(){
   const canvas=document.createElement('canvas'),ctx=canvas.getContext('2d');ctx._momentumVisualThemeV37775=true;return ctx;
 }
 
+function waveFibImageLineV49(candidate){
+  try{
+    const W=window.ShitouWaveCoreV48,a=W?.analyzeReport?.(candidate?.report||candidate),f=a?.fib;
+    if(!f?.ok)return "📏 波段量尺｜資料不足，不硬算";
+    return `📏 波段量尺｜${f.direction==='UP'?'回吐':'反彈回補'} ${f.ratioText}｜${f.zone.label}｜${f.band.label} 約 ${fmt(f.band.low)}～${fmt(f.band.high)}｜${f.priceConfirm?'✅已有價格確認':'🟡仍等價格確認'}`;
+  }catch(_){return "📏 波段量尺｜資料不足，不硬算";}
+}
+
 function renderMomentumScanInfographicV3762(scan){
   const launch=Array.isArray(scan?.candidates)?scan.candidates:(scan.launchCandidates||[]);
   const formalImageCount=launch.filter(c=>c?.formalLaunchEligible===true).length;
@@ -24532,6 +24540,7 @@ function renderMomentumScanInfographicV3762(scan){
       details:[
         {text:`🛡️ 波段風控 ${waveRisk}　｜　近撐 ${support}　→　🎯 ${target}`,color:'#475467'},
         {text:`${stageInfo.label}｜${stabilityIcon} ${c.stability?.short||c.stability?.label||'還要看'}｜${qualityText}｜量能 ${vol}｜20MA乖離 ${c.gap==null?'-':fmt(c.gap,1)+'%'}｜RSI ${c.rsi==null?'-':fmt(c.rsi,1)}`,color:stabilityColor},
+        {text:waveFibImageLineV49(c),color:'#72530b',maxSize:18},
         {text:`${compactPlain}${keyBrokerImageCompactV377729(c)?`｜${keyBrokerImageCompactV377729(c)}`:''}`,color:'#a86b28'}]
     });
   });
@@ -24706,6 +24715,7 @@ function buildMomentumAllCandidatesImageV377715(scan){
         {label:'近端賺賠比例',value:momentumAllCandidateRatioV377715(c.nearestRRRatio),color:'#315f89'}],
       details:[
         {text:`位置｜${stageText}`,color:stageColor},
+        {text:waveFibImageLineV49(c),color:'#72530b',maxSize:18},
         {text:`波段｜${waveState}剩餘 ${momentumAllCandidatePctV377715(c.strategicUpsidePct)}｜波段賺賠比例 ${momentumAllCandidateRatioV377715(c.waveRRRatio)}`,color:'#554781'},
         {text:`目標｜${momentumAllCandidatePriceV377715(targetValue)}｜波段風控 ${momentumAllCandidatePriceV377715(c.waveRiskLevel)}`,color:'#475467'},
         {text:`防守 ${momentumAllCandidatePriceV377715(supportValue)}｜近端賺賠比例 ${momentumAllCandidateRatioV377715(c.nearestRRRatio)}`,color:'#315f89'},
@@ -24742,7 +24752,7 @@ function buildMomentumAllCandidatesImageV377715(scan){
   roundedRectScanV3762(ctx,36,footerY,1080,220,14,'#fff','#d8e1ea',1.2);roundedRectScanV3762(ctx,36,footerY,6,220,6,'#5d4e89',null);
   fitScanTextV3762(ctx,`候選 ${audit.expected}檔｜實際列出 ${audit.renderedCount}檔｜${audit.ok?'✅ 數量一致':'⚠️ 圖片輸出不完整'}`,58,footerY+30,1010,16,11,900,audit.ok?'#2d6a4f':'#b42318');
   fitScanTextV3762(ctx,MOMENTUM_BOARD_DEFINITIONS_V37779[0],58,footerY+60,1010,14,9,850,'#294b6d');fitScanTextV3762(ctx,MOMENTUM_BOARD_DEFINITIONS_V37779[1],58,footerY+86,1010,14,9,850,'#294b6d');fitScanTextV3762(ctx,MOMENTUM_BOARD_DEFINITIONS_V37779[2],58,footerY+112,1010,14,9,850,'#294b6d');
-  fitScanTextV3762(ctx,'⚠️ 波段與近端賺賠比例只代表價格距離比較，不代表勝率，也不是保證獲利。',58,footerY+143,1010,13,9,850,'#a86b28');fitScanTextV3762(ctx,'石頭少爺的ABC飆股｜技術分析僅供研究與決策參考，不構成投資建議。',58,footerY+170,1010,12,9,750,'#748093');fitScanTextV3762(ctx,`${V40_RELEASE_LABEL}｜圖片報告結束`,58,footerY+200,1010,10,8,700,'#94a3b8');
+  fitScanTextV3762(ctx,'⚠️ 回撤比例只量「吐回多少」；要不要進場仍看量價、關鍵價與價格確認。',58,footerY+143,1010,13,9,850,'#a86b28');fitScanTextV3762(ctx,'石頭少爺的ABC飆股｜技術分析僅供研究與決策參考，不構成投資建議。',58,footerY+170,1010,12,9,750,'#748093');fitScanTextV3762(ctx,`${V40_RELEASE_LABEL}｜圖片報告結束`,58,footerY+200,1010,10,8,700,'#94a3b8');
   canvas._momentumAllCandidatesAuditV377715=audit;canvas._scanImageLayoutAuditR44=ctx._scanLayoutAuditR44;
   return canvas;
 }
@@ -28762,6 +28772,7 @@ function renderDayTradeInfographicV1(scan){
         {text:`🎯 明天先看 ${shadow?.available?`${shadow.icon}${fmt(shadow.value)}（+${fmt(shadow.distancePct,2)}%）`:'待建立'}｜🛡️ 防守價 ${support}｜💰資金流輔助確認 ${c.moneyFlowConfirmation?.available?`${fmt(c.moneyFlowConfirmation.dayTradeMoneyFlowScore,0)}/100 ${c.moneyFlowConfirmation.confirmation.label}`:'暫不評分'}`,color:'#475467'},
         {text:`🧾 ${dayTradeScoreProvenanceTextV39B4(c,true)}｜警訊扣 ${c.fake.penalty}`,color:'#475467'},
         {text:`📈 行情階段｜${c.stageSafety?.label||'階段待確認'}｜${(c.stageSafety?.reasons||[]).join('、')||'等待更多證據'}`,color:c.stageSafety?.formalEligible?'#137333':'#8a3b32'},
+        {text:waveFibImageLineV49(c),color:'#72530b',maxSize:18},
         {text:`⚠️ 假突破警訊｜${riskLine}`,color:risk.text==='多'?'#b42318':'#8a6700',maxSize:20}]
     });
   });
@@ -28772,7 +28783,7 @@ function renderDayTradeInfographicV1(scan){
   scanTextV3762(ctx,'石頭少爺的ABC飆股',42,38,22,950,'#ffffff');scanTextV3762(ctx,'⚡ 明日當沖盤前適配｜已檢查突破警訊',42,78,29,950,'#ffffff');
   scanTextV3762(ctx,`快篩合格 ${scan.phase1Ranked||0}｜已分析 ${scan.done||0}｜上限外 ${scan.deferredCount||0}｜${scan.completed===false?'掃描未完成':'前8名觀察榜'}`,42,108,17,900,'#d8f3e8');
   fitScanTextV3762(ctx,`${V40_RELEASE_LABEL}｜批次精簡掃描＋最終完整判讀｜分數不是上漲機率`,42,136,1068,15,11,800,'#d8f3e8');scanTextV3762(ctx,`產生時間 ${scan.createdAt}（台灣時間）`,42,160,14,750,'#d8f3e8');
-  roundedRectScanV3762(ctx,36,204,1080,72,14,'#fff8df','#f2d675',1.5);fitScanTextV3762(ctx,'核心：進場檢查先判斷突破＋最近上方關卡空間＋流動性＋隔日可執行性；低位轉強只作候選加分',58,247,1036,19,11,900,'#8a6700');
+  roundedRectScanV3762(ctx,36,204,1080,72,14,'#fff8df','#f2d675',1.5);fitScanTextV3762(ctx,'核心：先看量價與關鍵價，再看回撤位置；比例只是量尺，不是明天的買點',58,247,1036,19,11,900,'#8a6700');
   const items=[['分析資料',scan.qualityPass?'PASS':'需檢查',scan.qualityPass?'#3f7a60':'#aa6f25'],
     ['安全／等待／缺資料',`${breakdown.formalCount}/${breakdown.blockedCount}/${breakdown.backupCount}檔`,'#315f89'],['低位轉強',`${scan.lowTurnCount||0}檔`,'#2d6a4f'],['突破確認',`${scan.breakoutCount||0}檔`,'#315f89'],['強勢延續',`${scan.continuationCount||0}檔`,'#a86b28'],['S/A/B',`${scan.sCount}/${scan.aCount}/${scan.bCount}`,'#554781']];
   const sg=7,sw=(1080-sg*5)/6;items.forEach((it,i)=>{const x=36+i*(sw+sg);roundedRectScanV3762(ctx,x,292,sw,42,10,'#fff','#dfe6ed',1);roundedRectScanV3762(ctx,x,292,4,42,4,it[2],null);scanTextV3762(ctx,it[0],x+13,307,9,750,'#748093');fitScanTextV3762(ctx,it[1],x+13,327,sw-24,14,10,900,it[2]);});
@@ -28822,7 +28833,8 @@ function buildDayTradeAllCandidatesImageV1(scan){
         {text:`🧾 ${dayTradeScoreProvenanceTextV39B4(c,true)}`,color:'#475467'},
         {text:`🎯明天先看 ${shadow?.available?`${shadow.icon}${fmt(shadow.value)} +${fmt(shadow.distancePct,2)}%`:'待建立'}｜🛡️防守價 ${support}｜${c.fake.reasons.length?'⚠️'+c.fake.reasons.join('、'):'✅未見主要假突破警訊'}`,color:c.fake.level==='LOW'?'#137333':'#8a6700'},
         {text:c.action,color:'#7a4d17'},
-        {text:`📈 行情階段｜${c.stageSafety?.label||'階段待確認'}｜${(c.stageSafety?.reasons||[]).join('、')||'等待更多證據'}`,color:c.stageSafety?.formalEligible?'#137333':'#8a3b32'}]
+        {text:`📈 行情階段｜${c.stageSafety?.label||'階段待確認'}｜${(c.stageSafety?.reasons||[]).join('、')||'等待更多證據'}`,color:c.stageSafety?.formalEligible?'#137333':'#8a3b32'},
+        {text:waveFibImageLineV49(c),color:'#72530b',maxSize:18}]
     });
   });
   const breakdown=buildDayTradeAllCandidatesMetaV53244(list).breakdown;
@@ -31050,7 +31062,7 @@ buildReportText=function(report){
 // 本層只讀取既有結果，不改 ABC、N字、Pivot、Swing、Fib、月線、三週期分數、
 // RSI、OBV、CMF、支撐壓力、原有價位與共用操作檢查。教材訊號永遠不能單獨開啟執行。
 // ========================================================================
-const V46_RELEASE_LABEL="石頭少爺 Agent V48 正式版｜量價波段核心｜三盤＋8/21/55日線＋5/13/34日量潮";
+const V46_RELEASE_LABEL="石頭少爺 Agent V49 正式版｜R5.3.2.4.21-R4.7｜量價波段＋費波回撤共振";
 const V46_EDUCATION_CACHE=new WeakMap();
 const V46_CONTEXT_CACHE=new WeakMap();
 
@@ -33899,7 +33911,7 @@ window.V532411_RELEASE_LABEL=V532411_RELEASE_LABEL;
 // R5.3.2.4.12｜顯示與共用狀態一致性收尾版
 // 僅修：主升前8名圖片輸出範圍、行情階段顯示、主升結構資格 vs 追價風險語意、active版本殘留。
 // 不改主升選股公式／排序分／Gate／生命週期計算／ABC／N字／Pivot／Swing／Fib／當沖Gate／Worker契約。
-const V532412_RELEASE_LABEL="石頭少爺 Agent V47 正式版｜R5.3.2.4.12 顯示與共用狀態一致性收尾版";
+const V532412_RELEASE_LABEL="石頭少爺 Agent V49 正式版｜R5.3.2.4.21-R4.7｜當沖量價＋回撤位置版";
 
 function momentumStageDisplayV532412(c){
   const life=c?.mainAdvanceStage||c?.selectionRiskEvidence?.mainAdvanceStage||null;
@@ -34007,7 +34019,7 @@ window.V532412_RELEASE_LABEL=V532412_RELEASE_LABEL;
 // 絕不假造即時五檔／逐筆／盤中量能；MACD 只作二次確認；原始當沖100分、
 // Hard Reject共振、ABC/N字/Pivot/Swing/Fib/20MA/RSI5/OBV/CMF與Worker契約不改。
 // ========================================================================
-const V532413_RELEASE_LABEL="石頭少爺 Agent V47 正式版｜R5.3.2.4.13-R4.4 五本教材策略保留｜雙選股圖片字體自適應優化版";
+const V532413_RELEASE_LABEL="石頭少爺 Agent V49 正式版｜R5.3.2.4.21-R4.7｜主升量價＋回撤位置版";
 const DAYTRADE_BOOK_POLICY_V532413=Object.freeze({
   version:"R5.3.2.4.13-R4.4",
   dataTiming:"POST_CLOSE",
@@ -34260,7 +34272,7 @@ function dayTradeNextDayReviewV532413(candidate,nextBar){
 }
 window.dayTradeNextDayReviewV532413=dayTradeNextDayReviewV532413;
 
-function v532413ActiveText(s){return String(s??"").replaceAll("石頭少爺 Agent V47 正式版｜R5.3.2.4.12 顯示與共用狀態一致性收尾版",V532413_RELEASE_LABEL).replaceAll("R5.3.2.4.12 顯示與共用狀態一致性收尾版","R5.3.2.4.13-R4.4 五本教材策略保留｜雙選股圖片字體自適應優化版").replaceAll("V47_R5.3.2.4.12_顯示與共用狀態一致性收尾版","V47_R5.3.2.4.13-R4.4_五本教材策略保留_雙選股圖片字體自適應優化版").replaceAll("【當沖安全總覽｜R5.3.2.4.12】","【當沖安全總覽｜R5.3.2.4.13-R4.4】").replaceAll("【R5.3.2.4.12 當沖風險分級漏斗】","【R5.3.2.4.13-R4.4 當沖風險分級漏斗】");}
+function v532413ActiveText(s){return String(s??"").replaceAll("石頭少爺 Agent V49 正式版｜R5.3.2.4.21-R4.7｜當沖量價＋回撤位置版",V532413_RELEASE_LABEL).replaceAll("R5.3.2.4.12 顯示與共用狀態一致性收尾版","R5.3.2.4.13-R4.4 五本教材策略保留｜雙選股圖片字體自適應優化版").replaceAll("V47_R5.3.2.4.12_顯示與共用狀態一致性收尾版","V47_R5.3.2.4.13-R4.4_五本教材策略保留_雙選股圖片字體自適應優化版").replaceAll("【當沖安全總覽｜R5.3.2.4.12】","【當沖安全總覽｜R5.3.2.4.13-R4.4】").replaceAll("【R5.3.2.4.12 當沖風險分級漏斗】","【R5.3.2.4.13-R4.4 當沖風險分級漏斗】");}
 for(const name of ["buildDayTradeTextReportV1","buildMomentumScanTextReportV3763","buildMomentumScanCompactTextReportV377713"]){const old=window[name];if(typeof old==="function")window[name]=function(...args){return v532413ActiveText(old(...args));};}
 try{const oldSan=sanitizeFilenameV3328;if(typeof oldSan==="function")sanitizeFilenameV3328=function(s){return oldSan(v532413ActiveText(s));};}catch(_){}
 function v532413PolishUi(){
@@ -34490,7 +34502,7 @@ function runR43Acceptance(){
 }
 const R43_ACCEPTANCE=runR43Acceptance();window.R43_ACCEPTANCE=R43_ACCEPTANCE;document.documentElement.dataset.r43Acceptance=encodeURIComponent(JSON.stringify(R43_ACCEPTANCE));
 // 最終版本字樣同步。
-const R43_RELEASE_LABEL="石頭少爺 Agent V48 正式版｜R5.3.2.4.20-R4.6 圖片滿版可讀性修正版";
+const R43_RELEASE_LABEL="石頭少爺 Agent V49 正式版｜R5.3.2.4.21-R4.7｜量價波段＋費波回撤共振";
 document.documentElement.dataset.releaseVersion=R43_RELEASE_LABEL;document.title=R43_RELEASE_LABEL;
 document.querySelectorAll(".version-pill,footer strong").forEach(el=>{if(/石頭少爺 Agent V47/.test(el.textContent||""))el.textContent=R43_RELEASE_LABEL+(el.classList?.contains("version-pill")?"｜盤後資料｜雙通道＋自動擴掃":"");});
 </script>

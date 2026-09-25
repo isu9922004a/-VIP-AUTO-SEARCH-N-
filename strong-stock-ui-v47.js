@@ -1,4 +1,4 @@
-/* Strong Stock third strategy — UI, scan orchestration, independent report snapshot. */
+/* Strong Stock V49 — 三盤＋價格三線＋量能三線為主軸，費波只量回撤位置，不把比例當買點。 */
 (function(root){
   'use strict';
   const F=root.ShitouStrongStockFilterV47;
@@ -15,6 +15,7 @@
   const id=key=>document.getElementById('strongStock'+key);
   const html=value=>String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
   const fmt=(value,digits=2)=>value!==null&&value!==undefined&&value!==''&&Number.isFinite(Number(value))?Number(value).toFixed(digits):'資料不足';
+  const fibLine=c=>{const f=c?.fib||c?.wave?.fib;if(!f?.ok)return '📏 波段量尺：資料不足，不硬算';return `📏 ${f.directionText} ${f.ratioText}｜${f.zone.label}｜📍 ${f.band.label} 約 ${fmt(f.band.low)}～${fmt(f.band.high)}｜${f.priceConfirm?'✅已有價格確認':'🟡仍等價格確認'}`;};
   const displayError=(text,type='error')=>{const el=id('Error');if(el){el.style.display='block';el.style.color=type==='warn'?'var(--yellow)':'var(--red)';el.textContent=text;}};
   const note=text=>{const el=id('Message');if(el)el.textContent=text;};
   const marketDateDiagnostic=meta=>{
@@ -125,7 +126,7 @@
     }
     if(list){
       if(!scan.candidates.length){list.textContent=scan.fullMarketCertified?'全市場通過驗證且未找到符合新版三盤＋量價＋均線條件的股票；不代表隔日不會上漲。':'目前沒有已驗證候選；尚有未分析或資料異常股票，不能視為全市場零候選。';}
-      else list.innerHTML=scan.candidates.map((c,i)=>`<div class="rule strong-stock-row"><div><strong>${scan.fullMarketCertified?'#':'暫列 #'}${i+1}　${html(c.name)}（${html(c.code)}）｜${html(c.status)} ${html(c.label)}</strong><br>收盤 <b>${fmt(c.close)}</b>｜條件分 ${fmt(c.score,0)}（非勝率）｜${html(c.date)}<br>🎯 三盤觀察價 ${fmt(c.trigger)}｜🛡️ 防守參考 ${fmt(c.support)}｜今日量／5日量潮 ${fmt(c.volumeMultiple)} 倍｜距21日線 ${fmt(c.ma21GapPct??c.ma20GapPct)}%</div><div class="meta">${html(c.phaseLabel||'量價階段待確認')}｜${html(c.reason)}<br>${html(c.maText||'均線資料不足')}<br>${html(c.mvText||'量能資料不足')}。${scan.fullMarketCertified?'':'僅為已驗證樣本內排序，非全市場排名。'}隔日仍需核對行情，並非直接開盤買進。</div></div>`).join('');
+      else list.innerHTML=scan.candidates.map((c,i)=>`<div class="rule strong-stock-row"><div><strong>${scan.fullMarketCertified?'#':'暫列 #'}${i+1}　${html(c.name)}（${html(c.code)}）｜${html(c.status)} ${html(c.label)}</strong><br>收盤 <b>${fmt(c.close)}</b>｜條件分 ${fmt(c.score,0)}（非勝率）｜${html(c.date)}<br><b>🎯 觀察價 ${fmt(c.trigger)}</b>｜<b>🛡️ 防守參考 ${fmt(c.support)}</b>｜今日量／短線攻擊量 ${fmt(c.volumeMultiple)} 倍｜距強弱分界線 ${fmt(c.ma21GapPct??c.ma20GapPct)}%</div><div class="meta">${html(c.phaseLabel||'量價階段待確認')}｜${html(c.reason)}<br><strong>價格三線：</strong>${html(c.maText||'資料不足')}<br><strong>量能三線：</strong>${html(c.mvText||'資料不足')}<br><strong>${html(fibLine(c))}</strong><br>${scan.fullMarketCertified?'':'僅為已驗證樣本內排序，非全市場排名。'}比例只是量尺；隔日仍需核對量價與關鍵價，並非直接開盤買進。</div></div>`).join('');
     }
     const top=id('TopImage'),all=id('AllImage');if(top)top.disabled=!scan.candidates.length;if(all)all.disabled=!scan.candidates.length;
   }
@@ -137,15 +138,15 @@
       `資料不足${scan.data}｜服務失敗${scan.failed}（CPU ${scan.cpuFailed}）｜確定不符${scan.rejected}｜已驗證候選${scan.candidates.length}｜S${scan.counts.S}／A${scan.counts.A}／B${scan.counts.B}`,
       scan.fullMarketCertified?'本次完整市場與所有候選驗證完成。':'⚠️ 部分驗證：本次名單與排序僅代表成功驗證的股票，不是全市場完整排名；失敗、資料不足、未分析者均未判斷。',
       ...(scan.breaker?[`⚠️ 資源熔斷：${scan.breaker}；剩餘 ${scan.pending} 檔尚未分析，請先處理 Worker CPU 問題。`]:[]),
-      '新版主軸：先看三盤突破／跌破，再看8／21／55日線位置與方向、5／13／34日量潮是否接力；S＝強中強，A＝條件完整，B＝可觀察。',
+      '新版主軸：先看三盤轉折，再看短線抱單線／強弱分界線／趨勢方向線與三層量能有沒有接力；最後用費波量尺判斷前波回吐多少。比例不是買點，仍要等價格確認；S＝強中強，A＝條件完整，B＝可觀察。',
       '僅使用完成日K；金融、生技依官方產業分類排除；資料不同日、缺漏或超限時如實標記；排序分不代表勝率。', `━━━━━━━━━━ ${scan.fullMarketCertified?'全部已入選股票':'本次已驗證候選（非全市場名次）'} ━━━━━━━━━━`];
-    scan.candidates.forEach((c,i)=>lines.push(`${i+1}. ${c.name}（${c.code}）｜${c.status} ${c.label}｜條件分 ${c.score}（非勝率）｜收盤 ${fmt(c.close)}｜日期 ${c.date}\n   🎯三盤觀察價 ${fmt(c.trigger)}｜🛡️防守參考 ${fmt(c.support)}｜前兩根高點 ${fmt(c.referenceHigh)}｜今日量／5日量潮 ${fmt(c.volumeMultiple)}倍｜距21日線 ${fmt(c.ma21GapPct??c.ma20GapPct)}%\n   目前位置 ${c.phaseLabel||'待確認'}｜${c.reason}\n   均線：${c.maText||'資料不足'}\n   量能：${c.mvText||'資料不足'}${c.evidence?.length?`\n   依據：${c.evidence.join('、')}`:''}${c.risk?.length?`\n   風險：${c.risk.join('、')}`:''}`));
+    scan.candidates.forEach((c,i)=>lines.push(`${i+1}. ${c.name}（${c.code}）｜${c.status} ${c.label}｜條件分 ${c.score}（非勝率）｜收盤 ${fmt(c.close)}｜日期 ${c.date}\n   🎯觀察價 ${fmt(c.trigger)}｜🛡️防守參考 ${fmt(c.support)}｜前兩根高點 ${fmt(c.referenceHigh)}｜今日量／短線攻擊量 ${fmt(c.volumeMultiple)}倍｜距強弱分界線 ${fmt(c.ma21GapPct??c.ma20GapPct)}%\n   目前位置 ${c.phaseLabel||'待確認'}｜${c.reason}\n   均線：${c.maText||'資料不足'}\n   量能：${c.mvText||'資料不足'}${c.evidence?.length?`\n   依據：${c.evidence.join('、')}`:''}${c.risk?.length?`\n   ⚠️風險：${c.risk.join('、')}`:''}`));
     if(!scan.candidates.length)lines.push(scan.fullMarketCertified?'全市場已驗證且未入選。':'無已驗證候選：尚有未分析／資料不足／服務失敗，禁止推論全市場不合格。');
     lines.push('━━━━━━━━━━ 失敗與資料不足（不計為淘汰） ━━━━━━━━━━');
     scan.issues.forEach(x=>lines.push(`${x.code} ${x.name}｜${x.status}｜${x.reason}`));
     if(scan.deferred)lines.push(`未深入分析：${scan.deferred} 檔，不能標記為不合格。`);
     if(scan.pending)lines.push(`掃描停止或資源熔斷後未分析：${scan.pending} 檔。`);
-    lines.push(`END-OF-STRONG-STOCK-REPORT-V48｜候選 ${scan.candidates.length}/${scan.candidates.length}`);
+    lines.push(`END-OF-STRONG-STOCK-REPORT-V49｜候選 ${scan.candidates.length}/${scan.candidates.length}`);
     return lines.join('\n');
   }
   async function run(){
@@ -246,21 +247,22 @@
     draw(ctx,`已處理 ${scan.done}/${scan.total}｜有效判讀 ${scan.verified}｜未分析 ${scan.pending+scan.deferred}｜缺資料 ${scan.data}｜服務失敗 ${scan.failed}｜已驗證候選 ${scan.candidates.length}`,30,137,1190,19,'#fff4bb');
     draw(ctx,'提醒：先記分再查詢；S 強中強／A 條件完整／B 可觀察，都只是隔日優先順序，不是買進保證。',30,176,1190,19,'#fff');
     subset.forEach((c,index)=>{
-      const x=24,y=226+index*293,w=1236,h=282,col={S:'#1f7a4f',A:'#24628a',B:'#a66e1e'}[c.status]||'#52647b';
+      const x=24,y=218+index*294,w=1236,h=286,col={S:'#1f7a4f',A:'#24628a',B:'#a66e1e'}[c.status]||'#52647b';
       ctx.fillStyle='#fff';ctx.fillRect(x,y,w,h);ctx.fillStyle=col;ctx.fillRect(x,y,8,h);
       draw(ctx,`${scan.fullMarketCertified?'#':'暫列 #'}${offset+index+1} ${c.name}（${c.code}）`,x+24,y+39,715,34,'#18334d');
       draw(ctx,`收盤 ${fmt(c.close)} 元`,x+w-24,y+39,435,30,'#b52a34','right');
       draw(ctx,`${c.status}｜${c.label}｜獨立排序分 ${c.score}（非勝率）`,x+25,y+75,1165,23,col);
       const cells=[['今日量／5日量潮',`${fmt(c.volumeMultiple)} 倍`],['距21日線',`${fmt(c.ma21GapPct??c.ma20GapPct)}%`],['收盤位置',`${fmt(c.closePosition*100,0)}%`]];
       cells.forEach((cell,k)=>{const cx=x+22+k*400;ctx.fillStyle='#f3f7fa';ctx.fillRect(cx,y+87,385,63);draw(ctx,cell[0],cx+12,y+109,355,17,'#5c6d80');draw(ctx,cell[1],cx+12,y+140,350,25,col);});
-      draw(ctx,`🎯 三盤觀察價 ${fmt(c.trigger)}｜🛡️ 防守參考 ${fmt(c.support)}｜前兩根高點 ${fmt(c.referenceHigh)}`, x+25,y+181,1160,22);
-      draw(ctx,`📅 資料日 ${c.date}｜${c.phaseLabel||'量價階段待確認'}｜${c.wave?.threeBreakout?'✅三盤突破':c.wave?.threeBreakdown?'⚠️三盤跌破':'三盤未轉折'}`,x+25,y+211,1160,20);
-      draw(ctx,`🧭 ${c.reason}`,x+25,y+239,1160,19,col);
-      draw(ctx,'⚠️ 隔日須再驗證量價與防守，不可僅憑排名直接進場。',x+25,y+265,1160,17,'#765d1e');
+      draw(ctx,`🎯 觀察價 ${fmt(c.trigger)}｜🛡️ 防守參考 ${fmt(c.support)}｜前兩根高點 ${fmt(c.referenceHigh)}`, x+25,y+178,1160,21);
+      draw(ctx,`${fibLine(c)}`,x+25,y+207,1160,17,'#72530b');
+      draw(ctx,`📅 ${c.date}｜${c.phaseLabel||'量價階段待確認'}｜${c.wave?.threeBreakout?'✅三盤突破':c.wave?.threeBreakdown?'⚠️三盤跌破':'三盤未轉折'}`,x+25,y+233,1160,18);
+      draw(ctx,`🧭 ${c.reason}`,x+25,y+258,1160,18,col);
+      draw(ctx,'⚠️ 比例只量回吐幅度；隔日仍須驗證量價與防守，不可只憑排名或61.8%直接進場。',x+25,y+278,1160,15,'#765d1e');
     });
     if(!subset.length)draw(ctx,'本次沒有已確認候選。',40,400,1190,31,'#52647b');
     ctx.fillStyle='#123a5a';ctx.fillRect(0,2578,1284,200);
-    draw(ctx,'S＝強中強　A＝條件完整　B＝可觀察｜主軸：三盤＋8/21/55日線＋5/13/34日量潮',28,2622,1230,20,'#fff');
+    draw(ctx,'S＝強中強　A＝條件完整　B＝可觀察｜三盤＋價格三線＋量能三線＋波段回撤量尺',28,2622,1230,20,'#fff');
     draw(ctx,`全數核對：本頁 ${subset.length} 檔｜本次候選 ${scan.candidates.length} 檔｜${scan.fullMarketCertified?'全市場排名':'僅已驗證股票內排序'}`,28,2660,1230,20,'#e9f5ff');
     draw(ctx,'資料不足和未深入分析不得當成淘汰；技術分析僅供研究參考。',28,2700,1230,18,'#fff3c2');
     canvas.dataset.strongStockAudit=encodeURIComponent(JSON.stringify({date:scan.dataDate,codes:subset.map(x=>x.code),page:pageIndex,pages:totalPages,offset,sourceCandidates:scan.candidates.length,size:'1284x2778',fullMarketCertified:scan.fullMarketCertified===true}));
