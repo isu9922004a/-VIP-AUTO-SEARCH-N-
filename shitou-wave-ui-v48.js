@@ -48,7 +48,18 @@ function stageFromWave(a){
 function insert(base,a,title){
  if(typeof root.insertStageCanvasCardV53245!=='function')return base;
  const stage=a?.ok?stageFromWave(a):{key:'WAVE_DATA',label:'⚪ 資料不足｜沿用原判讀',headline:'這一層不硬算價格三線、量能三線或回撤比例。',plainText:'這一層不硬算價格三線、量能三線或回撤比例。',colorRole:'unknown'};
- return root.insertStageCanvasCardV53245(base,stage,title,Math.min(210,Math.max(110,Math.round(base.height*.055))),154);
+ let insertY=Math.min(210,Math.max(110,Math.round(base.height*.055)));
+ try{
+  const audit=base?.dataset?.layoutAudit?JSON.parse(decodeURIComponent(base.dataset.layoutAudit)):null;
+  const cards=Array.isArray(audit?.stageCards)?audit.stageCards:[];
+  if(cards.length){
+   const last=cards[cards.length-1];
+   const stacked=Number(last?.insertY)+Number(last?.height);
+   if(Number.isFinite(stacked))insertY=Math.max(insertY,Math.round(stacked));
+  }
+ }catch(_){/* keep fallback */}
+ insertY=Math.max(0,Math.min(base.height-154,insertY));
+ return root.insertStageCanvasCardV53245(base,stage,title,insertY,154);
 }
 for(const name of ['renderStockInfographicV46','renderStockProfessionalInfographicV51']){if(typeof root[name]==='function'){const old=root[name];root[name]=function(report){return insert(old(report),W.analyzeReport(report),'📚 量價波段＋回撤量尺');};}}
 if(typeof root.renderMarketInfographicV3328==='function'){const old=root.renderMarketInfographicV3328;root.renderMarketInfographicV3328=function(data){return insert(old(data),W.analyzeReport(data),'📚 大盤量價＋回撤量尺');};}

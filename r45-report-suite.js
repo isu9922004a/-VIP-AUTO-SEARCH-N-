@@ -163,9 +163,20 @@ function prepareStockBaseForIphone(source){
   return out;
 }
 
+function readLayoutAudit(source){
+  try{return source?.dataset?.layoutAudit?JSON.parse(decodeURIComponent(source.dataset.layoutAudit)):null;}catch(_){return null;}
+}
 function compactProfessionalBottom(source,report){
   if(source?.dataset?.reportMode!=='professional'||source?.dataset?.r45RemovedProfessionalSupplement?.indexOf('snr-panel:')!==0)return source;
-  const stageHeight=170,logicalScale=source.width/1600,mapY=Math.round(2534*logicalScale)+stageHeight;
+  const audit=readLayoutAudit(source),sections=audit?.sections||{};
+  const fallbackStageHeight=170,logicalScale=source.width/1600;
+  let mapY=Number(sections?.efTop);
+  if(!Number.isFinite(mapY)){
+    const dBottom=Number(sections?.dBottom),efGap=Number(sections?.efGap);
+    mapY=Number.isFinite(dBottom)?dBottom+(Number.isFinite(efGap)?efGap:Math.round(42*logicalScale)):NaN;
+  }
+  if(!Number.isFinite(mapY))mapY=Math.round(2534*logicalScale)+fallbackStageHeight;
+  mapY=Math.round(mapY);
   if(mapY<1||mapY>=source.height-300)return source;
   const out=copyCanvas(source),context=out.getContext('2d'),panelY=mapY+4,panelH=out.height-panelY-8;
   context.fillStyle='#eef3f8';context.fillRect(0,mapY,out.width,out.height-mapY);
@@ -247,11 +258,7 @@ function appendStockCompactEvidence(source,report){
   const mode=source?.dataset?.reportMode;
   if(mode==='professional'||mode==='beginner'){
     const out=copyCanvas(source),context=out.getContext('2d');
-    // R4.9.4：右上「主要成交密集區」資訊卡改為右靠窄版，避免壓到左側「量價波段＋回撤量尺」圖表。
-    const panel=mode==='professional'
-      ?{x:644,y:132,width:468,height:136}
-      :{x:590,y:166,width:526,height:124};
-    const {x,y,width,height}=panel;
+    const x=590,y=mode==='professional'?132:166,width=526,height=mode==='professional'?136:124;
     rounded(context,x,y,width,height,13,'#f8fbff','#8da3ba');context.fillStyle='#27648a';context.fillRect(x,y,8,height);
     fitText(context,`📍 主要成交密集區 ${zone}`,x+20,y+25,width-34,{max:19,min:14,weight:950,color:'#153a67'});
     fitText(context,`日RSI 5T ${rsi}｜EMA21 ${ema(21)}`,x+20,y+50,width-34,{max:16,min:11,weight:950,color:'#314f6c'});
@@ -265,7 +272,10 @@ function appendStockCompactEvidence(source,report){
     const layer=typeof window.buildEducationLayerV46==='function'?window.buildEducationLayerV46(report):null;
     const triPrice=item=>item&&Number.isFinite(Number(item.value))?`${price(item.value)} 元`:'資料不足';
     const triDate=item=>item?.date||'未取得有效大量K';
-    const c=out.getContext('2d'),warningY=1744,leftX=42,leftWidth=524,rightX=578,rightWidth=532,panelHeight=180;
+    const layoutAudit=readLayoutAudit(out),sections=layoutAudit?.sections||{};
+    const warningTop=Number(sections?.warningTop),snrBottom=Number(sections?.snrBottom);
+    const computedWarningY=Number.isFinite(warningTop)?warningTop:(Number.isFinite(snrBottom)?snrBottom+20:1744);
+    const c=out.getContext('2d'),warningY=Math.round(computedWarningY),leftX=42,leftWidth=524,rightX=578,rightWidth=532,panelHeight=180;
     c.fillStyle='#eef3f8';c.fillRect(36,warningY-6,1080,panelHeight+12);
     rounded(c,leftX,warningY,leftWidth,panelHeight,18,'#fff8ea','#e6c38b');
     fitText(c,'⚠️ 現在最需要注意',leftX+24,warningY+36,leftWidth-48,{max:25,min:19,weight:950,color:'#8e5308'});
