@@ -1,9 +1,9 @@
-/* V49 R5.3.2.4.30-R4.9.5: image-report layout consistency fix; stock logic is unchanged. */
+/* V50 R5.3.2.5.0: image-report layout consistency fix; stock logic is unchanged. */
 (function(){
 'use strict';
 
-const RELEASE=window.R45_RELEASE_LABEL||'石頭少爺 Agent V49 正式版｜R5.3.2.4.30-R4.9.5｜教材證據與明日開盤白話判讀版';
-const FILE_VERSION=window.R45_FILE_VERSION||'V49_R5.3.2.4.30-R4.9.5_教材證據與明日開盤白話判讀版';
+const RELEASE=window.R45_RELEASE_LABEL||'石頭少爺 Agent V50 正式版｜R5.3.2.5.0｜盤後資料契約與研究證據整合版';
+const FILE_VERSION=window.R45_FILE_VERSION||'V50_R5.3.2.5.0_盤後資料契約與研究證據整合版';
 const E=window.ShitouTechnicalEvidenceR45;
 const DETAIL={width:1284,height:2778,top:92,bottom:70,side:22};
 const IPHONE_12_PRO_MAX={width:1284,height:2778,minReadableScale:.90};
@@ -118,7 +118,7 @@ function evidenceLines(candidate,kind){
   const rsi=evidence?.rsi5?.available?`${E.price(evidence.rsi5.value,1)}（${evidence.rsi5.date||'日期未提供'}）`:'資料不足';
   const kd=evidence?.kd?.available?`K ${E.price(evidence.kd.k,1)}／D ${E.price(evidence.kd.d,1)}｜${evidence.kd.cross}`:'資料不足';
   return [
-    `${candidateName(candidate)}（${report?.stock||report?.code||'-'}）｜現價 ${Number.isFinite(Number(report?.close??candidate?.close))?E.price(report?.close??candidate?.close):'資料不足'}｜日RSI 5T ${rsi}`,
+    `${candidateName(candidate)}（${report?.stock||report?.code||'-'}）｜最新收盤 ${Number.isFinite(Number(report?.close??candidate?.close))?E.price(report?.close??candidate?.close):'資料不足'}｜日RSI 5T ${rsi}`,
     `行情階段：${phase?.label||'階段待確認'}｜EMA21 ${value(21)}｜EMA50 ${value(50)}｜EMA200 ${value(200)}`,
     `KD(9,3,3)：${kd}｜${evidence?.available?`技術資料日 ${evidence.dataQuality.dataDate}`:'日K資料不足'}｜補充證據不計分、不改資格`
   ];
@@ -236,7 +236,7 @@ function compactProfessionalBottom(source,report){
   const currentX=rightX+28+summaryW;
   rounded(context,currentX,summaryY,summaryW,summaryH,12,'#fff8ea','#ead2a5');
   fitText(context,'📍 現在位置／下一步',currentX+12,summaryY+29,summaryW-24,{max:18,min:12,weight:950,color:'#a65d08'});
-  fitText(context,`現價：${priceText(state?.close)} 元`,currentX+12,summaryY+58,summaryW-24,{max:16,min:11,weight:900,color:'#263f5a'});
+  fitText(context,`最新收盤：${priceText(state?.close)} 元`,currentX+12,summaryY+58,summaryW-24,{max:16,min:11,weight:900,color:'#263f5a'});
   fitText(context,`20日均線：${priceText(state?.ma)} 元`,currentX+12,summaryY+84,summaryW-24,{max:15,min:10,weight:850,color:'#263f5a'});
   fitText(context,b!==null&&b!==undefined?`下一步：等待突破 B ${priceText(b)} 元`:'下一步：等待有效 ABC 結構',currentX+12,summaryY+118,summaryW-24,{max:15,min:10,weight:900,color:'#314aaf'});
 
@@ -491,7 +491,7 @@ function drawTop8Card(context,candidate,index,kind,x,y,width,height){
   const rank=kind==='daytrade'?(candidate?.displayRankV40?'#'+candidate.displayRankV40:(candidate?.rank?'#'+candidate.rank:'等待')):'#'+(index+1);
   rounded(context,x+18,y+14,58,36,9,accent,null);fitText(context,rank,x+47,y+40,48,{max:17,min:12,weight:950,color:'#fff',align:'center'});
   fitText(context,candidateName(candidate)+'（'+candidateCode(candidate)+'）',x+90,y+42,560,{max:29,min:17,weight:950,color:'#172f4b'});
-  const close=candidateClose(candidate);fitText(context,close===null?'現價 資料不足':'現價 '+top8Number(close,2)+' 元',x+660,y+42,width-690,{max:29,min:18,weight:950,color:'#d42d3d'});
+  const close=candidateClose(candidate);fitText(context,close===null?'最新收盤 資料不足':'最新收盤 '+top8Number(close,2)+' 元',x+660,y+42,width-690,{max:29,min:18,weight:950,color:'#d42d3d'});
   const score=top8Finite(candidate?.score?.final,candidate?.score,candidate?.finalScore,candidate?.conditionScore,candidate?.launchScore,candidate?.actionGate?.score);
   drawTop8Badge(context,x+90,y+55,245,'條件 '+grade+'｜總分 '+(score===null?'依原報告':top8Number(score,0)),'#f8fbfd',accent);
   drawTop8Badge(context,x+345,y+55,360,candidateQualification(candidate,kind),'#f7fbf8',accent);

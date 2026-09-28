@@ -1,8 +1,8 @@
-/* 石頭少爺 V49 共用量價波段核心：盤後完成日K，不預測、不偷看未來；新增費波回撤「量尺」層，只量位置，不把比例當反轉保證。 */
+/* 石頭少爺 V50 共用量價波段核心：盤後完成日K，不預測、不偷看未來；新增費波回撤「量尺」層，只量位置，不把比例當反轉保證。 */
 (function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;if(root)root.ShitouWaveCoreV48=api;})(typeof globalThis!=='undefined'?globalThis:null,function(){
 'use strict';
-const MODEL='SHITOU_WAVE_CORE_V49_FIB_RETRACE';
-const RELEASE='石頭少爺 Agent V49 正式版｜R5.3.2.4.30-R4.9.5｜教材證據與明日開盤白話判讀版';
+const MODEL='SHITOU_WAVE_CORE_V50_FIB_RETRACE';
+const RELEASE='石頭少爺 Agent V50 正式版｜R5.3.2.5.0｜盤後資料契約與研究證據整合版';
 const FIB_RATIOS=Object.freeze([0,.236,.382,.5,.618,.786,1]);
 const num=v=>{if(v===null||v===undefined||v==='')return null;const n=Number(typeof v==='string'?v.replace(/,/g,''):v);return Number.isFinite(n)?n:null;};
 const avg=a=>a.length?a.reduce((s,x)=>s+x,0)/a.length:null;
@@ -80,16 +80,16 @@ function analyzeFib(bars,context={}){
     ratioText=`已超越原波段端點 ${ext}%`;
     positionText='已離開0%～100%回撤區，進入突破／延伸階段';
     plain=swing.direction==='UP'
-      ?`前一段從 ${swing.start.price.toFixed(2)} 漲到 ${swing.end.price.toFixed(2)}，現價已突破前波高點並向上延伸；不再用「回吐幾%」描述，也不硬套回撤區間。`
-      :`前一段從 ${swing.start.price.toFixed(2)} 跌到 ${swing.end.price.toFixed(2)}，現價已跌破前波低點並向下延伸；不再用「反彈回補幾%」描述，也不硬套回撤區間。`;
+      ?`前一段從 ${swing.start.price.toFixed(2)} 漲到 ${swing.end.price.toFixed(2)}，最新收盤已突破前波高點並向上延伸；不再用「回吐幾%」描述，也不硬套回撤區間。`
+      :`前一段從 ${swing.start.price.toFixed(2)} 跌到 ${swing.end.price.toFixed(2)}，最新收盤已跌破前波低點並向下延伸；不再用「反彈回補幾%」描述，也不硬套回撤區間。`;
   }else if(ratioPct>100){
     const over=(ratioPct-100).toFixed(1);
     directionText=swing.direction==='UP'?'上漲波段結構失守':'下跌波段完全回補';
     ratioText=`已超過原波段100%端點 ${over}%`;
     positionText=swing.direction==='UP'?'已完全回吐原上漲波段並跌破起漲點':'已完全回補原下跌波段並突破起跌點';
     plain=swing.direction==='UP'
-      ?`前一段從 ${swing.start.price.toFixed(2)} 漲到 ${swing.end.price.toFixed(2)}，現價已把原上漲波段全部吐回，並跌破原波段起點；不再顯示78.6%～100%的回撤區。`
-      :`前一段從 ${swing.start.price.toFixed(2)} 跌到 ${swing.end.price.toFixed(2)}，現價已把原跌勢全部回補，並突破原波段起跌點；不再顯示78.6%～100%的回補區。`;
+      ?`前一段從 ${swing.start.price.toFixed(2)} 漲到 ${swing.end.price.toFixed(2)}，最新收盤已把原上漲波段全部吐回，並跌破原波段起點；不再顯示78.6%～100%的回撤區。`
+      :`前一段從 ${swing.start.price.toFixed(2)} 跌到 ${swing.end.price.toFixed(2)}，最新收盤已把原跌勢全部回補，並突破原波段起跌點；不再顯示78.6%～100%的回補區。`;
   }else{
     directionText=swing.direction==='UP'?'上漲波段回吐':'下跌波段反彈回補';
     ratioText=`${ratioPct.toFixed(1)}%`;

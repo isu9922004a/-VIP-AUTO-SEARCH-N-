@@ -221,6 +221,8 @@
   }
 
   function installHooks(){
+    // V50 由單一 analysisResult／Render 層接管畫面與報告；保留本模組計算 API，避免重複卡片與重複文字。
+    if(root.ShitouReleaseV50?.major===50)return;
     if(root.__BOOK_EVIDENCE_R495_HOOKED__)return;
     root.__BOOK_EVIDENCE_R495_HOOKED__=true;
     if(typeof document!=='undefined'&&!document.getElementById('bookEvidenceStyleR495')){

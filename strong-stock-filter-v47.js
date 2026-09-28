@@ -1,8 +1,8 @@
-/* 強勢飆股濾網 V49 R4.9.5：圖片版面一致性；三盤、價格三線、量能三線與費波規則不變。
+/* 強勢飆股濾網 V50 R5.3.2.5.0：圖片版面一致性；三盤、價格三線、量能三線與費波規則不變。
    沿用官方市場成交量校正與同級執行品質次排序；S/A/B資格與原條件分不變。 */
 (function(root,factory){const api=factory(root?.ShitouWaveCoreV48);if(typeof module==='object'&&module.exports){let W=null;try{W=require('./shitou-wave-core-v48.js');}catch(_){}module.exports=factory(W);}else if(root)root.ShitouStrongStockFilterV47=api;})(typeof globalThis!=='undefined'?globalThis:null,function(W){
 'use strict';
-const MODEL='STRONG_STOCK_FILTER_V49_WAVE_FIB';
+const MODEL='STRONG_STOCK_FILTER_V50_WAVE_FIB';
 const RULE=Object.freeze({minTradeValue:10000000,maxGap21Pct:18,minBars:60});
 const invalid=reason=>({status:'DATA',eligible:false,reason});
 const number=v=>{if(v===null||v===undefined||v==='')return null;const n=Number(typeof v==='string'?v.replace(/,/g,''):v);return Number.isFinite(n)?n:null;};
@@ -48,7 +48,7 @@ function normalize(report,snapshotDate,quote){const source=report?.dailySeries;i
  final.volume=qv;
  const volumeAudit={officialVolume:qv,sourceVolume,diffPct,ratio,confidence,reconciled:Math.abs(qv-sourceVolume)>Math.max(100,qv*.001),note:confidence==='HIGH'?'成交量來源差異小，已用市場快照校正':confidence==='MEDIUM'?'成交量來源有中度差異，已用市場快照校正並降低同級排序信心':'成交量來源差異偏大但仍在容許範圍，已用市場快照校正並明確降權'};
  return {status:'OK',rows,date:marketDate,volumeAudit};}
-function detect(rows){if(!W?.analyzeBars)return {status:'DATA',eligible:false,reason:'新版量價波段核心未載入'};const a=W.analyzeBars(rows);if(!a.ok)return {status:'DATA',eligible:false,reason:a.reason,wave:a};const g=W.grade(a);if(g.key==='REJECT')return {status:'REJECT',eligible:false,reason:a.risk.join('、')||'量價結構轉弱',wave:a};if((a.gap21Pct||0)>RULE.maxGap21Pct)return {status:'REJECT',eligible:false,reason:`離21日線 ${a.gap21Pct.toFixed(1)}%，位置過高，避免追價`,wave:a};if(g.key==='WATCH')return {status:'REJECT',eligible:false,reason:'目前仍在等待區，三盤／量潮／均線條件尚未同時成熟',wave:a};const risk=[...(a.risk||[])];if((a.gap21Pct||0)>12&&!risk.some(x=>/追價距離偏大/.test(x)))risk.push(`追價距離偏大：現價離強弱分界線 ${a.gap21Pct.toFixed(1)}%`);return {status:g.key,label:g.label,eligible:true,reason:a.plain,wave:a,score:a.score,close:a.close,trigger:a.trigger,support:a.support,referenceHigh:a.prior2High,volumeMultiple:a.mv5>0?a.bars.at(-1).volume/a.mv5:null,ma21GapPct:a.gap21Pct,ma20GapPct:a.gap21Pct,closePosition:a.closePosition,phase:a.phase,phaseLabel:a.phaseLabel,threeBreakout:a.threeBreakout,threeBreakdown:a.threeBreakdown,maText:a.maText,mvText:a.mvText,fib:a.fib,fibTieRank:a.fibTieRank,evidence:a.evidence,risk};}
+function detect(rows){if(!W?.analyzeBars)return {status:'DATA',eligible:false,reason:'新版量價波段核心未載入'};const a=W.analyzeBars(rows);if(!a.ok)return {status:'DATA',eligible:false,reason:a.reason,wave:a};const g=W.grade(a);if(g.key==='REJECT')return {status:'REJECT',eligible:false,reason:a.risk.join('、')||'量價結構轉弱',wave:a};if((a.gap21Pct||0)>RULE.maxGap21Pct)return {status:'REJECT',eligible:false,reason:`離21日線 ${a.gap21Pct.toFixed(1)}%，位置過高，避免追價`,wave:a};if(g.key==='WATCH')return {status:'REJECT',eligible:false,reason:'目前仍在等待區，三盤／量潮／均線條件尚未同時成熟',wave:a};const risk=[...(a.risk||[])];if((a.gap21Pct||0)>12&&!risk.some(x=>/追價距離偏大/.test(x)))risk.push(`追價距離偏大：最新收盤離強弱分界線 ${a.gap21Pct.toFixed(1)}%`);return {status:g.key,label:g.label,eligible:true,reason:a.plain,wave:a,score:a.score,close:a.close,trigger:a.trigger,support:a.support,referenceHigh:a.prior2High,volumeMultiple:a.mv5>0?a.bars.at(-1).volume/a.mv5:null,ma21GapPct:a.gap21Pct,ma20GapPct:a.gap21Pct,closePosition:a.closePosition,phase:a.phase,phaseLabel:a.phaseLabel,threeBreakout:a.threeBreakout,threeBreakdown:a.threeBreakdown,maText:a.maText,mvText:a.mvText,fib:a.fib,fibTieRank:a.fibTieRank,evidence:a.evidence,risk};}
 function executionQuality(found,volumeAudit){
   if(!found?.eligible)return null;
   let q=50;

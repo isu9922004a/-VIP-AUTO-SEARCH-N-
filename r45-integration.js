@@ -1,9 +1,9 @@
-/* V49 R5.3.2.4.30-R4.9.5: 教材證據與明日開盤白話判讀；正式 Gate、分數與排名不變。 */
+/* V50 R5.3.2.5.0: 教材證據與明日開盤白話判讀；正式 Gate、分數與排名不變。 */
 (function(){
 'use strict';
 
-const RELEASE='石頭少爺 Agent V49 正式版｜R5.3.2.4.30-R4.9.5｜教材證據與明日開盤白話判讀版';
-const FILE_VERSION='V49_R5.3.2.4.30-R4.9.5_教材證據與明日開盤白話判讀版';
+const RELEASE='石頭少爺 Agent V50 正式版｜R5.3.2.5.0｜盤後資料契約與研究證據整合版';
+const FILE_VERSION='V50_R5.3.2.5.0_盤後資料契約與研究證據整合版';
 const E=window.ShitouTechnicalEvidenceR45;
 window.R45_RELEASE_LABEL=RELEASE;
 window.R45_FILE_VERSION=FILE_VERSION;
@@ -83,7 +83,7 @@ function insertPanel(rootId,evidence,title,prices=[]){
 function stockUi(report){
   if(!report||!E)return;
   insertPanel('result',E.analyze(report,{kind:'stock'}),'個股趨勢',[
-    {label:'🔴 原始現價',value:report.close},{label:'👀 ABC的B點',value:report.fib?.B},
+    {label:'🔴 原始最新收盤',value:report.close},{label:'👀 ABC的B點',value:report.fib?.B},
     {label:'🛡️ 原有20日均線',value:report.structure?.ma20??report.dailyMa20??report.ma20}
   ]);
 }

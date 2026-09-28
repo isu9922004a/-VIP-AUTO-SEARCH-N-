@@ -51,7 +51,7 @@
     }
     const displayedClose=number(report?.close);
     if(displayedClose!==null&&Math.abs(rows.at(-1).close-displayedClose)>Math.max(.02,displayedClose*.0001)){
-      return unavailable('日K收盤價與報告現價不一致，避免混用價格',{dataDate,expectedClose:displayedClose,seriesClose:rows.at(-1).close});
+      return unavailable('日K收盤價與報告最新收盤不一致，避免混用價格',{dataDate,expectedClose:displayedClose,seriesClose:rows.at(-1).close});
     }
     return {available:true,rows,dataDate,count:rows.length,period:'已完成日K',source:report?.source||'既有正式報告日K'};
   }
