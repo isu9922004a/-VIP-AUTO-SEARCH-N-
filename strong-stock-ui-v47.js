@@ -1,4 +1,4 @@
-/* Strong Stock V49 R4.9.4 — 圖片版面一致性；原選股與排序邏輯不變。 */
+/* Strong Stock V49 R4.9.5 — 圖片版面一致性；原選股與排序邏輯不變。 */
 (function(root){
   'use strict';
   const F=root.ShitouStrongStockFilterV47;
@@ -30,7 +30,7 @@
   const isCpuError=value=>/exceeded\s*CPU|CPU\s*time\s*limit|CPU.*(?:超限|用量)|1102|script.*exceeded/i.test(String(value||''));
   const isRetryable=value=>/CPU|1102|timeout|timed out|aborted|failed to fetch|network|HTTP\s*(?:429|5\d\d)|服務暫時|連線|逾時|分析未回傳/i.test(String(value||''));
   const statusTitle=scan=>scan.fullMarketCertified?'完整市場驗證報告':'部分驗證報告｜非全市場完整排名';
-  const RELEASE_R493='石頭少爺 Agent V49 正式版｜R5.3.2.4.29-R4.9.4｜圖片報告版面一致性修正版';
+  const RELEASE_R493='石頭少爺 Agent V49 正式版｜R5.3.2.4.30-R4.9.5｜教材證據與明日開盤白話判讀版';
   const triggerMeta=c=>{
     const close=F.number(c?.close),trigger=F.number(c?.trigger);
     const crossed=close!==null&&trigger!==null&&close>=trigger;
@@ -177,7 +177,7 @@
       `資料不足${scan.data}｜服務失敗${scan.failed}（CPU ${scan.cpuFailed}）｜確定不符${scan.rejected}｜已驗證候選${scan.candidates.length}｜S${scan.counts.S}／A${scan.counts.A}／B${scan.counts.B}`,
       scan.fullMarketCertified?'本次完整市場與所有候選驗證完成。':'⚠️ 部分驗證：本次名單與排序僅代表成功驗證的股票，不是全市場完整排名；失敗、資料不足、未分析者均未判斷。',
       ...(scan.breaker?[`⚠️ 資源熔斷：${scan.breaker}；剩餘 ${scan.pending} 檔尚未分析，請先處理 Worker CPU 問題。`]:[]),
-      '新版主軸：先看三盤轉折，再看短線抱單線／強弱分界線／趨勢方向線與三層量能有沒有接力；最後用費波量尺判斷前波回吐多少。R4.9.4 延續同日同收盤與市場完整快照成交量校正；差異≤5%高信心、5～12%中信心、12～20%低信心，超過20%才停止判讀；S／A／B資格與原條件分不變，新增「執行品質」只負責同級排序。比例不是買點，仍要等價格確認。',
+      '新版主軸：先看三盤轉折，再看短線抱單線／強弱分界線／趨勢方向線與三層量能有沒有接力；最後用費波量尺判斷前波回吐多少。R4.9.5 延續同日同收盤與市場完整快照成交量校正；差異≤5%高信心、5～12%中信心、12～20%低信心，超過20%才停止判讀；S／A／B資格與原條件分不變，新增「執行品質」只負責同級排序。比例不是買點，仍要等價格確認。',
       '僅使用完成日K；金融、生技依官方產業分類排除；資料不同日、缺漏或超限時如實標記；排序分不代表勝率。', `━━━━━━━━━━ ${scan.fullMarketCertified?'全部已入選股票':'本次已驗證候選（非全市場名次）'} ━━━━━━━━━━`];
     scan.candidates.forEach((c,i)=>{const t=triggerMeta(c);lines.push(`${i+1}. ${c.name}（${c.code}）｜${c.status} ${c.label}｜條件分 ${c.score}（非勝率）｜執行品質 ${fmt(c.executionQuality,0)}/100（只用來同級排序）｜收盤 ${fmt(c.close)}｜日期 ${c.date}
    ${t.icon}${t.label} ${fmt(c.trigger)}｜🛡️防守參考 ${fmt(c.support)}｜前兩根高點 ${fmt(c.referenceHigh)}｜今日量／短線攻擊量 ${fmt(c.volumeMultiple)}倍｜距強弱分界線 ${fmt(c.ma21GapPct??c.ma20GapPct)}%

@@ -1,9 +1,9 @@
-/* V49 R5.3.2.4.29-R4.9.4: image-report layout consistency fix; stock logic is unchanged. */
+/* V49 R5.3.2.4.30-R4.9.5: 教材證據與明日開盤白話判讀；正式 Gate、分數與排名不變。 */
 (function(){
 'use strict';
 
-const RELEASE='石頭少爺 Agent V49 正式版｜R5.3.2.4.29-R4.9.4｜圖片報告版面一致性修正版';
-const FILE_VERSION='V49_R5.3.2.4.29-R4.9.4_圖片報告版面一致性修正版';
+const RELEASE='石頭少爺 Agent V49 正式版｜R5.3.2.4.30-R4.9.5｜教材證據與明日開盤白話判讀版';
+const FILE_VERSION='V49_R5.3.2.4.30-R4.9.5_教材證據與明日開盤白話判讀版';
 const E=window.ShitouTechnicalEvidenceR45;
 window.R45_RELEASE_LABEL=RELEASE;
 window.R45_FILE_VERSION=FILE_VERSION;
@@ -14,7 +14,7 @@ function activeText(value){
     .replaceAll('V47_R5.3.2.4.13-R4.4_五本教材策略保留_雙選股圖片字體自適應優化版',FILE_VERSION)
     .replaceAll('石頭少爺 Agent V47 正式版｜R5.3.2.4.12 顯示與共用狀態一致性收尾版',RELEASE)
     .replaceAll('V47_R5.3.2.4.12_顯示與共用狀態一致性收尾版',FILE_VERSION)
-    .replace(/R5\.3\.2\.4\.13-R4\.4/g,'R5.3.2.4.29-R4.9.4')
+    .replace(/R5\.3\.2\.4\.13-R4\.4/g,'R5.3.2.4.30-R4.9.5')
     .replaceAll('石頭少爺 Agent V49 正式版｜R5.3.2.4.28-R4.9.3｜主升中文名稱＋個股圖片版面安全修正版',RELEASE)
     .replaceAll('V49_R5.3.2.4.28-R4.9.3_主升中文名稱_個股圖片版面安全修正版',FILE_VERSION);
 }
@@ -175,7 +175,7 @@ wrapText('buildDayTradeTextReportV1',scan=>scanText(scan,'daytrade'));
 
 const candidateBanner=document.createElement('div');
 candidateBanner.className='r45-candidate-banner';
-candidateBanner.textContent='🧪 R4.9.4 補充證據：EMA／KD只作補充，不改原始分數、候選資格或風控。';
+candidateBanner.textContent='📚 R4.9.5 教材證據＋明日開盤白話判讀：直接顯示可優先觀察／先等確認／不適合進場；不改原正式 Gate、分數或排名。';
 const main=document.querySelector('main');if(main)main.prepend(candidateBanner);
 
 window.SHITO_R45_UI_AUDIT={

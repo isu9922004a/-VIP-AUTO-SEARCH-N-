@@ -1,9 +1,9 @@
-/* V49 R5.3.2.4.29-R4.9.4: image-report layout consistency fix; stock logic is unchanged. */
+/* V49 R5.3.2.4.30-R4.9.5: image-report layout consistency fix; stock logic is unchanged. */
 (function(){
 'use strict';
 
-const RELEASE=window.R45_RELEASE_LABEL||'石頭少爺 Agent V49 正式版｜R5.3.2.4.29-R4.9.4｜圖片報告版面一致性修正版';
-const FILE_VERSION=window.R45_FILE_VERSION||'V49_R5.3.2.4.29-R4.9.4_圖片報告版面一致性修正版';
+const RELEASE=window.R45_RELEASE_LABEL||'石頭少爺 Agent V49 正式版｜R5.3.2.4.30-R4.9.5｜教材證據與明日開盤白話判讀版';
+const FILE_VERSION=window.R45_FILE_VERSION||'V49_R5.3.2.4.30-R4.9.5_教材證據與明日開盤白話判讀版';
 const E=window.ShitouTechnicalEvidenceR45;
 const DETAIL={width:1284,height:2778,top:92,bottom:70,side:22};
 const IPHONE_12_PRO_MAX={width:1284,height:2778,minReadableScale:.90};
@@ -58,7 +58,7 @@ function zip(entries){
 function safeName(value){
   const base=typeof window.sanitizeFilenameV3328==='function'?window.sanitizeFilenameV3328(value):String(value||'報告').replace(/[\\/:*?"<>|]+/g,'_');
   return base
-    .replace(/R5\.3\.2\.4\.13-R4\.4[^.\s]*/g,'R5.3.2.4.29-R4.9.4')
+    .replace(/R5\.3\.2\.4\.13-R4\.4[^.\s]*/g,'R5.3.2.4.30-R4.9.5')
     .replace(/V47_R5\.3\.2\.4\.19-R4\.5_[^.]*/g,FILE_VERSION)
     .replace(/V49_R5\.3\.2\.4\.28-R4\.9\.3_[^.]*/g,FILE_VERSION);
 }
