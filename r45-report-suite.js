@@ -1,9 +1,9 @@
-/* R5.3.2.4.19-R4.5 official release: frontend resource scheduling and failure presentation fix. */
+/* V49 R5.3.2.4.29-R4.9.4: image-report layout consistency fix; stock logic is unchanged. */
 (function(){
 'use strict';
 
-const RELEASE=window.R45_RELEASE_LABEL||'石頭少爺 Agent V47 正式版｜R5.3.2.4.19-R4.5 前端資源調度與失敗呈現修正版';
-const FILE_VERSION=window.R45_FILE_VERSION||'V47_R5.3.2.4.19-R4.5_前端資源調度與失敗呈現修正版';
+const RELEASE=window.R45_RELEASE_LABEL||'石頭少爺 Agent V49 正式版｜R5.3.2.4.29-R4.9.4｜圖片報告版面一致性修正版';
+const FILE_VERSION=window.R45_FILE_VERSION||'V49_R5.3.2.4.29-R4.9.4_圖片報告版面一致性修正版';
 const E=window.ShitouTechnicalEvidenceR45;
 const DETAIL={width:1284,height:2778,top:92,bottom:70,side:22};
 const IPHONE_12_PRO_MAX={width:1284,height:2778,minReadableScale:.90};
@@ -57,7 +57,10 @@ function zip(entries){
 
 function safeName(value){
   const base=typeof window.sanitizeFilenameV3328==='function'?window.sanitizeFilenameV3328(value):String(value||'報告').replace(/[\\/:*?"<>|]+/g,'_');
-  return base.replace(/R5\.3\.2\.4\.13-R4\.4[^.\s]*/g,'R5.3.2.4.19-R4.5');
+  return base
+    .replace(/R5\.3\.2\.4\.13-R4\.4[^.\s]*/g,'R5.3.2.4.29-R4.9.4')
+    .replace(/V47_R5\.3\.2\.4\.19-R4\.5_[^.]*/g,FILE_VERSION)
+    .replace(/V49_R5\.3\.2\.4\.28-R4\.9\.3_[^.]*/g,FILE_VERSION);
 }
 
 function dateOf(value){return String(value||'').replace(/\D/g,'').slice(0,8)||'latest';}
@@ -115,7 +118,7 @@ function evidenceLines(candidate,kind){
   const rsi=evidence?.rsi5?.available?`${E.price(evidence.rsi5.value,1)}（${evidence.rsi5.date||'日期未提供'}）`:'資料不足';
   const kd=evidence?.kd?.available?`K ${E.price(evidence.kd.k,1)}／D ${E.price(evidence.kd.d,1)}｜${evidence.kd.cross}`:'資料不足';
   return [
-    `${report?.name||candidate?.name||'股票'}（${report?.stock||report?.code||'-'}）｜現價 ${Number.isFinite(Number(report?.close??candidate?.close))?E.price(report?.close??candidate?.close):'資料不足'}｜日RSI 5T ${rsi}`,
+    `${candidateName(candidate)}（${report?.stock||report?.code||'-'}）｜現價 ${Number.isFinite(Number(report?.close??candidate?.close))?E.price(report?.close??candidate?.close):'資料不足'}｜日RSI 5T ${rsi}`,
     `行情階段：${phase?.label||'階段待確認'}｜EMA21 ${value(21)}｜EMA50 ${value(50)}｜EMA200 ${value(200)}`,
     `KD(9,3,3)：${kd}｜${evidence?.available?`技術資料日 ${evidence.dataQuality.dataDate}`:'日K資料不足'}｜補充證據不計分、不改資格`
   ];
@@ -149,7 +152,10 @@ function prepareStockBaseForIphone(source){
   if(source?.dataset?.reportMode==='professional'&&source?.dataset?.snrAudit){
     try{
       const audit=JSON.parse(decodeURIComponent(source.dataset.snrAudit)),layout=audit?.layoutAudit;
-      const insertHeight=Math.max(0,Number(layout?.insertH)||0),stageHeight=170,panelStart=Math.max(0,Math.round(Number(layout?.cutY)||0)+stageHeight);
+      const insertHeight=Math.max(0,Number(layout?.insertH)||0),cutY=Math.max(0,Math.round(Number(layout?.cutY)||0));
+      const stageCards=readLayoutAudit(source)?.stageCards||[];
+      const stageHeight=stageCards.reduce((sum,card)=>Number(card?.insertY)<cutY?sum+Math.max(0,Number(card?.height)||0):sum,0);
+      const panelStart=cutY+stageHeight;
       if(insertHeight>0&&panelStart+insertHeight<=out.height){
         const compact=canvas(out.width,out.height-insertHeight,'#eef3f8'),context=compact.getContext('2d');
         context.drawImage(out,0,0,out.width,panelStart,0,0,out.width,panelStart);
@@ -258,14 +264,37 @@ function appendStockCompactEvidence(source,report){
   const mode=source?.dataset?.reportMode;
   if(mode==='professional'||mode==='beginner'){
     const out=copyCanvas(source),context=out.getContext('2d');
-    const x=590,y=mode==='professional'?132:166,width=526,height=mode==='professional'?136:124;
+    const audit=readLayoutAudit(out),stageCards=audit?.stageCards||[];
+    const waveCard=stageCards.find(card=>/量價波段|回撤量尺/.test(String(card?.title||'')))||null;
+    const margin=36,gap=18,rowY=Math.round(Number(waveCard?.insertY)),rowHeight=Math.round(Number(waveCard?.height));
+    const hasWaveRow=mode==='professional'&&Number.isFinite(rowY)&&Number.isFinite(rowHeight)&&rowHeight>=100;
+    let x=mode==='professional'?Math.round(out.width*.535):590;
+    let y=mode==='professional'?132:166;
+    let width=mode==='professional'?out.width-x-margin:526;
+    let height=mode==='professional'?136:124;
+    let leftBounds=null;
+    if(hasWaveRow){
+      const usable=out.width-margin*2-gap,leftWidth=Math.round(usable*.52);
+      leftBounds={x:margin,y:rowY+12,width:leftWidth,height:rowHeight-24};
+      x=margin+leftWidth+gap;y=rowY+12;width=out.width-margin-x;height=rowHeight-24;
+      context.fillStyle='#eef3f8';context.fillRect(0,rowY,out.width,rowHeight);
+      rounded(context,leftBounds.x,leftBounds.y,leftBounds.width,leftBounds.height,13,'#ffffff','#8da3ba');
+      const wave=window.ShitouWaveCoreV48?.analyzeReport?.(report),grade=wave?.ok?window.ShitouWaveCoreV48.grade(wave):null;
+      const fib=wave?.fib,position=fib?.inRange&&fib?.band?`${fib.band.label} ${price(fib.band.low)}～${price(fib.band.high)}`:(fib?.positionText||'回撤資料不足');
+      fitText(context,'📚 量價波段＋費波回撤量尺',leftBounds.x+18,leftBounds.y+27,leftBounds.width-36,{max:19,min:13,weight:950,color:'#173a5d'});
+      fitText(context,wave?.ok?`${grade?.label||'量價待確認'}｜${wave.phaseLabel||'階段待確認'}`:'量價波段資料不足，不硬算',leftBounds.x+18,leftBounds.y+53,leftBounds.width-36,{max:16,min:11,weight:950,color:'#314f6c'});
+      fitText(context,wave?.ok?`${wave.threeBreakout?'✅ 三盤突破':wave.threeBreakdown?'⚠️ 三盤跌破':'三盤未轉折'}｜${fib?.directionText||'回撤方向待確認'}`:'沿用原本判讀與風控',leftBounds.x+18,leftBounds.y+77,leftBounds.width-36,{max:15,min:10,weight:850,color:'#4c5f73'});
+      fitText(context,`📏 ${position}｜比例不是買點`,leftBounds.x+18,leftBounds.y+101,leftBounds.width-36,{max:14,min:9,weight:850,color:'#6a4b15'});
+      fitText(context,'只補充位置，不改 ABC／N字／原始分數與 Gate',leftBounds.x+18,leftBounds.y+height-8,leftBounds.width-36,{max:11,min:8,weight:800,color:'#68788b'});
+    }
     rounded(context,x,y,width,height,13,'#f8fbff','#8da3ba');context.fillStyle='#27648a';context.fillRect(x,y,8,height);
     fitText(context,`📍 主要成交密集區 ${zone}`,x+20,y+25,width-34,{max:19,min:14,weight:950,color:'#153a67'});
     fitText(context,`日RSI 5T ${rsi}｜EMA21 ${ema(21)}`,x+20,y+50,width-34,{max:16,min:11,weight:950,color:'#314f6c'});
     fitText(context,`EMA50 ${ema(50)}｜EMA200 ${ema(200)}`,x+20,y+75,width-34,{max:16,min:11,weight:950,color:'#314f6c'});
     fitText(context,`KD(9,3,3) ${kd}`,x+20,y+99,width-34,{max:15,min:10,weight:900,color:'#586a7e'});
     fitText(context,`資料日 ${evidence?.dataQuality?.dataDate||report?.closeDate||'未提供'}｜補充證據不計分`,x+20,y+height-7,width-34,{max:11,min:9,weight:900,color:'#66758a'});
-    out.dataset.r45StockCompactPanel='stage-right:major-volume-zone,ema,kd,rsi5';
+    out.dataset.r45StockCompactPanel=hasWaveRow?'wave-row:left-wave-fib,right-major-volume-zone':'stage-right:major-volume-zone,ema,kd,rsi5';
+    out.dataset.r45StockCompactAudit=encodeURIComponent(JSON.stringify({mode,waveRow:hasWaveRow,left:leftBounds,right:{x,y,width,height},gap:leftBounds?x-(leftBounds.x+leftBounds.width):null,overlap:leftBounds?leftBounds.x+leftBounds.width>x:false}));
     if(mode==='professional')return compactProfessionalBottom(out,report);
 
     const trident=typeof window.tridentEngineV361==='function'?window.tridentEngineV361(report):null;
@@ -383,7 +412,7 @@ function fitIphoneStockReport(source,{title,date='資料日期依原報告',wate
 }
 
 function candidateCode(candidate){return String(candidate?.report?.stock||candidate?.report?.code||candidate?.code||'-');}
-function candidateName(candidate){return String(candidate?.report?.name||candidate?.name||candidateCode(candidate));}
+function candidateName(candidate){return String(typeof window.momentumSafeStockNameV377712==='function'?window.momentumSafeStockNameV377712(candidate):(candidate?.report?.name||candidate?.name||candidateCode(candidate)));}
 function candidateClose(candidate){const value=Number(candidate?.close??candidate?.report?.close);return Number.isFinite(value)?value:null;}
 function candidateRsi(candidate){const value=Number(candidate?.rsi??candidate?.report?.dailyRsi5??candidate?.report?.dailyRsi);return Number.isFinite(value)?value:null;}
 function candidatePhase(candidate){return E?E.existingPhase({...candidate?.report,stageSafety:candidate?.stageSafety,stage:candidate?.stage}).label:(candidate?.stageSafety?.label||candidate?.stage?.label||'階段待確認');}

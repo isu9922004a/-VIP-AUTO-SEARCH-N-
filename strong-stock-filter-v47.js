@@ -1,5 +1,5 @@
-/* 強勢飆股濾網 V49 R4.9.3：三盤＋價格三線＋量能三線為主軸，費波回撤只作位置量尺；
-   R4.9.3 以官方市場成交量校正最新日K的小幅來源差異，新增同級執行品質次排序；S/A/B資格與原條件分不變。 */
+/* 強勢飆股濾網 V49 R4.9.4：圖片版面一致性；三盤、價格三線、量能三線與費波規則不變。
+   沿用官方市場成交量校正與同級執行品質次排序；S/A/B資格與原條件分不變。 */
 (function(root,factory){const api=factory(root?.ShitouWaveCoreV48);if(typeof module==='object'&&module.exports){let W=null;try{W=require('./shitou-wave-core-v48.js');}catch(_){}module.exports=factory(W);}else if(root)root.ShitouStrongStockFilterV47=api;})(typeof globalThis!=='undefined'?globalThis:null,function(W){
 'use strict';
 const MODEL='STRONG_STOCK_FILTER_V49_WAVE_FIB';

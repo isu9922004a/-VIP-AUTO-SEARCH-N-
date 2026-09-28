@@ -1,7 +1,7 @@
 /* V49 共同白話顯示層：量價波段＋費波回撤量尺，接到個股／大盤／主升／當沖文字與圖片；不改既有資料來源與原硬性風控。 */
 (function(root){'use strict';
 const W=root.ShitouWaveCoreV48;if(!W)return;
-const RELEASE=W.RELEASE||'石頭少爺 Agent V49 正式版｜R5.3.2.4.28-R4.9.3｜主升中文名稱＋個股圖片版面安全修正版';
+const RELEASE=W.RELEASE||'石頭少爺 Agent V49 正式版｜R5.3.2.4.29-R4.9.4｜圖片報告版面一致性修正版';
 const esc=s=>String(s??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 function analyze(x){return W.analyzeReport(x?.report||x);}
 function fibShort(a){const f=a?.fib;if(!f?.ok)return '📏 波段量尺：資料不足，不硬算';const pos=f.inRange&&f.band?`📍${f.band.label} 約 ${f.band.low.toFixed(2)}～${f.band.high.toFixed(2)}`:`📍${f.positionText||'已離開0%～100%回撤區'}`;return `📏 ${f.directionText} ${f.ratioText}｜${f.zone.label}｜${pos}｜${f.priceConfirm?'✅已有價格確認':'🟡仍等價格確認'}`;}
@@ -26,7 +26,7 @@ if(typeof root.renderMarketWorkerData==='function'){const old=root.renderMarketW
 // 主升／當沖文字同步加入回撤位置，不取代原本硬性Gate。
 for(const name of ['buildMomentumScanTextReportV3763','buildMomentumScanCompactTextReportV377713']){if(typeof root[name]==='function'){const old=root[name];root[name]=function(scan){return prependOnce(old(scan),multiBlock(scan,'主升候選｜量價＋回撤位置二次確認'),'【📚 主升候選｜量價＋回撤位置二次確認】');};}}
 if(typeof root.buildDayTradeTextReportV1==='function'){const old=root.buildDayTradeTextReportV1;root.buildDayTradeTextReportV1=function(scan){return prependOnce(old(scan),multiBlock(scan,'明日當沖｜量價＋回撤位置二次確認'),'【📚 明日當沖｜量價＋回撤位置二次確認】');};}
-function scanUi(scan,rootId,id,title){const host=document.getElementById(rootId);if(!host)return;let box=document.getElementById(id);if(!box){box=document.createElement('div');box.id=id;host.prepend(box);}const list=(scan?.candidates||[]).slice(0,3);box.innerHTML=`<div class="rule wave-v49-card"><strong>📚 ${title}</strong><br>${list.length?list.map((c,i)=>`${i+1}. ${esc(c?.name||c?.report?.name||c?.report?.stock||c?.code||'-')}｜${esc(compact(analyze(c)))}`).join('<br>'):'目前沒有候選可做量價與回撤位置確認。'}<br><span class="meta">這一層先確認「突破有沒有量、價格線有沒有助漲」，再用回撤比例量目前位置；比例不是買點，也不把條件分當成勝率。</span></div>`;}
+function scanUi(scan,rootId,id,title){const host=document.getElementById(rootId);if(!host)return;let box=document.getElementById(id);if(!box){box=document.createElement('div');box.id=id;host.prepend(box);}const list=(scan?.candidates||[]).slice(0,3);box.innerHTML=`<div class="rule wave-v49-card"><strong>📚 ${title}</strong><br>${list.length?list.map((c,i)=>`${i+1}. ${esc(candidateDisplayName(c))}｜${esc(compact(analyze(c)))}`).join('<br>'):'目前沒有候選可做量價與回撤位置確認。'}<br><span class="meta">這一層先確認「突破有沒有量、價格線有沒有助漲」，再用回撤比例量目前位置；比例不是買點，也不把條件分當成勝率。</span></div>`;}
 if(typeof root.renderMomentumScanResultV3765==='function'){const old=root.renderMomentumScanResultV3765;root.renderMomentumScanResultV3765=function(scan){const out=old(scan);scanUi(scan,'momentumList','waveMomentumCardV49','主升段｜量價＋回撤位置確認');return out;};}
 if(typeof root.renderDayTradeScanResultV1==='function'){const old=root.renderDayTradeScanResultV1;root.renderDayTradeScanResultV1=function(scan){const out=old(scan);scanUi(scan,'dayTradeList','waveDayTradeCardV49','當沖｜盤後量價＋回撤位置確認');return out;};}
 // 明確轉弱保護維持：三盤跌破＋跌到21日線下＋21日線下彎時，不列正式順位；Fib不單獨當淘汰理由。
