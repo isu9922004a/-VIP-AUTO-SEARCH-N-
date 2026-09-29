@@ -2,7 +2,7 @@
 (function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;if(root)root.ShitouWaveCoreV48=api;})(typeof globalThis!=='undefined'?globalThis:null,function(){
 'use strict';
 const MODEL='SHITOU_WAVE_CORE_V50_FIB_RETRACE';
-const RELEASE='石頭少爺 Agent V50 正式版｜R5.3.2.5.1｜盤後資料契約與研究證據整合版';
+const RELEASE='石頭少爺 Agent V50 正式版｜R5.3.2.5.2｜蕭明道量價與新手開盤整合版';
 const FIB_RATIOS=Object.freeze([0,.236,.382,.5,.618,.786,1]);
 const num=v=>{if(v===null||v===undefined||v==='')return null;const n=Number(typeof v==='string'?v.replace(/,/g,''):v);return Number.isFinite(n)?n:null;};
 const avg=a=>a.length?a.reduce((s,x)=>s+x,0)/a.length:null;
@@ -114,6 +114,9 @@ function analyzeBars(source){const bars=normalizeBars(source);if(bars.length<60)
  const mv5p=sma(bars,'volume',5,bars.length-1),mv13p=sma(bars,'volume',13,bars.length-1),mv34p=sma(bars,'volume',34,bars.length-1);
  const prior2High=Math.max(p1.high,p2.high),prior2Low=Math.min(p1.low,p2.low);
  const threeBreakout=c.close>prior2High,threeBreakdown=c.close<prior2Low;
+ // 蕭明道課程重點：三盤只代表價格跨過關卡；突破／跌破仍要由量與收盤位置確認。
+ // 使用「前五個完成交易日」作量比基準，避免把今日量放進分母後稀釋訊號。
+ const prior5Volume=sma(bars,'volume',5,bars.length-1),threePanVolumeRatio=prior5Volume>0?c.volume/prior5Volume:null;
  const priceStack=c.close>ma8&&ma8>ma21&&ma21>ma55;
  const volumeStack=c.volume>mv5&&mv5>mv13&&mv13>mv34;
  const maSlope={ma8:ma8-ma8p,ma21:ma21-ma21p,ma55:ma55-ma55p};
@@ -122,31 +125,35 @@ function analyzeBars(source){const bars=normalizeBars(source);if(bars.length<60)
  const gap21=pct(c.close,ma21),gap55=pct(c.close,ma55);
  const fiveRet=pct(c.close,bars[i-5].close),fiveVol=pct(mv5,mv5p);
  const last5=bars.slice(-5);const ranges=last5.map(b=>(b.high-b.low)/b.close);const contraction=avg(ranges.slice(-3))<=avg(ranges.slice(0,2))*0.9;
- const closeNearHigh=c.high===c.low?0:(c.close-c.low)/(c.high-c.low);
+ const closeNearHigh=c.high===c.low ? 0.5 : (c.close-c.low)/(c.high-c.low);
+ const threeBreakoutConfirmed=threeBreakout&&threePanVolumeRatio>=1.1&&closeNearHigh>=.65;
+ const threeBreakoutUnconfirmed=threeBreakout&&!threeBreakoutConfirmed;
+ const threeBreakdownConfirmed=threeBreakdown&&threePanVolumeRatio>=1.1&&closeNearHigh<=.35;
+ const threeBreakdownUnconfirmed=threeBreakdown&&!threeBreakdownConfirmed;
  const healthyPullback=!threeBreakdown&&c.close>=ma21&&ma55>=ma55p&&mv5<mv5p&&c.volume<=p1.volume&&fiveRet!==null&&fiveRet>-8;
  const anomalyStrong=ma55<ma55p&&c.close>ma55&&threeBreakout;
  const anomalyWeak=ma55>ma55p&&c.close<ma21&&threeBreakdown;
  const fib=analyzeFib(bars,{threeBreakout,threeBreakdown,ma8,ma21,ma55,maSlope,mvSlope});
  let phase='WATCH',phaseLabel='等待更清楚的方向',tone='neutral';
- if(threeBreakdown&&(c.close<ma21||ma21<ma21p)){phase='WEAKENING';phaseLabel='轉弱／退潮';tone='risk';}
+ if(threeBreakdown&&(c.close<ma21||ma21<ma21p)){phase='WEAKENING';phaseLabel=threeBreakdownConfirmed?'帶量三盤跌破／風險確認':'三盤跌破／先防守';tone='risk';}
  else if(priceStack&&ma8>ma8p&&ma21>ma21p&&ma55>=ma55p&&(mv5>mv5p)&&(mv13>=mv13p||mv34>=mv34p)){phase='MAIN_ADVANCE';phaseLabel='主升延續';tone='strong';}
- else if(threeBreakout&&c.close>ma21&&ma8>=ma8p&&mv5>mv5p){phase='LAUNCH';phaseLabel='突破起漲';tone='strong';}
+ else if(threeBreakoutConfirmed&&c.close>ma21&&ma8>=ma8p&&mv5>mv5p){phase='LAUNCH';phaseLabel='三盤突破且量價確認';tone='strong';}
  else if(healthyPullback){phase='HEALTHY_PULLBACK';phaseLabel='量縮整理／等再攻';tone='watch';}
  else if(contraction&&Math.abs(gap21||0)<=5&&mv5<=mv5p){phase='BASE_BUILDING';phaseLabel='整理準備區';tone='watch';}
  const priceStrength=[c.close>ma8,ma8>ma21,ma21>ma55,ma8>ma8p,ma21>ma21p,ma55>=ma55p].filter(Boolean).length;
  const volumeStrength=[c.volume>mv5,mv5>mv13,mv13>mv34,mv5>mv5p,mv13>=mv13p,mv34>=mv34p].filter(Boolean).length;
- const score=Math.max(0,Math.min(100,Math.round(priceStrength*8+volumeStrength*6+(threeBreakout?18:0)+(volumeStart?8:0)+(closeNearHigh>=.7?6:0)+(healthyPullback?8:0)-(threeBreakdown?30:0)-((gap21||0)>18?15:0))));
+ const score=Math.max(0,Math.min(100,Math.round(priceStrength*8+volumeStrength*6+(threeBreakout?6:0)+(threeBreakoutConfirmed?12:0)+(volumeStart?8:0)+(closeNearHigh>=.7?6:0)+(healthyPullback?8:0)-(threeBreakdown?20:0)-(threeBreakdownConfirmed?10:0)-((gap21||0)>18?15:0))));
  const supportCandidates=[ma8,ma21,ma55,prior2Low].filter(x=>x>0&&x<c.close).sort((a,b)=>b-a);const support=supportCandidates[0]||prior2Low;
- const trigger=prior2High;const risk=[];if((gap21||0)>18)risk.push('離21日線太遠，追高風險高');if(threeBreakdown)risk.push('出現三盤跌破');if(anomalyWeak)risk.push('該強不強：長線仍上揚，但價格先跌破短中期結構');if(mv5<mv5p&&mv13<mv13p)risk.push('短中期量潮一起退');if(fib?.ok&&fib.direction==='UP'&&fib.ratioPct>78.6)risk.push('前一段上漲已回吐超過78.6%，原波段優勢明顯變弱');
- const evidence=[];if(threeBreakout)evidence.push('三盤突破');if(priceStack)evidence.push('價格站在8／21／55日線之上且排列偏多');if(mv5>mv5p)evidence.push('5日攻擊量上揚');if(mv13>mv13p)evidence.push('13日潮汐量上揚');if(mv34>mv34p)evidence.push('34日趨勢量上揚');if(healthyPullback)evidence.push('回檔量縮且仍守21日線');if(anomalyStrong)evidence.push('該弱不弱：長線仍壓力中卻先三盤突破');if(fib?.ok)evidence.push(`波段量尺：${fib.zone.label}`);
+ const trigger=prior2High;const risk=[];if((gap21||0)>18)risk.push('離21日線太遠，追高風險高');if(threeBreakdownConfirmed)risk.push('帶量三盤跌破且收盤偏弱，風險已確認');else if(threeBreakdown)risk.push('出現三盤跌破，先防守並等量價確認');if(threeBreakoutUnconfirmed)risk.push(`價格雖過三盤關卡，但量比 ${threePanVolumeRatio?.toFixed(2)??'-'} 倍或收盤位置未配合，疑似假突破`);if(anomalyWeak)risk.push('該強不強：長線仍上揚，但價格先跌破短中期結構');if(mv5<mv5p&&mv13<mv13p)risk.push('短中期量潮一起退');if(fib?.ok&&fib.direction==='UP'&&fib.ratioPct>78.6)risk.push('前一段上漲已回吐超過78.6%，原波段優勢明顯變弱');
+ const evidence=[];if(threeBreakoutConfirmed)evidence.push(`三盤突破已由量比 ${threePanVolumeRatio.toFixed(2)} 倍與強收盤確認`);else if(threeBreakout)evidence.push('價格已跨過三盤關卡，但量價確認尚未完成');if(priceStack)evidence.push('價格站在8／21／55日線之上且排列偏多');if(mv5>mv5p)evidence.push('5日攻擊量上揚');if(mv13>mv13p)evidence.push('13日潮汐量上揚');if(mv34>mv34p)evidence.push('34日趨勢量上揚');if(healthyPullback)evidence.push('回檔量縮且仍守21日線');if(anomalyStrong)evidence.push('該弱不弱：長線仍壓力中卻先三盤突破');if(fib?.ok)evidence.push(`波段量尺：${fib.zone.label}`);
  const maText=`短線抱單線 ${ma8.toFixed(2)}${arrow(maSlope.ma8)}｜強弱分界線 ${ma21.toFixed(2)}${arrow(maSlope.ma21)}｜趨勢方向線 ${ma55.toFixed(2)}${arrow(maSlope.ma55)}`;
  const mvText=`短線攻擊量 ${arrow(mvSlope.mv5)}｜中段潮汐量 ${arrow(mvSlope.mv13)}｜大方向趨勢量 ${arrow(mvSlope.mv34)}`;
- const plain=phase==='LAUNCH'?'剛出現三盤突破，量能也開始接上；先看突破後能不能守住。':phase==='MAIN_ADVANCE'?'價格與量能都維持偏多排列，屬於主升延續，但仍要避免追太高。':phase==='HEALTHY_PULLBACK'?'上漲後正在量縮整理，結構還沒壞；等重新放量再攻會比較安全。':phase==='WEAKENING'?'價格與量能開始轉弱，先把防守放前面，不要把反彈當成新主升。':phase==='BASE_BUILDING'?'目前在整理收斂，還沒有正式發動；等三盤突破與量能轉強再確認。':'訊號還不夠完整，先觀察，不急著下結論。';
- return {ok:true,model:MODEL,release:RELEASE,date:c.date,close:c.close,phase,phaseLabel,tone,plain,score,ma8,ma21,ma55,mv5,mv13,mv34,maSlope,mvSlope,maText,mvText,threeBreakout,threeBreakdown,prior2High,prior2Low,priceStack,volumeStack,volumeStart,healthyPullback,anomalyStrong,anomalyWeak,gap21Pct:gap21,gap55Pct:gap55,fiveDayReturnPct:fiveRet,fiveMvChangePct:fiveVol,closePosition:closeNearHigh,support,trigger,evidence,risk,fib,fibTieRank:fibTieRank(fib),bars};
+ const plain=phase==='LAUNCH'?'今天收盤高過前兩天最高價，成交量與收盤位置也配合；列入明日盤中確認，不代表開盤直接買。':threeBreakoutUnconfirmed?'今天價格雖高過前兩天最高價，但成交量或收盤位置沒有一起確認；先當疑似假突破，不追價。':phase==='MAIN_ADVANCE'?'價格與量能都維持偏多排列，屬於主升延續，但仍要避免追太高。':phase==='HEALTHY_PULLBACK'?'上漲後正在量縮整理，結構還沒壞；等重新放量再攻會比較安全。':phase==='WEAKENING'?'今天收盤低過前兩天最低價，先把防守放前面；帶量弱收時風險更高，不把反彈當新主升。':phase==='BASE_BUILDING'?'目前在整理收斂，還沒有正式發動；等收盤跨過前三天關卡，並由成交量確認。':'訊號還不夠完整，先觀察，不急著下結論。';
+ return {ok:true,model:MODEL,release:RELEASE,date:c.date,close:c.close,phase,phaseLabel,tone,plain,score,ma8,ma21,ma55,mv5,mv13,mv34,prior5Volume,threePanVolumeRatio,maSlope,mvSlope,maText,mvText,threeBreakout,threeBreakdown,threeBreakoutConfirmed,threeBreakoutUnconfirmed,threeBreakdownConfirmed,threeBreakdownUnconfirmed,prior2High,prior2Low,priceStack,volumeStack,volumeStart,healthyPullback,anomalyStrong,anomalyWeak,gap21Pct:gap21,gap55Pct:gap55,fiveDayReturnPct:fiveRet,fiveMvChangePct:fiveVol,closePosition:closeNearHigh,support,trigger,evidence,risk,fib,fibTieRank:fibTieRank(fib),bars};
 }
 function analyzeReport(report){return analyzeBars(report?.dailySeries||report?.bars||report?.history||[]);}
 function grade(a){if(!a?.ok)return {key:'DATA',label:'資料不足'};if(a.phase==='WEAKENING')return {key:'REJECT',label:'轉弱排除'};if(a.score>=82&&(a.phase==='LAUNCH'||a.phase==='MAIN_ADVANCE'))return {key:'S',label:'強中強'};if(a.score>=68&&['LAUNCH','MAIN_ADVANCE','HEALTHY_PULLBACK'].includes(a.phase))return {key:'A',label:'條件完整'};if(a.score>=55&&a.phase!=='WEAKENING')return {key:'B',label:'可觀察'};return {key:'WATCH',label:'等待更完整'};}
 function fibText(fib){if(!fib?.ok)return '波段量尺：找不到已確認的完整波段，這一層不硬算。';const pos=fib.inRange&&fib.band?`📍目前落在 ${fib.band.label} 區間（約 ${fib.band.low.toFixed(2)}～${fib.band.high.toFixed(2)}）`:`📍${fib.positionText||'已離開0%～100%回撤區'}`;return `波段量尺：${fib.directionText} ${fib.ratioText}｜${fib.zone.label}｜${pos}｜${fib.priceConfirm?'✅ 已有價格確認':'🟡 仍要等價格確認'}；比例只是量尺，不是反轉保證。`;}
-function textBlock(a,title='量價波段白話判讀'){if(!a?.ok)return `【${title}】\n資料不足：${a?.reason||'無法計算'}`;const g=grade(a);return `【${title}】\n目前位置：${g.label}｜${a.phaseLabel}｜條件分 ${a.score}/100（不是勝率）\n白話：${a.plain}\n價格三線：${a.maText}\n量能三線：${a.mvText}\n三盤：${a.threeBreakout?'✅ 三盤突破':a.threeBreakdown?'⚠️ 三盤跌破':'尚未出現新的三盤轉折'}\n${fibText(a.fib)}\n🎯 觀察價：${a.trigger.toFixed(2)}｜🛡️ 防守參考：${a.support.toFixed(2)}\n依據：${a.evidence.length?a.evidence.join('、'):'目前沒有足夠的轉強證據'}${a.risk.length?`\n⚠️ 風險：${a.risk.join('、')}`:''}`;}
+function textBlock(a,title='量價波段白話判讀'){if(!a?.ok)return `【${title}】\n資料不足：${a?.reason||'無法計算'}`;const g=grade(a),pan=a.threeBreakoutConfirmed?'✅ 三盤突破且量價確認':a.threeBreakout?'🟠 價格過關，但量價未確認':a.threeBreakdownConfirmed?'🔴 帶量三盤跌破':a.threeBreakdown?'⚠️ 三盤跌破，先防守':'尚未出現新的三盤轉折';return `【${title}】\n目前位置：${g.label}｜${a.phaseLabel}｜條件分 ${a.score}/100（不是勝率）\n白話：${a.plain}\n價格三線：${a.maText}\n量能三線：${a.mvText}\n三盤：${pan}｜今日量／前5日均量 ${a.threePanVolumeRatio?.toFixed(2)??'-'} 倍\n${fibText(a.fib)}\n🎯 觀察價：${a.trigger.toFixed(2)}｜🛡️ 防守參考：${a.support.toFixed(2)}\n依據：${a.evidence.length?a.evidence.join('、'):'目前沒有足夠的轉強證據'}${a.risk.length?`\n⚠️ 風險：${a.risk.join('、')}`:''}`;}
 return Object.freeze({MODEL,RELEASE,FIB_RATIOS,num,sma,normalizeBars,confirmedPivots,selectCompletedSwing,fibLevelPrice,fibZone,analyzeFib,fibTieRank,analyzeBars,analyzeReport,grade,fibText,textBlock});
 });

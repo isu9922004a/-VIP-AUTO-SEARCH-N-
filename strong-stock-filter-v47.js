@@ -1,6 +1,6 @@
-/* 強勢飆股濾網 V50 R5.3.2.5.1：圖片版面一致性；三盤、價格三線、量能三線與費波規則不變。
+/* 強勢飆股濾網 V50 R5.3.2.5.2：圖片版面一致性；三盤、價格三線、量能三線與費波規則不變。
    沿用官方市場成交量校正與同級執行品質次排序；S/A/B資格與原條件分不變。 */
-(function(root,factory){const api=factory(root?.ShitouWaveCoreV48);if(typeof module==='object'&&module.exports){let W=null;try{W=require('./shitou-wave-core-v48.js');}catch(_){}module.exports=factory(W);}else if(root)root.ShitouStrongStockFilterV47=api;})(typeof globalThis!=='undefined'?globalThis:null,function(W){
+(function(root,factory){const api=factory(root?.ShitouWaveCoreV48,root?.ShitouXiaoMingDaoV52);if(typeof module==='object'&&module.exports){let W=null,X=null;try{W=require('./shitou-wave-core-v48.js');}catch(_){}try{X=require('./xiaomingdao-course-v52.js');}catch(_){}module.exports=factory(W,X);}else if(root)root.ShitouStrongStockFilterV47=api;})(typeof globalThis!=='undefined'?globalThis:null,function(W,X){
 'use strict';
 const MODEL='STRONG_STOCK_FILTER_V50_WAVE_FIB';
 const RULE=Object.freeze({minTradeValue:10000000,maxGap21Pct:18,minBars:60});
@@ -63,8 +63,8 @@ function executionQuality(found,volumeAudit){
   if(volumeAudit?.confidence==='HIGH')q+=5;else if(volumeAudit?.confidence==='MEDIUM')q+=1;else if(volumeAudit?.confidence==='LOW')q-=7;
   return Math.round(Math.max(0,Math.min(100,q)));
 }
-function evaluate(report,marketDate,quote){const verified=normalize(report,marketDate,quote);if(verified.status!=='OK')return verified;const found=detect(verified.rows);if(!found.eligible)return {...found,volumeAudit:verified.volumeAudit||null};const eq=executionQuality(found,verified.volumeAudit);return {...found,model:MODEL,date:verified.date,code:String(report.stock||report.code||''),name:String(report.name||report.stock||report.code||''),report,volumeAudit:verified.volumeAudit||null,dataConfidence:verified.volumeAudit?.confidence||'UNKNOWN',executionQuality:eq};}
-function compare(a,b){const pri={S:0,A:1,B:2};return (pri[a.status]??9)-(pri[b.status]??9)||b.score-a.score||(b.executionQuality??-1)-(a.executionQuality??-1)||((b.wave?.volumeStart?1:0)-(a.wave?.volumeStart?1:0))||(a.fibTieRank??6)-(b.fibTieRank??6)||a.code.localeCompare(b.code);}
+function evaluate(report,marketDate,quote){const verified=normalize(report,marketDate,quote);if(verified.status!=='OK')return verified;const found=detect(verified.rows);if(!found.eligible)return {...found,volumeAudit:verified.volumeAudit||null};const eq=executionQuality(found,verified.volumeAudit),course=X?.analyze?X.analyze(report,found.wave):null;return {...found,model:MODEL,date:verified.date,code:String(report.stock||report.code||''),name:String(report.name||report.stock||report.code||''),report,volumeAudit:verified.volumeAudit||null,dataConfidence:verified.volumeAudit?.confidence||'UNKNOWN',executionQuality:eq,courseV52:course,courseSuitabilityScore:course?.score??null};}
+function compare(a,b){const pri={S:0,A:1,B:2};return (pri[a.status]??9)-(pri[b.status]??9)||(b.courseSuitabilityScore??-1)-(a.courseSuitabilityScore??-1)||b.score-a.score||(b.executionQuality??-1)-(a.executionQuality??-1)||((b.wave?.volumeStart?1:0)-(a.wave?.volumeStart?1:0))||(a.fibTieRank??6)-(b.fibTieRank??6)||a.code.localeCompare(b.code);}
 function backtest(bars,signalIndex,horizon=5){if(!Array.isArray(bars)||signalIndex<2||signalIndex>=bars.length-1||!(horizon>0))return {status:'UNAVAILABLE',reason:'缺少下一交易日開盤價'};if(signalIndex+1+horizon-1>=bars.length)return {status:'UNFINISHED',reason:'後續完整交易日未達觀察期間'};const entry=number(bars[signalIndex+1]?.open),exit=number(bars[signalIndex+horizon]?.close);if(!(entry>0&&exit>0))return {status:'UNAVAILABLE',reason:'進出場量價缺失'};return {status:'COMPLETE',entryDate:date(bars[signalIndex+1].date),entry,exit,horizon,returnPct:(exit/entry-1)*100,method:'訊號次一交易日開盤→第N交易日收盤；未含成本與滑價'};}
 return Object.freeze({MODEL,RULE,number,date,validateMarket,marketClosedStateV49,officialIndustry,normalize,detect,evaluate,compare,backtest});
 });

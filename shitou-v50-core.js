@@ -2,16 +2,17 @@
 
 /* V50 共用盤後分析結果：只使用完成日K。新增內容皆為解釋或研究影子，不改正式 Gate、分數、排序與停損。 */
 (function(root,factory){
-  let wave=root?.ShitouWaveCoreV48||null,book=root?.ShitoBookEvidenceR495||null,version=root?.ShitouReleaseV50||null;
+  let wave=root?.ShitouWaveCoreV48||null,book=root?.ShitoBookEvidenceR495||null,course=root?.ShitouXiaoMingDaoV52||null,version=root?.ShitouReleaseV50||null;
   if(typeof module==='object'&&module.exports){
     try{wave=require('./shitou-wave-core-v48.js');}catch(_){}
     try{book=require('./book-evidence-r495.js');}catch(_){}
+    try{course=require('./xiaomingdao-course-v52.js');}catch(_){}
     try{version=require('./version-v50.js');}catch(_){}
   }
-  const api=factory(wave,book,version);
+  const api=factory(wave,book,course,version);
   if(root)root.ShitouV50Core=api;
   if(typeof module==='object'&&module.exports)module.exports=api;
-})(typeof globalThis!=='undefined'?globalThis:null,function(W,B,V){
+})(typeof globalThis!=='undefined'?globalThis:null,function(W,B,X,V){
   const MODEL='SHITOU_V50_POST_CLOSE_ANALYSIS_V1';
   const DATA_TIMING='POST_CLOSE_ONLY';
   const RESEARCH_ROLE='SHADOW_ONLY';
@@ -195,12 +196,12 @@
   }
 
   function build(input){
-    const candidate=input&&typeof input==='object'?input:{},report=candidate.report||candidate,source=report?.dailySeries||report?.rows||report?.history||candidate?.dailySeries||[],bars=normalizeBars(source),quality=dataQuality(report,bars,Array.isArray(source)?source.length:0),trend=trendStructure(bars),wave=bars.length>=60&&W?.analyzeBars?W.analyzeBars(bars):{ok:false,reason:'完整日K少於60根'},fib=fibAnalysis(bars),previousDay=previousDayResearch(bars,trend),candle=candleEvidence(bars,trend),opening=B?.analyze?B.analyze(report):null;
-    const result={model:MODEL,release:RELEASE,dataTiming:DATA_TIMING,generatedAt:new Date().toISOString(),dataDate:quality.finalDate,quality,barsUsed:bars.length,latestClose:bars.at(-1)?.close??null,trend,wave,fib,previousDay,candle,movingAverageInertia:movingAverageInertia(bars),gaps:gapResearch(bars),confluence:confluenceMap(bars,fib,wave),openingDecision:opening,formalBefore:formalSnapshot(candidate),research:{role:RESEARCH_ROLE,affectsFormalGate:false,affectsScore:false,affectsRanking:false,affectsStop:false,affectsObservationPrice:false},plain:{headline:trend.label,summary:trend.plain}};
+    const candidate=input&&typeof input==='object'?input:{},report=candidate.report||candidate,source=report?.dailySeries||report?.rows||report?.history||candidate?.dailySeries||[],bars=normalizeBars(source),quality=dataQuality(report,bars,Array.isArray(source)?source.length:0),trend=trendStructure(bars),wave=bars.length>=60&&W?.analyzeBars?W.analyzeBars(bars):{ok:false,reason:'完整日K少於60根'},course=X?.analyze?X.analyze(candidate,wave):null,fib=fibAnalysis(bars),previousDay=previousDayResearch(bars,trend),candle=candleEvidence(bars,trend),opening=B?.analyze?B.analyze(report):null;
+    const result={model:MODEL,release:RELEASE,dataTiming:DATA_TIMING,generatedAt:new Date().toISOString(),dataDate:quality.finalDate,quality,barsUsed:bars.length,latestClose:bars.at(-1)?.close??null,trend,wave,course,fib,previousDay,candle,movingAverageInertia:movingAverageInertia(bars),gaps:gapResearch(bars),confluence:confluenceMap(bars,fib,wave),openingDecision:opening,formalBefore:formalSnapshot(candidate),courseIntegration:{affectsStrongStockTieRank:true,affectsFormalExecutionGate:false,affectsStop:false,scoreSemantic:'CONDITION_COMPLETENESS_NOT_WIN_RATE'},research:{role:RESEARCH_ROLE,affectsFormalGate:false,affectsScore:false,affectsRanking:false,affectsStop:false,affectsObservationPrice:false},plain:{headline:trend.label,summary:trend.plain}};
     return deepFreeze(result);
   }
 
-  function fingerprint(input){const report=input?.report||input||{},rows=report?.dailySeries||report?.rows||report?.history||[];return `${rows.length}|${rows.at?.(-1)?.date||''}|${rows.at?.(-1)?.close||''}|${rows.at?.(-1)?.volume||''}|${report?.closeDate||''}`;}
+  function fingerprint(input){const report=input?.report||input||{},rows=report?.dailySeries||report?.rows||report?.history||[],relative=input?.industryContext?.relativeStrength??report?.industryContext?.relativeStrength??'';return `${rows.length}|${rows.at?.(-1)?.date||''}|${rows.at?.(-1)?.close||''}|${rows.at?.(-1)?.volume||''}|${report?.closeDate||''}|${relative}`;}
   function analyze(input){
     const key=input?.report&&typeof input.report==='object'?input.report:(input&&typeof input==='object'?input:null),mark=fingerprint(input);
     if(key){const saved=cache.get(key);if(saved?.fingerprint===mark)return saved.result;const result=build(input);cache.set(key,{fingerprint:mark,result});return result;}
@@ -213,6 +214,7 @@
     lines.push(`昨日高低點研究：${a.previousDay.label||a.previousDay.reason}`);
     lines.push(fib?.available?`波段回撤量尺：${fib.direction==='UP'?'上漲波段回吐':'下跌波段回補'} ${fib.retracementPct.toFixed(1)}%｜${fib.zone.label}｜起點 ${fib.waveStart.date||'-'} ${fib.waveStart.price.toFixed(2)} → 終點 ${fib.waveEnd.date||'-'} ${fib.waveEnd.price.toFixed(2)}。比例只描述幅度，不代表一定反轉。`:`波段回撤量尺：${a.fib.reason}`);
     if(a.candle.available)lines.push(`最新K棒：${a.candle.labels.join('、')}｜${a.candle.plain}`);
+    if(!options.market&&a.course?.ok)lines.push(`蕭明道量價適合度：${a.course.score}/100（條件完整度，不是勝率）｜${a.course.threePan.label}｜${a.course.label}`);
     if(options.market){
       lines.push(`大盤環境：${a.trend.label}｜以完成日K確認，不作個股操作指示。`);
     }else if(a.openingDecision?.headline){
