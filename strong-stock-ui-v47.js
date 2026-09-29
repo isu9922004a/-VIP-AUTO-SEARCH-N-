@@ -1,4 +1,4 @@
-/* Strong Stock V50 R5.3.2.5.2 — 圖片版面一致性；原選股與排序邏輯不變。 */
+/* Strong Stock V50 R5.3.2.5.3 — 圖片版面一致性；原選股與排序邏輯不變。 */
 (function(root){
   'use strict';
   const F=root.ShitouStrongStockFilterV47;
@@ -30,7 +30,7 @@
   const isCpuError=value=>/exceeded\s*CPU|CPU\s*time\s*limit|CPU.*(?:超限|用量)|1102|script.*exceeded/i.test(String(value||''));
   const isRetryable=value=>/CPU|1102|timeout|timed out|aborted|failed to fetch|network|HTTP\s*(?:429|5\d\d)|服務暫時|連線|逾時|分析未回傳/i.test(String(value||''));
   const statusTitle=scan=>scan.fullMarketCertified?'完整市場驗證報告':'部分驗證報告｜非全市場完整排名';
-  const RELEASE_R493='石頭少爺 Agent V50 正式版｜R5.3.2.5.2｜蕭明道量價與新手開盤整合版';
+  const RELEASE_R493='石頭少爺 Agent V50 正式版｜R5.3.2.5.3｜蕭明道量價與圖片版面完整修正版';
   const triggerMeta=c=>{
     const close=F.number(c?.close),trigger=F.number(c?.trigger);
     const crossed=close!==null&&trigger!==null&&close>=trigger;

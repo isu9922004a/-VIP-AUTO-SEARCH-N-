@@ -9,6 +9,8 @@
   const versionize=value=>String(value??'')
     .replaceAll('石頭少爺 Agent V50 正式版｜R5.3.2.5.2｜蕭明道量價與新手開盤整合版',RELEASE)
     .replaceAll('V50_R5.3.2.5.2_蕭明道量價與新手開盤整合版',FILE_VERSION)
+    .replaceAll('石頭少爺 Agent V50 正式版｜R5.3.2.5.3｜蕭明道量價與圖片版面完整修正版',RELEASE)
+    .replaceAll('V50_R5.3.2.5.3_蕭明道量價與圖片版面完整修正版',FILE_VERSION)
     .replaceAll('最新收盤','最新收盤');
   const get=input=>input?.v50AnalysisResult||C.analyze(input);
   const taipeiTime=value=>{try{return new Intl.DateTimeFormat('zh-TW',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(new Date(value));}catch(_){return '資料不足';}};

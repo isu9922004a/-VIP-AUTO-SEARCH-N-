@@ -1,9 +1,9 @@
-/* V50 R5.3.2.5.2: image-report layout consistency fix; stock logic is unchanged. */
+/* V50 R5.3.2.5.3: image-report layout consistency fix; stock logic is unchanged. */
 (function(){
 'use strict';
 
-const RELEASE=window.R45_RELEASE_LABEL||'石頭少爺 Agent V50 正式版｜R5.3.2.5.2｜蕭明道量價與新手開盤整合版';
-const FILE_VERSION=window.R45_FILE_VERSION||'V50_R5.3.2.5.2_蕭明道量價與新手開盤整合版';
+const RELEASE=window.R45_RELEASE_LABEL||'石頭少爺 Agent V50 正式版｜R5.3.2.5.3｜蕭明道量價與圖片版面完整修正版';
+const FILE_VERSION=window.R45_FILE_VERSION||'V50_R5.3.2.5.3_蕭明道量價與圖片版面完整修正版';
 const E=window.ShitouTechnicalEvidenceR45;
 const DETAIL={width:1284,height:2778,top:92,bottom:70,side:22};
 const IPHONE_12_PRO_MAX={width:1284,height:2778,minReadableScale:.90};
@@ -144,7 +144,8 @@ function appendEvidence(source,candidates,kind,title,{compact=false}={}){
 
 function prepareStockBaseForIphone(source){
   const assistantHeight=Math.max(0,Number(source?.dataset?.r45AssistantAppendHeight)||0);
-  const originalFooterHeight=source?.dataset?.reportMode?138:0;
+  const sourceAudit=readLayoutAudit(source),alreadyIphoneFull=source?.dataset?.iphoneFullScreen==='1284x2778'||sourceAudit?.iphoneFullScreen?.noCrop===true;
+  const originalFooterHeight=source?.dataset?.reportMode&&!alreadyIphoneFull?138:0;
   const targetHeight=Math.max(1,source.height-assistantHeight-originalFooterHeight);
   let out=copyCanvas(source,targetHeight);
   out.dataset.r45RemovedAssistantHeight=String(assistantHeight);
@@ -166,6 +167,41 @@ function prepareStockBaseForIphone(source){
       }
     }catch(_){out.dataset.r45RemovedProfessionalSupplement='audit-invalid';}
   }
+  return out;
+}
+
+function insertV50CompactEvidenceRow(source,report,evidence,profile){
+  const audit=readLayoutAudit(source)||{},iphone=audit.iphoneFullScreen||{},cards=Array.isArray(audit.stageCards)?audit.stageCards:[];
+  const decisionCard=cards.find(card=>/新手先看|適不適合買/.test(String(card?.title||'')))||cards.at(-1)||null;
+  const scale=Number.isFinite(Number(iphone.scale))?Number(iphone.scale):1,offsetY=Number.isFinite(Number(iphone.offsetY))?Number(iphone.offsetY):0;
+  const rawBottom=decisionCard?Number(decisionCard.cardBottom??(Number(decisionCard.insertY)+Number(decisionCard.height))):NaN;
+  const estimatedBottom=Number.isFinite(rawBottom)?Math.round(offsetY+rawBottom*scale):Math.round(source.height*.17);
+  const insertY=Math.max(170,Math.min(source.height-220,estimatedBottom+8)),rowHeight=206;
+  const out=canvas(source.width,source.height+rowHeight,'#eef3f8'),context=out.getContext('2d');
+  context.drawImage(source,0,0,source.width,insertY,0,0,source.width,insertY);
+  context.fillStyle='#eef3f8';context.fillRect(0,insertY,source.width,rowHeight);
+  context.drawImage(source,0,insertY,source.width,source.height-insertY,0,insertY+rowHeight,source.width,source.height-insertY);
+  const margin=36,gap=18,cardY=insertY+12,cardH=rowHeight-24,cardW=(source.width-margin*2-gap)/2;
+  const p=profile||{},price=value=>Number.isFinite(Number(value))?(E?E.price(value):Number(value).toFixed(2)):'資料不足';
+  const zone=p.status==='pass'?`${price(p.pocLower)}～${price(p.pocUpper)}`:(p.label||'資料不足');
+  const values=evidence?.ema?.values||{},ema=period=>values[period]?.available?price(values[period].value):'資料不足';
+  const rsi=evidence?.rsi5?.available?`${price(evidence.rsi5.value)}（${evidence.rsi5.date||'日期未提供'}）`:'資料不足';
+  rounded(context,margin,cardY,cardW,cardH,14,'#f8fbff','#8da3ba');context.fillStyle='#27648a';context.fillRect(margin,cardY,8,cardH);
+  fitText(context,`📍 主要成交密集區 ${zone}`,margin+22,cardY+33,cardW-42,{max:20,min:14,weight:950,color:'#153a67'});
+  fitText(context,`日RSI 5T ${rsi}`,margin+22,cardY+67,cardW-42,{max:16,min:11,weight:900,color:'#314f6c'});
+  fitText(context,`EMA21 ${ema(21)}｜EMA50 ${ema(50)}｜EMA200 ${ema(200)}`,margin+22,cardY+99,cardW-42,{max:15,min:10,weight:850,color:'#314f6c'});
+  fitText(context,'補充證據，不改適合度、資格、分數或正式風控',margin+22,cardY+cardH-24,cardW-42,{max:13,min:9,weight:850,color:'#68788b'});
+  const trident=typeof window.tridentEngineV361==='function'?window.tridentEngineV361(report):null,rightX=margin+cardW+gap;
+  const triPrice=item=>item&&Number.isFinite(Number(item.value))?`${price(item.value)} 元`:'資料不足',triDate=item=>item?.date||'日期不足';
+  rounded(context,rightX,cardY,cardW,cardH,14,'#f8fbff','#9bb2c9');
+  fitText(context,'🔱 三叉戟價位｜補充觀察',rightX+22,cardY+33,cardW-44,{max:20,min:14,weight:950,color:'#173a5d'});
+  const rows=[['🧱 壓力',trident?.pressure,'#a85a08'],['🛡️ 支撐',trident?.support,'#16724a'],['📌 候選預備',trident?.preparatory,'#6c43a3']];
+  rows.forEach((item,index)=>fitText(context,`${item[0]} ${triPrice(item[1])}｜${triDate(item[1])}`,rightX+22,cardY+67+index*29,cardW-44,{max:16,min:10,weight:900,color:item[2]}));
+  fitText(context,trident?.available?'量能大於左一根；紅K取低、綠K取高｜只作補充':'逐日 OHLCV 不足｜不建立假價位',rightX+22,cardY+cardH-24,cardW-44,{max:13,min:9,weight:850,color:'#68788b'});
+  for(const [key,value] of Object.entries(source.dataset||{}))out.dataset[key]=value;
+  out.dataset.layoutAudit=encodeURIComponent(JSON.stringify({...audit,size:`${out.width}x${out.height}`,v50SafeEvidenceRow:{insertY,rowHeight,cardY,cardBottom:cardY+cardH,physicalInsert:true,overlap:false,duplicateWarning:false}}));
+  out.dataset.r45StockCompactPanel='v50-safe-insert:left-major-volume,right-trident';
+  out.dataset.r45NoOverlay='true';
   return out;
 }
 
@@ -263,6 +299,8 @@ function appendStockCompactEvidence(source,report){
   const kd=evidence?.kd?.available?`K ${price(evidence.kd.k)}／D ${price(evidence.kd.d)}｜${evidence.kd.cross}`:'資料不足';
   const mode=source?.dataset?.reportMode;
   if(mode==='professional'||mode==='beginner'){
+    const initialAudit=readLayoutAudit(source);
+    if(source?.dataset?.iphoneFullScreen==='1284x2778'||initialAudit?.iphoneFullScreen?.noCrop===true)return insertV50CompactEvidenceRow(source,report,evidence,p);
     const out=copyCanvas(source),context=out.getContext('2d');
     const audit=readLayoutAudit(out),stageCards=audit?.stageCards||[];
     const waveCard=stageCards.find(card=>/量價波段|回撤量尺/.test(String(card?.title||'')))||null;
@@ -672,11 +710,16 @@ async function generateStock(mode='beginner',withWatermark=false){
 
 async function generateMarket(withWatermark=false){
   const report=typeof lastMarketReportData!=='undefined'?lastMarketReportData:null;if(!report)throw new Error('請先完成大盤分析');
-  if(document.fonts?.ready)await document.fonts.ready;if(typeof original.marketRender!=='function')throw new Error('大盤原始圖片產生器不存在');
-  const source=original.marketRender(report);source.dataset.reportMode='market';
-  const result=fitIphoneStockReport(source,{title:'臺灣加權股價指數（TAIEX）大盤分析',date:report.closeDate,watermark:withWatermark,watermarkKind:'market'});
+  if(document.fonts?.ready)await document.fonts.ready;
+  const result=buildMarketIphoneReport(report,withWatermark);
   await showPages(result.pages,{title:'臺灣加權股價指數大盤圖片報告',prefix:`石頭少爺_TAIEX_大盤分析圖${withWatermark?'_防盜浮水印':''}`,date:dateOf(report.closeDate),note:'iPhone 12 Pro Max 1284×2778 原生模板滿版；保留ABC、真實K線、量能、三劇本與三條關鍵線，不另加頁首、頁尾或重複技術附錄',kind:'market'});
   return result;
+}
+
+function buildMarketIphoneReport(report,withWatermark=false){
+  if(typeof original.marketRender!=='function')throw new Error('大盤原始圖片產生器不存在');
+  const source=original.marketRender(report);source.dataset.reportMode='market';
+  return fitIphoneStockReport(source,{title:'臺灣加權股價指數（TAIEX）大盤分析',date:report?.closeDate,watermark:withWatermark,watermarkKind:'market'});
 }
 
 async function generateDetailed(kind,withWatermark=false){
@@ -731,7 +774,7 @@ window.copyDayTradeAllCandidatesImageV377727=(withWatermark=false)=>copyFirst(()
 window.strongStockShowPagesV47=showPages;
 window.R45_REPORT_TEST_API=Object.freeze({
   release:RELEASE,detailSize:{...DETAIL},summarySize:{...SUMMARY},summaryRows,buildSummaryPages,buildTop8IphoneReport,
-  paginateDetailed,singleLongDetailed,fitIphoneStockReport,prepareStockBaseForIphone,appendStockCompactEvidence,appendEvidence,removeScanIndustryAppend,evidenceLines,zip,blob,
+  paginateDetailed,singleLongDetailed,fitIphoneStockReport,prepareStockBaseForIphone,appendStockCompactEvidence,buildMarketIphoneReport,appendEvidence,removeScanIndustryAppend,evidenceLines,zip,blob,
   audits:{originalOrderPreserved:true,summaryIncludesAllCandidates:true,workerChanged:false,scoreChanged:false,qualificationChanged:false}
 });
 })();
