@@ -11,6 +11,8 @@
     .replaceAll('V50_R5.3.2.5.2_蕭明道量價與新手開盤整合版',FILE_VERSION)
     .replaceAll('石頭少爺 Agent V50 正式版｜R5.3.2.5.3｜蕭明道量價與圖片版面完整修正版',RELEASE)
     .replaceAll('V50_R5.3.2.5.3_蕭明道量價與圖片版面完整修正版',FILE_VERSION)
+    .replaceAll('石頭少爺 Agent V50 正式版｜R5.3.2.5.4｜蕭明道量價與專業版面整合修正版',RELEASE)
+    .replaceAll('V50_R5.3.2.5.4_蕭明道量價與專業版面整合修正版',FILE_VERSION)
     .replaceAll('最新收盤','最新收盤');
   const get=input=>input?.v50AnalysisResult||C.analyze(input);
   const taipeiTime=value=>{try{return new Intl.DateTimeFormat('zh-TW',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(new Date(value));}catch(_){return '資料不足';}};
@@ -135,7 +137,13 @@
     const merged=[];for(const range of ranges){const last=merged.at(-1);if(last&&range.top<=last.bottom)last.bottom=Math.max(last.bottom,range.bottom);else merged.push({...range});}
     const removed=merged.reduce((sum,range)=>sum+range.bottom-range.top,0),canvas=document.createElement('canvas');if(typeof canvas.getContext!=='function')return base;canvas.width=base.width;canvas.height=Math.max(1,base.height-removed);const ctx=canvas.getContext('2d');ctx.fillStyle='#eef3f8';ctx.fillRect(0,0,canvas.width,canvas.height);
     let sourceY=0,targetY=0;for(const range of merged){if(range.top>sourceY){const height=range.top-sourceY;ctx.drawImage(base,0,sourceY,base.width,height,0,targetY,base.width,height);targetY+=height;}sourceY=Math.max(sourceY,range.bottom);}if(sourceY<base.height)ctx.drawImage(base,0,sourceY,base.width,base.height-sourceY,0,targetY,base.width,base.height-sourceY);
-    copyCanvasData(base,canvas);canvas.dataset.layoutAudit=encodeURIComponent(JSON.stringify({...audit,size:`${canvas.width}x${canvas.height}`,stageCards:[],compactedStageCards:raw.map(card=>({title:card.title,height:card.height}))}));return canvas;
+    const mapCoordinate=value=>{
+      if(Array.isArray(value))return value.map(mapCoordinate);
+      if(value&&typeof value==='object'){const next={};for(const [key,item] of Object.entries(value))next[key]=mapCoordinate(item);return next;}
+      if(typeof value!=='number'||!Number.isFinite(value))return value;
+      let removedBefore=0;for(const range of merged){if(value>=range.bottom)removedBefore+=range.bottom-range.top;else if(value>range.top)return range.top-removedBefore;else break;}return value-removedBefore;
+    };
+    copyCanvasData(base,canvas);canvas.dataset.layoutAudit=encodeURIComponent(JSON.stringify({...audit,size:`${canvas.width}x${canvas.height}`,bottomSafe:mapCoordinate(audit?.bottomSafe),sections:mapCoordinate(audit?.sections||{}),stageCards:[],compactedStageCards:raw.map(card=>({title:card.title,height:card.height}))}));return canvas;
   }
   function iphoneFullCanvas(base){
     if(!base||typeof document==='undefined')return base;const canvas=document.createElement('canvas');if(typeof canvas.getContext!=='function')return base;canvas.width=IPHONE_REPORT_WIDTH;canvas.height=IPHONE_REPORT_HEIGHT;const ctx=canvas.getContext('2d'),scale=Math.min(canvas.width/base.width,canvas.height/base.height),drawWidth=Math.round(base.width*scale),drawHeight=Math.round(base.height*scale),x=Math.round((canvas.width-drawWidth)/2),y=Math.round((canvas.height-drawHeight)/2);
@@ -156,7 +164,7 @@
   function safeCanvasInsert(base,input,title,options={}){
     if(!base||typeof root.insertStageCanvasCardV53245!=='function')return base;const compactBase=compactPreviousCards(base),a=get(input),decision=options.market?null:beginnerDecision(input,a),height=options.market?190:286;
     let insertY=Math.min(220,Math.max(112,Math.round((compactBase.height||0)*.055)));
-    try{const audit=canvasAudit(compactBase);for(const card of audit?.stageCards||[]){const bottom=Number(card?.insertY)+Number(card?.height);if(Number.isFinite(bottom))insertY=Math.max(insertY,Math.round(bottom));}}catch(_){}
+    try{const audit=canvasAudit(compactBase);for(const card of audit?.stageCards||[]){const bottom=Number(card?.insertY)+Number(card?.height);if(Number.isFinite(bottom))insertY=Math.max(insertY,Math.round(bottom));}const professionalTopEnd=Number(audit?.sections?.topEvidencePanelBottom);if(!options.market&&Number.isFinite(professionalTopEnd))insertY=Math.max(insertY,Math.round(professionalTopEnd)+8);}catch(_){}
     insertY=Math.max(0,Math.min(Math.max(0,(compactBase.height||height)-height),insertY));
     const opening=options.market?'大盤環境觀察':decision.verdict,stage={key:options.market?`V50_${a.trend.key}`:`V50_BUY_${decision.key}`,label:options.market?`${a.trend.label}｜${opening}`:`${decision.icon} ${decision.suitabilityScore}/100｜${opening}`,headline:options.market?`最新收盤 ${price(a.latestClose)}｜${fibPlain(a)}`:`為什麼：${decision.reason}`,plainText:options.market?`最新收盤 ${price(a.latestClose)}｜${fibPlain(a)}`:`等什麼：${decision.wait}`,beginnerLines:options.market?null:[`明日開盤適合度：${decision.suitabilityScore}/100（不是勝率）`,decision.course?.threePan?.label?`三盤：${decision.course.threePan.label}`:null,`為什麼：${decision.reason}`,`等什麼：${decision.wait}`],colorRole:options.market?(a.trend.key==='BULL'?'early':a.trend.key==='BEAR'?'late':'unknown'):(decision.tone==='green'?'early':decision.tone==='red'?'danger':decision.tone==='gray'?'unknown':'main')};
     return iphoneFullCanvas(compactVerticalWhitespace(root.insertStageCanvasCardV53245(compactBase,stage,title,insertY,height)));

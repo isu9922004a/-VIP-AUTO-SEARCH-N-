@@ -1,9 +1,9 @@
-/* V50 R5.3.2.5.3: image-report layout consistency fix; stock logic is unchanged. */
+/* V50 R5.3.2.5.4: image-report layout consistency fix; stock logic is unchanged. */
 (function(){
 'use strict';
 
-const RELEASE=window.R45_RELEASE_LABEL||'石頭少爺 Agent V50 正式版｜R5.3.2.5.3｜蕭明道量價與圖片版面完整修正版';
-const FILE_VERSION=window.R45_FILE_VERSION||'V50_R5.3.2.5.3_蕭明道量價與圖片版面完整修正版';
+const RELEASE=window.R45_RELEASE_LABEL||'石頭少爺 Agent V50 正式版｜R5.3.2.5.4｜蕭明道量價與專業版面整合修正版';
+const FILE_VERSION=window.R45_FILE_VERSION||'V50_R5.3.2.5.4_蕭明道量價與專業版面整合修正版';
 const E=window.ShitouTechnicalEvidenceR45;
 const DETAIL={width:1284,height:2778,top:92,bottom:70,side:22};
 const IPHONE_12_PRO_MAX={width:1284,height:2778,minReadableScale:.90};
@@ -176,7 +176,7 @@ function insertV50CompactEvidenceRow(source,report,evidence,profile){
   const scale=Number.isFinite(Number(iphone.scale))?Number(iphone.scale):1,offsetY=Number.isFinite(Number(iphone.offsetY))?Number(iphone.offsetY):0;
   const rawBottom=decisionCard?Number(decisionCard.cardBottom??(Number(decisionCard.insertY)+Number(decisionCard.height))):NaN;
   const estimatedBottom=Number.isFinite(rawBottom)?Math.round(offsetY+rawBottom*scale):Math.round(source.height*.17);
-  const insertY=Math.max(170,Math.min(source.height-220,estimatedBottom+8)),rowHeight=206;
+  const insertY=Math.max(170,Math.min(source.height-242,estimatedBottom+10)),rowHeight=228;
   const out=canvas(source.width,source.height+rowHeight,'#eef3f8'),context=out.getContext('2d');
   context.drawImage(source,0,0,source.width,insertY,0,0,source.width,insertY);
   context.fillStyle='#eef3f8';context.fillRect(0,insertY,source.width,rowHeight);
@@ -187,17 +187,17 @@ function insertV50CompactEvidenceRow(source,report,evidence,profile){
   const values=evidence?.ema?.values||{},ema=period=>values[period]?.available?price(values[period].value):'資料不足';
   const rsi=evidence?.rsi5?.available?`${price(evidence.rsi5.value)}（${evidence.rsi5.date||'日期未提供'}）`:'資料不足';
   rounded(context,margin,cardY,cardW,cardH,14,'#f8fbff','#8da3ba');context.fillStyle='#27648a';context.fillRect(margin,cardY,8,cardH);
-  fitText(context,`📍 主要成交密集區 ${zone}`,margin+22,cardY+33,cardW-42,{max:20,min:14,weight:950,color:'#153a67'});
-  fitText(context,`日RSI 5T ${rsi}`,margin+22,cardY+67,cardW-42,{max:16,min:11,weight:900,color:'#314f6c'});
-  fitText(context,`EMA21 ${ema(21)}｜EMA50 ${ema(50)}｜EMA200 ${ema(200)}`,margin+22,cardY+99,cardW-42,{max:15,min:10,weight:850,color:'#314f6c'});
-  fitText(context,'補充證據，不改適合度、資格、分數或正式風控',margin+22,cardY+cardH-24,cardW-42,{max:13,min:9,weight:850,color:'#68788b'});
+  fitText(context,`📍 主要成交密集區 ${zone}`,margin+22,cardY+37,cardW-42,{max:22,min:15,weight:950,color:'#153a67'});
+  fitText(context,`日RSI 5T ${rsi}`,margin+22,cardY+76,cardW-42,{max:18,min:12,weight:900,color:'#314f6c'});
+  fitText(context,`EMA21 ${ema(21)}｜EMA50 ${ema(50)}｜EMA200 ${ema(200)}`,margin+22,cardY+111,cardW-42,{max:17,min:11,weight:850,color:'#314f6c'});
+  fitText(context,'補充證據，不改適合度、資格、分數或正式風控',margin+22,cardY+cardH-26,cardW-42,{max:14,min:10,weight:850,color:'#68788b'});
   const trident=typeof window.tridentEngineV361==='function'?window.tridentEngineV361(report):null,rightX=margin+cardW+gap;
   const triPrice=item=>item&&Number.isFinite(Number(item.value))?`${price(item.value)} 元`:'資料不足',triDate=item=>item?.date||'日期不足';
   rounded(context,rightX,cardY,cardW,cardH,14,'#f8fbff','#9bb2c9');
-  fitText(context,'🔱 三叉戟價位｜補充觀察',rightX+22,cardY+33,cardW-44,{max:20,min:14,weight:950,color:'#173a5d'});
+  fitText(context,'🔱 三叉戟價位｜補充觀察',rightX+22,cardY+37,cardW-44,{max:22,min:15,weight:950,color:'#173a5d'});
   const rows=[['🧱 壓力',trident?.pressure,'#a85a08'],['🛡️ 支撐',trident?.support,'#16724a'],['📌 候選預備',trident?.preparatory,'#6c43a3']];
-  rows.forEach((item,index)=>fitText(context,`${item[0]} ${triPrice(item[1])}｜${triDate(item[1])}`,rightX+22,cardY+67+index*29,cardW-44,{max:16,min:10,weight:900,color:item[2]}));
-  fitText(context,trident?.available?'量能大於左一根；紅K取低、綠K取高｜只作補充':'逐日 OHLCV 不足｜不建立假價位',rightX+22,cardY+cardH-24,cardW-44,{max:13,min:9,weight:850,color:'#68788b'});
+  rows.forEach((item,index)=>fitText(context,`${item[0]} ${triPrice(item[1])}｜${triDate(item[1])}`,rightX+22,cardY+76+index*32,cardW-44,{max:18,min:11,weight:900,color:item[2]}));
+  fitText(context,trident?.available?'量能大於左一根；紅K取低、綠K取高｜只作補充':'逐日 OHLCV 不足｜不建立假價位',rightX+22,cardY+cardH-26,cardW-44,{max:14,min:10,weight:850,color:'#68788b'});
   for(const [key,value] of Object.entries(source.dataset||{}))out.dataset[key]=value;
   out.dataset.layoutAudit=encodeURIComponent(JSON.stringify({...audit,size:`${out.width}x${out.height}`,v50SafeEvidenceRow:{insertY,rowHeight,cardY,cardBottom:cardY+cardH,physicalInsert:true,overlap:false,duplicateWarning:false}}));
   out.dataset.r45StockCompactPanel='v50-safe-insert:left-major-volume,right-trident';
