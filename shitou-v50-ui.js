@@ -13,6 +13,8 @@
     .replaceAll('V50_R5.3.2.5.3_蕭明道量價與圖片版面完整修正版',FILE_VERSION)
     .replaceAll('石頭少爺 Agent V50 正式版｜R5.3.2.5.4｜蕭明道量價與專業版面整合修正版',RELEASE)
     .replaceAll('V50_R5.3.2.5.4_蕭明道量價與專業版面整合修正版',FILE_VERSION)
+    .replaceAll('石頭少爺 Agent V50 正式版｜R5.3.2.5.5｜新手十秒決策版',RELEASE)
+    .replaceAll('V50_R5.3.2.5.5_新手十秒決策版',FILE_VERSION)
     .replaceAll('最新收盤','最新收盤');
   const get=input=>input?.v50AnalysisResult||C.analyze(input);
   const taipeiTime=value=>{try{return new Intl.DateTimeFormat('zh-TW',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(new Date(value));}catch(_){return '資料不足';}};
@@ -81,6 +83,79 @@
     suitabilityScore=Math.max(0,Math.min(100,Math.round(suitabilityScore)));
     const suitabilityLabel=suitabilityScore>=75?'條件較完整':suitabilityScore>=60?'可觀察、仍等盤中確認':suitabilityScore>=40?'條件不足、先等':'目前不適合進場';
     return {key,icon,tone,verdict,reason,wait,watch:unique([priceWatch,`成交量：${volumePlain}`,riskLine]),holder,formalExecutionAllowed:allowed,suitabilityScore,suitabilityLabel,course};
+  }
+
+  const finitePrice=value=>Number.isFinite(Number(value))&&Number(value)>0?Number(value):null;
+  function newbiePlan(input,analysis=null,decision=null){
+    const report=input?.report||input||{},a=analysis||get(input),d=decision||beginnerDecision(input,a);let layer=null,state=null,trident=null;
+    try{layer=typeof root.buildEducationLayerV46==='function'?root.buildEducationLayerV46(report):null;}catch(_){layer=null;}
+    try{state=typeof root.stockInfographicStateV3328==='function'?root.stockInfographicStateV3328(report):null;}catch(_){state=null;}
+    try{trident=state?.trident361||(typeof root.tridentEngineV361==='function'?root.tridentEngineV361(report):null);}catch(_){trident=null;}
+    const bars=Array.isArray(report?.dailySeries)?report.dailySeries:[],closes=bars.map(row=>finitePrice(row?.close)).filter(value=>value!==null),ma20Fallback=closes.length>=20?closes.slice(-20).reduce((sum,value)=>sum+value,0)/20:null;
+    const levels=layer?.supportResistanceConfluence||{},turn=finitePrice(state?.ma)??finitePrice(ma20Fallback),defense=finitePrice(levels.coreDefense)??finitePrice(trident?.support?.value)??finitePrice(state?.C),pressure=finitePrice(trident?.pressure?.value)??finitePrice(levels.observation)??finitePrice(state?.B),close=finitePrice(a.latestClose)??finitePrice(report?.close);
+    const show=value=>value===null?'尚未建立':`${price(value)} 元`;
+    const turnText=show(turn),defenseText=show(defense),pressureText=show(pressure);
+    const empty=d.formalExecutionAllowed?`條件已通過，可列入盤中分批評估；仍要看量，不追價。`:`現在不要買。等收盤站上 ${turnText}，再看量。`;
+    const holder=defense===null?'先不要加碼。防守線尚未建立前，先降低部位風險。':`先不要加碼。守 ${defenseText}；跌破且收不回，依個人風險評估減碼。`;
+    const today=d.formalExecutionAllowed?'今天只適合條件式評估，不代表可以直接買。':`今天不適合急著買，先等條件。`;
+    const volumeComponent=d.course?.components?.find?.(item=>item?.key==='VOLUME'),volumeConfirmed=Number(volumeComponent?.earned)>=12;
+    const abcReady=d.formalExecutionAllowed===true&&!/上漲結構.*尚未|起漲點.*等待|ABC.*尚未/.test(`${d.reason} ${d.wait}`);
+    const reasons=[
+      turn===null?'20 日均線資料不足，先不判斷強弱。':`股價${close!==null&&close>=turn?'已站上':'還在'} 20 日均線 ${turnText}${close!==null&&close>=turn?'，仍要守穩':'。'}`,
+      abcReady?'ABC（起漲、前高、回檔）已建立，仍須確認突破。':'新 ABC（起漲、前高、回檔）還沒成立。',
+      volumeConfirmed?'量能已有初步確認，仍要與收盤價同步。':'量能還沒確認，不能只看價格。'
+    ];
+    const middle=(defense!==null&&turn!==null)?`${price(defense)}～${price(turn)}`:'防守線～多空線';
+    const scenarios=[
+      {tone:'green',title:`站上 ${turnText}`,text:'轉強觀察，不是直接買；再確認量能與正式進場條件。'},
+      {tone:'yellow',title:`${middle} 整理`,text:'還沒買就等；已持有先不加碼，觀察能否守穩。'},
+      {tone:'red',title:`跌破 ${defenseText}`,text:'轉弱；持有者依風險評估減碼，還沒買不要接。'}
+    ];
+    const zone=a.confluence?.zones?.[0],zoneText=zone?`${price(zone.low)}～${price(zone.high)} 元`:'資料不足';
+    return {empty,holder,today,turn,turnText,defense,defenseText,pressure,pressureText,close,reasons,scenarios,zoneText,score:d.suitabilityScore,scoreLabel:d.suitabilityLabel,formalExecutionAllowed:d.formalExecutionAllowed};
+  }
+
+  function copyDataset(source,target){try{for(const [key,value] of Object.entries(source?.dataset||{}))target.dataset[key]=value;}catch(_){}return target;}
+  function canvasRound(ctx,x,y,w,h,r,fill,stroke){ctx.beginPath();if(typeof ctx.roundRect==='function')ctx.roundRect(x,y,w,h,r);else{ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);}ctx.closePath();if(fill){ctx.fillStyle=fill;ctx.fill();}if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=2;ctx.stroke();}}
+  function canvasFit(ctx,text,x,y,maxWidth,{max=30,min=14,weight=850,color='#17324f',align='left'}={}){const family="'Noto Sans TC','Microsoft JhengHei',sans-serif";let size=max;ctx.textAlign=align;ctx.textBaseline='top';while(size>min){ctx.font=`${weight} ${size}px ${family}`;if(ctx.measureText(String(text)).width<=maxWidth)break;size--;}ctx.fillStyle=color;ctx.fillText(String(text),x,y);ctx.textAlign='left';return size;}
+  function canvasWrap(ctx,text,x,y,maxWidth,{size=18,min=14,maxLines=3,lineHeight=1.4,weight=750,color='#334155'}={}){const family="'Noto Sans TC','Microsoft JhengHei',sans-serif",chars=[...String(text??'')];let fontSize=size,lines=[];const build=()=>{ctx.font=`${weight} ${fontSize}px ${family}`;const out=[];let line='';for(const char of chars){const next=line+char;if(line&&ctx.measureText(next).width>maxWidth){out.push(line);line=char;}else line=next;}if(line)out.push(line);return out;};for(lines=build();lines.length>maxLines&&fontSize>min;fontSize--)lines=build();const shown=lines.slice(0,maxLines);if(lines.length>maxLines&&shown.length){let last=shown.at(-1);while(last&&ctx.measureText(`${last}…`).width>maxWidth)last=last.slice(0,-1);shown[shown.length-1]=`${last}…`;}ctx.textAlign='left';ctx.textBaseline='top';ctx.font=`${weight} ${fontSize}px ${family}`;ctx.fillStyle=color;shown.forEach((line,index)=>ctx.fillText(line,x,y+index*fontSize*lineHeight));return shown.length*fontSize*lineHeight;}
+  function renderNewbieFirstCanvas(base,input,analysis,decision){
+    if(!base||typeof document==='undefined'||typeof base.getContext!=='function')return null;
+    const plan=newbiePlan(input,analysis,decision),canvas=document.createElement('canvas');if(typeof canvas.getContext!=='function')return null;canvas.width=1152;canvas.height=2492;const ctx=canvas.getContext('2d'),W=canvas.width;
+    ctx.fillStyle='#eef3f8';ctx.fillRect(0,0,W,canvas.height);ctx.imageSmoothingEnabled=true;if('imageSmoothingQuality' in ctx)ctx.imageSmoothingQuality='high';
+    const headerH=Math.min(116,base.height);ctx.drawImage(base,0,0,base.width,headerH,0,0,W,116);
+    const tones={green:{fill:'#eef9f2',stroke:'#68b98d',title:'#147446'},yellow:{fill:'#fff8df',stroke:'#d6a233',title:'#9a5a05'},red:{fill:'#fff0f1',stroke:'#d66570',title:'#a52635'},blue:{fill:'#f5f9ff',stroke:'#93abc4',title:'#173a5d'}};
+    const lineCard=(y,text,tone,icon)=>{const p=tones[tone];canvasRound(ctx,38,y,W-76,86,15,p.fill,p.stroke);ctx.fillStyle=p.title;ctx.fillRect(38,y,8,86);canvasFit(ctx,`${icon} ${text}`,62,y+23,W-124,{max:29,min:20,weight:950,color:p.title});};
+    lineCard(130,`還沒買：${plan.empty}`,plan.formalExecutionAllowed?'green':'yellow','👤');
+    lineCard(226,`已持有：${plan.holder}`,'red','💼');
+    lineCard(322,plan.today,plan.formalExecutionAllowed?'green':'yellow','●');
+
+    canvasFit(ctx,'明天只看三個數字',42,430,W-84,{max:30,min:24,weight:950,color:'#17324f'});
+    const keyCards=[
+      {x:38,tone:'green',value:plan.turnText,label:'多空線',text:'收盤站上且量能確認，才轉強觀察。'},
+      {x:404,tone:'red',value:plan.defenseText,label:'防守線',text:'跌破且收不回要小心，先管理風險。'},
+      {x:770,tone:'yellow',value:plan.pressureText,label:'壓力線',text:'有效突破前不追價，到價也不等於買點。'}
+    ];
+    keyCards.forEach(card=>{const p=tones[card.tone];canvasRound(ctx,card.x,474,344,184,16,p.fill,p.stroke);canvasFit(ctx,card.value,card.x+20,493,304,{max:38,min:27,weight:1000,color:p.title});canvasFit(ctx,card.label,card.x+20,542,304,{max:24,min:19,weight:950,color:'#263f5a'});canvasWrap(ctx,card.text,card.x+20,579,304,{size:17,min:14,maxLines:3,weight:750,color:'#43566a'});});
+
+    canvasFit(ctx,'明天三種走法',42,687,W-84,{max:30,min:24,weight:950,color:'#17324f'});
+    plan.scenarios.forEach((item,index)=>{const x=38+index*366,p=tones[item.tone];canvasRound(ctx,x,731,344,178,16,p.fill,p.stroke);canvasFit(ctx,`${index+1}. ${item.title}`,x+20,751,304,{max:24,min:17,weight:950,color:p.title});canvasWrap(ctx,item.text,x+20,799,304,{size:18,min:14,maxLines:3,weight:800,color:'#334155'});});
+
+    canvasFit(ctx,'最近 80 個交易日｜K 線＋成交量＋20 日均線',42,942,W-84,{max:28,min:21,weight:950,color:'#17324f'});
+    canvasRound(ctx,38,984,W-76,536,16,'#ffffff','#b9cadb');
+    const scale=base.width/1600,sx=Math.round(552*scale),sy=Math.round((620+168)*scale),sw=Math.min(base.width-sx-10,Math.round(1028*scale)),sh=Math.min(base.height-sy,Math.round(535*scale));
+    if(sw>100&&sh>100)ctx.drawImage(base,sx,sy,sw,sh,50,996,W-100,510);else canvasWrap(ctx,'K 線資料不足，這次不硬畫。',70,1040,W-140,{size:24,maxLines:2,weight:900,color:'#64748b'});
+
+    const half=(W-90)/2;canvasRound(ctx,38,1544,half,238,16,'#fff8df','#d6a233');canvasFit(ctx,'為什麼現在先等？',58,1568,half-40,{max:25,min:20,weight:950,color:'#92550a'});plan.reasons.slice(0,3).forEach((row,index)=>canvasWrap(ctx,`${index+1}. ${row}`,58,1615+index*52,half-40,{size:17,min:14,maxLines:2,weight:800,color:'#3d4654'}));
+    const rx=52+half;canvasRound(ctx,rx,1544,half,238,16,'#f5f9ff','#93abc4');canvasFit(ctx,'術語白話',rx+20,1568,half-40,{max:25,min:20,weight:950,color:'#173a5d'});['ABC＝起漲、前高、回檔。','三叉戟＝三個關鍵價位。','共振＝多個訊號同時出現；空手＝還沒買。'].forEach((row,index)=>canvasWrap(ctx,row,rx+20,1615+index*52,half-40,{size:17,min:14,maxLines:2,weight:800,color:'#3d4654'}));
+
+    canvasRound(ctx,38,1804,W-76,158,16,'#f5f9ff','#93abc4');canvasFit(ctx,'記住口訣',60,1828,W-120,{max:25,min:20,weight:950,color:'#173a5d'});canvasFit(ctx,'A 起漲 → B 前高 → 等回檔站穩 C → 再突破 B',60,1872,W-120,{max:27,min:18,weight:950,color:'#c33b4d'});canvasFit(ctx,'這才是完整 N 字確認；到價只是開始檢查，不是普通掛單價。',60,1914,W-120,{max:18,min:14,weight:800,color:'#4b5d72'});
+
+    canvasRound(ctx,38,1984,W-76,250,16,'#ffffff','#b9cadb');canvasFit(ctx,'進階參考｜需要時再看',60,2008,W-120,{max:25,min:20,weight:950,color:'#173a5d'});const advanced=[`主要成交密集區：${plan.zoneText}。`,`七項條件完整度：${plan.score}/100（${plan.scoreLabel}，不是勝率）。`,`歷史支撐壓力只作補充；正式執行仍以原 Gate、量價與風險條件為準。`];advanced.forEach((row,index)=>canvasWrap(ctx,`${index+1}. ${row}`,60,2054+index*54,W-120,{size:17,min:14,maxLines:2,weight:800,color:'#3d4654'}));
+
+    canvasRound(ctx,38,2256,W-76,160,16,'#10243d','#10243d');canvasFit(ctx,'風險聲明',60,2280,W-120,{max:23,min:18,weight:950,color:'#ffffff'});canvasWrap(ctx,'以上是條件整理，不是投資建議，漲跌無法保證，下單前請自行判斷。',60,2324,W-120,{size:20,min:16,maxLines:2,weight:850,color:'#dbe7f4'});canvasFit(ctx,`${RELEASE}｜盤後完成日 K`,60,2436,W-120,{max:14,min:11,weight:750,color:'#66758a'});
+    copyDataset(base,canvas);canvas.dataset.v50NewbieFirst='true';canvas.dataset.reportMode=base.dataset?.reportMode||'beginner';canvas.dataset.layoutAudit=encodeURIComponent(JSON.stringify({size:`${canvas.width}x${canvas.height}`,newbieFirst:true,noOverlap:true,sections:{headlineTop:130,headlineBottom:408,keyLevelsTop:430,keyLevelsBottom:658,scenariosTop:687,scenariosBottom:909,chartTop:942,chartBottom:1520,reasonsTop:1544,reasonsBottom:1782,mnemonicTop:1804,mnemonicBottom:1962,advancedTop:1984,advancedBottom:2234,footerTop:2256},stageCards:[]}));
+    return canvas;
   }
   function beginnerTextBlock(input){
     const d=beginnerDecision(input),lines=['【新手先看｜現在適不適合買？】',`空手結論：${d.icon} ${d.verdict}`,`明日開盤適合度：${d.suitabilityScore}/100｜${d.suitabilityLabel}（條件完整度，不是勝率）`,d.course?.threePan?.plain?`三盤白話：${d.course.threePan.plain}`:null,`為什麼：${d.reason}`,`等什麼再看：${d.wait}`,'要觀察的三件事：',...d.watch.map((item,index)=>`${index+1}. ${item}`),d.holder,'提醒：這是盤後條件整理，不是保證獲利；正式進場仍以原有 Gate 與風險條件為準。'].filter(Boolean);
@@ -163,6 +238,7 @@
 
   function safeCanvasInsert(base,input,title,options={}){
     if(!base||typeof root.insertStageCanvasCardV53245!=='function')return base;const compactBase=compactPreviousCards(base),a=get(input),decision=options.market?null:beginnerDecision(input,a),height=options.market?190:286;
+    if(!options.market){const newbie=renderNewbieFirstCanvas(compactBase,input,a,decision);if(newbie)return iphoneFullCanvas(newbie);}
     let insertY=Math.min(220,Math.max(112,Math.round((compactBase.height||0)*.055)));
     try{const audit=canvasAudit(compactBase);for(const card of audit?.stageCards||[]){const bottom=Number(card?.insertY)+Number(card?.height);if(Number.isFinite(bottom))insertY=Math.max(insertY,Math.round(bottom));}const professionalTopEnd=Number(audit?.sections?.topEvidencePanelBottom);if(!options.market&&Number.isFinite(professionalTopEnd))insertY=Math.max(insertY,Math.round(professionalTopEnd)+8);}catch(_){}
     insertY=Math.max(0,Math.min(Math.max(0,(compactBase.height||height)-height),insertY));
@@ -183,6 +259,6 @@
     if(typeof root.sanitizeFilenameV3328==='function'){const base=root.sanitizeFilenameV3328;root.sanitizeFilenameV3328=function(value){return base(versionize(value).replace(/V(?:40|47|48|49)_R[\w.\-]+_[^\s/\\]+/g,FILE_VERSION));};}
     root.R50_RELEASE_LABEL=RELEASE;root.R50_FILE_VERSION=FILE_VERSION;root.SHITOU_V50_ACCEPTANCE={release:RELEASE,dataTiming:'POST_CLOSE_ONLY',singleAnalysisResult:true,researchShadowOnly:true,formalGateChanged:false,scoreChanged:false,rankingChanged:false,stopChanged:false};
   }
-  root.ShitouV50UI=Object.freeze({RELEASE,FILE_VERSION,IPHONE_REPORT_WIDTH,IPHONE_REPORT_HEIGHT,versionize,get,fibPlain,beginnerDecision,beginnerTextBlock,cardHtml,compactPreviousCards,compactVerticalWhitespace,iphoneFullCanvas,safeCanvasInsert,install});
+  root.ShitouV50UI=Object.freeze({RELEASE,FILE_VERSION,IPHONE_REPORT_WIDTH,IPHONE_REPORT_HEIGHT,versionize,get,fibPlain,beginnerDecision,newbiePlan,renderNewbieFirstCanvas,beginnerTextBlock,cardHtml,compactPreviousCards,compactVerticalWhitespace,iphoneFullCanvas,safeCanvasInsert,install});
   install();
 })(typeof window!=='undefined'?window:globalThis);

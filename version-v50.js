@@ -1,8 +1,8 @@
 'use strict';
 
 (function(root){
-  const RELEASE='石頭少爺 Agent V50 正式版｜R5.3.2.5.4｜蕭明道量價與專業版面整合修正版';
-  const FILE_VERSION='V50_R5.3.2.5.4_蕭明道量價與專業版面整合修正版';
+  const RELEASE='石頭少爺 Agent V50 正式版｜R5.3.2.5.5｜新手十秒決策版';
+  const FILE_VERSION='V50_R5.3.2.5.5_新手十秒決策版';
   const VERSION=Object.freeze({
     major:50,
     release:RELEASE,

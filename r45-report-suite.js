@@ -1,9 +1,9 @@
-/* V50 R5.3.2.5.4: image-report layout consistency fix; stock logic is unchanged. */
+/* V50 R5.3.2.5.5: image-report layout consistency fix; stock logic is unchanged. */
 (function(){
 'use strict';
 
-const RELEASE=window.R45_RELEASE_LABEL||'石頭少爺 Agent V50 正式版｜R5.3.2.5.4｜蕭明道量價與專業版面整合修正版';
-const FILE_VERSION=window.R45_FILE_VERSION||'V50_R5.3.2.5.4_蕭明道量價與專業版面整合修正版';
+const RELEASE=window.R45_RELEASE_LABEL||'石頭少爺 Agent V50 正式版｜R5.3.2.5.5｜新手十秒決策版';
+const FILE_VERSION=window.R45_FILE_VERSION||'V50_R5.3.2.5.5_新手十秒決策版';
 const E=window.ShitouTechnicalEvidenceR45;
 const DETAIL={width:1284,height:2778,top:92,bottom:70,side:22};
 const IPHONE_12_PRO_MAX={width:1284,height:2778,minReadableScale:.90};
@@ -143,6 +143,8 @@ function appendEvidence(source,candidates,kind,title,{compact=false}={}){
 }
 
 function prepareStockBaseForIphone(source){
+  // 新手十秒決策圖已是完整 1284×2778 成品；不可再依舊版 snrAudit 切除任何區段。
+  if(source?.dataset?.v50NewbieFirst==='true')return copyCanvas(source);
   const assistantHeight=Math.max(0,Number(source?.dataset?.r45AssistantAppendHeight)||0);
   const sourceAudit=readLayoutAudit(source),alreadyIphoneFull=source?.dataset?.iphoneFullScreen==='1284x2778'||sourceAudit?.iphoneFullScreen?.noCrop===true;
   const originalFooterHeight=source?.dataset?.reportMode&&!alreadyIphoneFull?138:0;
@@ -291,6 +293,9 @@ function priceText(value){
 
 
 function appendStockCompactEvidence(source,report){
+  // V50 新手首頁已把成交密集區、七項分數與歷史支撐壓力合併成「進階參考」。
+  // 靜態圖片無法真的折疊，因此不再追加重複卡片，避免重新變回資訊過載。
+  if(source?.dataset?.v50NewbieFirst==='true')return source;
   const p=report?.shitoAssistantEvidence?.anchoredVolumeProfileEvidence||{},evidence=E?E.analyze(report||{},{kind:'stock'}):null,values=evidence?.ema?.values||{};
   const price=value=>Number.isFinite(Number(value))?(E?E.price(value):Number(value).toFixed(2)):'資料不足';
   const zone=p.status==='pass'?`${price(p.pocLower)}～${price(p.pocUpper)}`:(p.label||'資料不足');
