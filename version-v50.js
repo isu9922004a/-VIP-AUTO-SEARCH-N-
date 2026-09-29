@@ -1,8 +1,8 @@
 'use strict';
 
 (function(root){
-  const RELEASE='石頭少爺 Agent V50 正式版｜R5.3.2.5.0｜盤後資料契約與研究證據整合版';
-  const FILE_VERSION='V50_R5.3.2.5.0_盤後資料契約與研究證據整合版';
+  const RELEASE='石頭少爺 Agent V50 正式版｜R5.3.2.5.1｜盤後資料契約與研究證據整合版';
+  const FILE_VERSION='V50_R5.3.2.5.1_盤後資料契約與研究證據整合版';
   const VERSION=Object.freeze({
     major:50,
     release:RELEASE,
