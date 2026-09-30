@@ -1,4 +1,4 @@
-/* 強勢飆股濾網 V50 R5.3.2.5.6.3：圖片版面一致性；三盤、價格三線、量能三線與費波規則不變。
+/* 強勢飆股濾網 V50 R5.3.2.5.6.3.1：圖片版面一致性；三盤、價格三線、量能三線與費波規則不變。
    沿用官方市場成交量校正與同級執行品質次排序；S/A/B資格與原條件分不變。 */
 (function(root,factory){const api=factory(root?.ShitouWaveCoreV48,root?.ShitouXiaoMingDaoV52);if(typeof module==='object'&&module.exports){let W=null,X=null;try{W=require('./shitou-wave-core-v48.js');}catch(_){}try{X=require('./xiaomingdao-course-v52.js');}catch(_){}module.exports=factory(W,X);}else if(root)root.ShitouStrongStockFilterV47=api;})(typeof globalThis!=='undefined'?globalThis:null,function(W,X){
 'use strict';
@@ -34,7 +34,11 @@ function validateMarket(meta,marketRowCount,now=new Date()){
   const closed=marketClosedStateV49(meta,today);
   if(today===target&&minutes<17*60+35&&!closed.closed)return {ok:false,reason:'當日盤後資料整理期間；建議 17:35 後再查詢'};
   if(target>today)return {ok:false,reason:'市場快照日期在未來'};
-  if(target!==today&&minutes>=15*60&&!closed.closed){const weekday=new Date(today+'T00:00:00Z').getUTCDay();if(weekday>=1&&weekday<=5)return {ok:false,reason:`目前仍是 ${target} 舊市場快照，尚未取得 ${today} 最新盤後資料`};}
+  // The same validator treats 17:35 as the end of the official post-close
+  // preparation window. Do not demand today's snapshot at 15:00 while that
+  // window is still open; the last fully aligned completed snapshot remains
+  // usable and is reported under its own verified date.
+  if(target!==today&&minutes>=17*60+35&&!closed.closed){const weekday=new Date(today+'T00:00:00Z').getUTCDay();if(weekday>=1&&weekday<=5)return {ok:false,reason:`目前仍是 ${target} 舊市場快照，尚未取得 ${today} 最新盤後資料`};}
   return {ok:true,date:target,marketClosed:closed.closed,marketClosureName:closed.name};
 }
 function officialIndustry(record){const code=String(record?.industryCode??'').trim(),name=String(record?.industryName||record?.industry||'').trim();if(!code&&!name)return {key:'UNKNOWN',reason:'官方產業別缺失'};if(code==='17'||/金融|銀行|保險|證券|金控/.test(name))return {key:'FINANCIAL'};if(code==='22'||/生技|醫療|製藥|藥品|生物科技|醫材/.test(name))return {key:'BIOTECH'};return {key:'OK'};}
