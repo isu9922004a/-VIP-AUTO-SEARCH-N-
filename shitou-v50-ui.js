@@ -15,8 +15,6 @@
     .replaceAll('V50_R5.3.2.5.4_蕭明道量價與專業版面整合修正版',FILE_VERSION)
     .replaceAll('石頭少爺 Agent V50 正式版｜R5.3.2.5.5｜新手十秒決策版',RELEASE)
     .replaceAll('V50_R5.3.2.5.5_新手十秒決策版',FILE_VERSION)
-    .replaceAll('石頭少爺 Agent V50 正式版｜R5.3.2.5.6｜圖片防覆蓋與K線修正版',RELEASE)
-    .replaceAll('V50_R5.3.2.5.6_圖片防覆蓋與K線修正版',FILE_VERSION)
     .replaceAll('最新收盤','最新收盤');
   const get=input=>input?.v50AnalysisResult||C.analyze(input);
   const taipeiTime=value=>{try{return new Intl.DateTimeFormat('zh-TW',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(new Date(value));}catch(_){return '資料不足';}};
@@ -97,21 +95,21 @@
     const levels=layer?.supportResistanceConfluence||{},turn=finitePrice(state?.ma)??finitePrice(ma20Fallback),defense=finitePrice(levels.coreDefense)??finitePrice(trident?.support?.value)??finitePrice(state?.C),pressure=finitePrice(trident?.pressure?.value)??finitePrice(levels.observation)??finitePrice(state?.B),close=finitePrice(a.latestClose)??finitePrice(report?.close);
     const show=value=>value===null?'尚未建立':`${price(value)} 元`;
     const turnText=show(turn),defenseText=show(defense),pressureText=show(pressure);
-    const empty=d.formalExecutionAllowed?`條件已通過，可列入盤中分批評估；仍要看量，不追價。`:`現在不要買。等收盤站上 ${turnText}，再看量。`;
-    const holder=defense===null?'先不要加碼。防守線尚未建立前，先降低部位風險。':`先不要加碼。守 ${defenseText}；跌破且收不回，依個人風險評估減碼。`;
+    const empty=d.formalExecutionAllowed?'正式進場條件已通過；盤中仍須重查價格與成交量，不要直接追價。':turn===null?'現在先不要買；20 日均線資料不足，等資料齊全再判斷。':`現在先不要買；至少等收盤站回 ${turnText}，再確認量與正式條件。`;
+    const holder=defense===null?'先不要加碼；目前缺少可靠防守價，先依自己的風險計畫檢查部位。':`先不要加碼；留意 ${defenseText}，若跌破且收不回，依原風險計畫評估減碼。`;
     const today=d.formalExecutionAllowed?'今天只適合條件式評估，不代表可以直接買。':`今天不適合急著買，先等條件。`;
     const volumeComponent=d.course?.components?.find?.(item=>item?.key==='VOLUME'),volumeConfirmed=Number(volumeComponent?.earned)>=12;
-    const abcReady=d.formalExecutionAllowed===true&&!/上漲結構.*尚未|起漲點.*等待|ABC.*尚未/.test(`${d.reason} ${d.wait}`);
+    const abcReady=layer?.sourceExecutionContext?.nStatus==='confirmed'||state?.nStatus==='confirmed';
     const reasons=[
       turn===null?'20 日均線資料不足，先不判斷強弱。':`股價${close!==null&&close>=turn?'已站上':'還在'} 20 日均線 ${turnText}${close!==null&&close>=turn?'，仍要守穩':'。'}`,
-      abcReady?'ABC（起漲、前高、回檔）已建立，仍須確認突破。':'新 ABC（起漲、前高、回檔）還沒成立。',
-      volumeConfirmed?'量能已有初步確認，仍要與收盤價同步。':'量能還沒確認，不能只看價格。'
+      abcReady?'上漲結構已建立，仍要檢查突破是否站穩。':'新一輪上漲的起點、前高與回檔尚未完整確認。',
+      volumeConfirmed?'成交量已有初步確認，仍要看收盤能否守穩。':'成交量尚未證明買盤跟上，不能只看股價。'
     ];
     const middle=(defense!==null&&turn!==null)?`${price(defense)}～${price(turn)}`:'防守線～多空線';
     const scenarios=[
-      {tone:'green',title:`站上 ${turnText}`,text:'轉強觀察，不是直接買；再確認量能與正式進場條件。'},
+      {tone:'green',title:turn===null?'均線尚未建立':`站上 ${turnText}`,text:'只是重新評估的起點；成交量、上漲結構和正式進場檢查仍須通過。'},
       {tone:'yellow',title:`${middle} 整理`,text:'還沒買就等；已持有先不加碼，觀察能否守穩。'},
-      {tone:'red',title:`跌破 ${defenseText}`,text:'轉弱；持有者依風險評估減碼，還沒買不要接。'}
+      {tone:'red',title:defense===null?'防守價未建立':`跌破 ${defenseText}`,text:'先停止新買；已持有者依原風險計畫評估減碼。'}
     ];
     const zone=a.confluence?.zones?.[0],zoneText=zone?`${price(zone.low)}～${price(zone.high)} 元`:'資料不足';
     return {empty,holder,today,turn,turnText,defense,defenseText,pressure,pressureText,close,reasons,scenarios,zoneText,score:d.suitabilityScore,scoreLabel:d.suitabilityLabel,formalExecutionAllowed:d.formalExecutionAllowed};
@@ -146,25 +144,43 @@
     canvasFit(ctx,'最近 80 個交易日｜K 線＋成交量＋20 日均線',42,942,W-84,{max:28,min:21,weight:950,color:'#17324f'});
     canvasRound(ctx,38,984,W-76,536,16,'#ffffff','#b9cadb');
     let chartDrawn=false;
-    try{
-      if(typeof root.drawStockTopChartV365==='function'&&typeof root.stockInfographicStateV3328==='function'){
-        const chart=document.createElement('canvas'),logicalScale=.72;chart.width=Math.round(1016*logicalScale);chart.height=Math.round(520*logicalScale);const chartContext=chart.getContext('2d');
-        chartContext.setTransform(logicalScale,0,0,logicalScale,-560*logicalScale,-174*logicalScale);root.drawStockTopChartV365(chartContext,input?.report||input||{},root.stockInfographicStateV3328(input?.report||input||{}));
-        ctx.drawImage(chart,0,0,chart.width,chart.height,50,996,W-100,510);chartDrawn=true;
-      }
-    }catch(_){chartDrawn=false;}
-    if(!chartDrawn)canvasWrap(ctx,'K 線資料不足，這次不硬畫。',70,1040,W-140,{size:24,maxLines:2,weight:900,color:'#64748b'});
+    try{const report=input?.report||input,chart=document.createElement('canvas');chart.width=1600;chart.height=720;const state=root.stockInfographicStateV3328?.(report),selected=state?root.selectStockChartBarsV365?.(report,state):null;if(state&&selected?.bars?.length>=20&&typeof root.drawStockTopChartV365==='function'){root.drawStockTopChartV365(chart.getContext('2d'),report,state);ctx.drawImage(chart,560,174,1016,520,50,996,W-100,510);chartDrawn=true;}}catch(_){chartDrawn=false;}
+    if(!chartDrawn)canvasWrap(ctx,'K 線資料不足；這次不以其他報告區塊冒充走勢圖。',70,1040,W-140,{size:24,maxLines:2,weight:900,color:'#64748b'});
 
     const half=(W-90)/2;canvasRound(ctx,38,1544,half,238,16,'#fff8df','#d6a233');canvasFit(ctx,'為什麼現在先等？',58,1568,half-40,{max:25,min:20,weight:950,color:'#92550a'});plan.reasons.slice(0,3).forEach((row,index)=>canvasWrap(ctx,`${index+1}. ${row}`,58,1615+index*52,half-40,{size:17,min:14,maxLines:2,weight:800,color:'#3d4654'}));
     const rx=52+half;canvasRound(ctx,rx,1544,half,238,16,'#f5f9ff','#93abc4');canvasFit(ctx,'術語白話',rx+20,1568,half-40,{max:25,min:20,weight:950,color:'#173a5d'});['ABC＝起漲、前高、回檔。','三叉戟＝三個關鍵價位。','共振＝多個訊號同時出現；空手＝還沒買。'].forEach((row,index)=>canvasWrap(ctx,row,rx+20,1615+index*52,half-40,{size:17,min:14,maxLines:2,weight:800,color:'#3d4654'}));
 
     canvasRound(ctx,38,1804,W-76,158,16,'#f5f9ff','#93abc4');canvasFit(ctx,'記住口訣',60,1828,W-120,{max:25,min:20,weight:950,color:'#173a5d'});canvasFit(ctx,'A 起漲 → B 前高 → 等回檔站穩 C → 再突破 B',60,1872,W-120,{max:27,min:18,weight:950,color:'#c33b4d'});canvasFit(ctx,'這才是完整 N 字確認；到價只是開始檢查，不是普通掛單價。',60,1914,W-120,{max:18,min:14,weight:800,color:'#4b5d72'});
 
-    canvasRound(ctx,38,1984,W-76,250,16,'#ffffff','#b9cadb');canvasFit(ctx,'進階參考｜需要時再看',60,2008,W-120,{max:25,min:20,weight:950,color:'#173a5d'});const advanced=[`主要成交密集區：${plan.zoneText}。`,`七項條件完整度：${plan.score}/100（${plan.scoreLabel}，不是勝率）。`,`歷史支撐壓力只作補充；正式執行仍以原 Gate、量價與風險條件為準。`];advanced.forEach((row,index)=>canvasWrap(ctx,`${index+1}. ${row}`,60,2054+index*54,W-120,{size:17,min:14,maxLines:2,weight:800,color:'#3d4654'}));
+    canvasRound(ctx,38,1984,W-76,250,16,'#ffffff','#b9cadb');canvasFit(ctx,'進階參考｜需要時再看',60,2008,W-120,{max:25,min:20,weight:950,color:'#173a5d'});const advanced=[`主要成交密集區：${plan.zoneText}（僅供觀察，不是買點）。`,`條件完整度：${plan.score}/100（${plan.scoreLabel}，不是勝率）。`,`歷史支撐壓力只作補充；真正進場仍須通過原正式檢查、量價與風險條件。`];advanced.forEach((row,index)=>canvasWrap(ctx,`${index+1}. ${row}`,60,2054+index*54,W-120,{size:17,min:14,maxLines:2,weight:800,color:'#3d4654'}));
 
     canvasRound(ctx,38,2256,W-76,160,16,'#10243d','#10243d');canvasFit(ctx,'風險聲明',60,2280,W-120,{max:23,min:18,weight:950,color:'#ffffff'});canvasWrap(ctx,'以上是條件整理，不是投資建議，漲跌無法保證，下單前請自行判斷。',60,2324,W-120,{size:20,min:16,maxLines:2,weight:850,color:'#dbe7f4'});canvasFit(ctx,`${RELEASE}｜盤後完成日 K`,60,2436,W-120,{max:14,min:11,weight:750,color:'#66758a'});
     copyDataset(base,canvas);canvas.dataset.v50NewbieFirst='true';canvas.dataset.reportMode=base.dataset?.reportMode||'beginner';canvas.dataset.layoutAudit=encodeURIComponent(JSON.stringify({size:`${canvas.width}x${canvas.height}`,newbieFirst:true,noOverlap:true,sections:{headlineTop:130,headlineBottom:408,keyLevelsTop:430,keyLevelsBottom:658,scenariosTop:687,scenariosBottom:909,chartTop:942,chartBottom:1520,reasonsTop:1544,reasonsBottom:1782,mnemonicTop:1804,mnemonicBottom:1962,advancedTop:1984,advancedBottom:2234,footerTop:2256},stageCards:[]}));
     return canvas;
+  }
+  function renderProfessionalFullCanvas(base,input,analysis,decision){
+    // Add a beginner decision panel by extending the canvas. The complete professional
+    // evidence below it is copied pixel-for-pixel; no section is squeezed or overlaid.
+    if(!base||typeof document==='undefined')return base;
+    const source=compactPreviousCards(base),plan=newbiePlan(input,analysis,decision);
+    const cut=Math.min(112,source.height),extra=390,out=document.createElement('canvas');
+    out.width=source.width;out.height=source.height+extra;
+    const ctx=out.getContext('2d'),W=out.width;
+    ctx.fillStyle='#eef3f8';ctx.fillRect(0,0,W,out.height);
+    ctx.drawImage(source,0,0,W,cut,0,0,W,cut);
+    ctx.drawImage(source,0,cut,W,source.height-cut,0,cut+extra,W,source.height-cut);
+    const x=40,w=W-80,top=cut+10;
+    canvasRound(ctx,x,top,w,extra-20,18,'#fffaf0','#d3a348');
+    canvasFit(ctx,'新手先看｜現在是否適合進場？',x+24,top+18,w-48,{max:31,min:22,weight:950,color:'#17324f'});
+    const noBuy=decision?.formalExecutionAllowed!==true;
+    canvasFit(ctx,`還沒買：${noBuy?'現在先不要買':'可列入盤中條件式評估'}`,x+24,top+67,w-48,{max:32,min:23,weight:950,color:noBuy?'#a85c00':'#137447'});
+    canvasWrap(ctx,`原因：${decision?.reason||plan.reasons[0]}`,x+24,top+119,w-48,{size:21,min:17,maxLines:2,weight:800,color:'#334155'});
+    canvasWrap(ctx,`要等：${decision?.wait||'價格、成交量與正式條件同步確認。'}`,x+24,top+183,w-48,{size:21,min:17,maxLines:2,weight:800,color:'#334155'});
+    canvasWrap(ctx,`已持有：${plan.holder}`,x+24,top+250,w-48,{size:21,min:17,maxLines:2,weight:850,color:'#9e2f3b'});
+    canvasFit(ctx,`關鍵價：20 日均線 ${plan.turnText}｜防守 ${plan.defenseText}｜上方關卡 ${plan.pressureText}`,x+24,top+320,w-48,{max:19,min:15,weight:800,color:'#536174'});
+    copyCanvasData(source,out);out.dataset.reportMode='professional';out.dataset.v50ProfessionalFull='true';
+    out.dataset.layoutAudit=encodeURIComponent(JSON.stringify({size:`${W}x${out.height}`,professionalFull:true,originalHeight:source.height,insertedAt:cut,insertedHeight:extra,originalContentPreserved:true,noOverlap:true}));
+    return out;
   }
   function beginnerTextBlock(input){
     const d=beginnerDecision(input),lines=['【新手先看｜現在適不適合買？】',`空手結論：${d.icon} ${d.verdict}`,`明日開盤適合度：${d.suitabilityScore}/100｜${d.suitabilityLabel}（條件完整度，不是勝率）`,d.course?.threePan?.plain?`三盤白話：${d.course.threePan.plain}`:null,`為什麼：${d.reason}`,`等什麼再看：${d.wait}`,'要觀察的三件事：',...d.watch.map((item,index)=>`${index+1}. ${item}`),d.holder,'提醒：這是盤後條件整理，不是保證獲利；正式進場仍以原有 Gate 與風險條件為準。'].filter(Boolean);
@@ -246,7 +262,9 @@
   }
 
   function safeCanvasInsert(base,input,title,options={}){
-    if(!base||typeof root.insertStageCanvasCardV53245!=='function')return base;const compactBase=compactPreviousCards(base),a=get(input),decision=options.market?null:beginnerDecision(input,a),height=options.market?190:286;
+    if(!base||typeof root.insertStageCanvasCardV53245!=='function')return base;const a=get(input),decision=options.market?null:beginnerDecision(input,a);
+    if(options.professional)return renderProfessionalFullCanvas(base,input,a,decision);
+    const compactBase=compactPreviousCards(base),height=options.market?190:286;
     if(!options.market){const newbie=renderNewbieFirstCanvas(compactBase,input,a,decision);if(newbie)return iphoneFullCanvas(newbie);}
     let insertY=Math.min(220,Math.max(112,Math.round((compactBase.height||0)*.055)));
     try{const audit=canvasAudit(compactBase);for(const card of audit?.stageCards||[]){const bottom=Number(card?.insertY)+Number(card?.height);if(Number.isFinite(bottom))insertY=Math.max(insertY,Math.round(bottom));}const professionalTopEnd=Number(audit?.sections?.topEvidencePanelBottom);if(!options.market&&Number.isFinite(professionalTopEnd))insertY=Math.max(insertY,Math.round(professionalTopEnd)+8);}catch(_){}
@@ -263,11 +281,11 @@
     for(const [name,hostId,boxId,title] of [['renderMomentumScanResultV3765','momentumList','v50MomentumSummary','V50 主升候選結構總覽'],['renderDayTradeScanResultV1','dayTradeList','v50DayTradeSummary','V50 下一交易日短線觀察總覽']]){
       if(typeof root[name]!=='function')continue;const base=root[name];root[name]=function(scan,...rest){attachScan(scan);const out=base(scan,...rest),host=document.getElementById(hostId);let box=document.getElementById(boxId);if(!box&&host){box=document.createElement('div');box.id=boxId;host.prepend(box);}const top=scan?.candidates?.[0];if(box)box.innerHTML=top?cardHtml(top,title):`<section class="v50-panel"><div class="v50-title">${esc(title)}</div><p>本次沒有候選可建立盤後結構說明。</p></section>`;return out;};
     }
-    for(const name of ['renderStockInfographicV46','renderStockProfessionalInfographicV51']){if(typeof root[name]!=='function')continue;const base=root[name];root[name]=function(report,...rest){return safeCanvasInsert(base(report,...rest),report,'新手先看｜現在適不適合買？');};}
+    for(const name of ['renderStockInfographicV46','renderStockProfessionalInfographicV51']){if(typeof root[name]!=='function')continue;const base=root[name],professional=name==='renderStockProfessionalInfographicV51';root[name]=function(report,...rest){return safeCanvasInsert(base(report,...rest),report,'新手先看｜現在適不適合買？',{professional});};}
     if(typeof root.renderMarketInfographicV3328==='function'){const base=root.renderMarketInfographicV3328;root.renderMarketInfographicV3328=function(report,...rest){return safeCanvasInsert(base(report,...rest),report,'V50 大盤盤後結構',{market:true});};}
     if(typeof root.sanitizeFilenameV3328==='function'){const base=root.sanitizeFilenameV3328;root.sanitizeFilenameV3328=function(value){return base(versionize(value).replace(/V(?:40|47|48|49)_R[\w.\-]+_[^\s/\\]+/g,FILE_VERSION));};}
     root.R50_RELEASE_LABEL=RELEASE;root.R50_FILE_VERSION=FILE_VERSION;root.SHITOU_V50_ACCEPTANCE={release:RELEASE,dataTiming:'POST_CLOSE_ONLY',singleAnalysisResult:true,researchShadowOnly:true,formalGateChanged:false,scoreChanged:false,rankingChanged:false,stopChanged:false};
   }
-  root.ShitouV50UI=Object.freeze({RELEASE,FILE_VERSION,IPHONE_REPORT_WIDTH,IPHONE_REPORT_HEIGHT,versionize,get,fibPlain,beginnerDecision,newbiePlan,renderNewbieFirstCanvas,beginnerTextBlock,cardHtml,compactPreviousCards,compactVerticalWhitespace,iphoneFullCanvas,safeCanvasInsert,install});
+  root.ShitouV50UI=Object.freeze({RELEASE,FILE_VERSION,IPHONE_REPORT_WIDTH,IPHONE_REPORT_HEIGHT,versionize,get,fibPlain,beginnerDecision,newbiePlan,renderNewbieFirstCanvas,renderProfessionalFullCanvas,beginnerTextBlock,cardHtml,compactPreviousCards,compactVerticalWhitespace,iphoneFullCanvas,safeCanvasInsert,install});
   install();
 })(typeof window!=='undefined'?window:globalThis);
