@@ -15,6 +15,8 @@
     .replaceAll('V50_R5.3.2.5.4_蕭明道量價與專業版面整合修正版',FILE_VERSION)
     .replaceAll('石頭少爺 Agent V50 正式版｜R5.3.2.5.5｜新手十秒決策版',RELEASE)
     .replaceAll('V50_R5.3.2.5.5_新手十秒決策版',FILE_VERSION)
+    .replaceAll('石頭少爺 Agent V50 正式版｜R5.3.2.5.6｜圖片防覆蓋與K線修正版',RELEASE)
+    .replaceAll('V50_R5.3.2.5.6_圖片防覆蓋與K線修正版',FILE_VERSION)
     .replaceAll('最新收盤','最新收盤');
   const get=input=>input?.v50AnalysisResult||C.analyze(input);
   const taipeiTime=value=>{try{return new Intl.DateTimeFormat('zh-TW',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(new Date(value));}catch(_){return '資料不足';}};
@@ -143,8 +145,15 @@
 
     canvasFit(ctx,'最近 80 個交易日｜K 線＋成交量＋20 日均線',42,942,W-84,{max:28,min:21,weight:950,color:'#17324f'});
     canvasRound(ctx,38,984,W-76,536,16,'#ffffff','#b9cadb');
-    const scale=base.width/1600,sx=Math.round(552*scale),sy=Math.round((620+168)*scale),sw=Math.min(base.width-sx-10,Math.round(1028*scale)),sh=Math.min(base.height-sy,Math.round(535*scale));
-    if(sw>100&&sh>100)ctx.drawImage(base,sx,sy,sw,sh,50,996,W-100,510);else canvasWrap(ctx,'K 線資料不足，這次不硬畫。',70,1040,W-140,{size:24,maxLines:2,weight:900,color:'#64748b'});
+    let chartDrawn=false;
+    try{
+      if(typeof root.drawStockTopChartV365==='function'&&typeof root.stockInfographicStateV3328==='function'){
+        const chart=document.createElement('canvas'),logicalScale=.72;chart.width=Math.round(1016*logicalScale);chart.height=Math.round(520*logicalScale);const chartContext=chart.getContext('2d');
+        chartContext.setTransform(logicalScale,0,0,logicalScale,-560*logicalScale,-174*logicalScale);root.drawStockTopChartV365(chartContext,input?.report||input||{},root.stockInfographicStateV3328(input?.report||input||{}));
+        ctx.drawImage(chart,0,0,chart.width,chart.height,50,996,W-100,510);chartDrawn=true;
+      }
+    }catch(_){chartDrawn=false;}
+    if(!chartDrawn)canvasWrap(ctx,'K 線資料不足，這次不硬畫。',70,1040,W-140,{size:24,maxLines:2,weight:900,color:'#64748b'});
 
     const half=(W-90)/2;canvasRound(ctx,38,1544,half,238,16,'#fff8df','#d6a233');canvasFit(ctx,'為什麼現在先等？',58,1568,half-40,{max:25,min:20,weight:950,color:'#92550a'});plan.reasons.slice(0,3).forEach((row,index)=>canvasWrap(ctx,`${index+1}. ${row}`,58,1615+index*52,half-40,{size:17,min:14,maxLines:2,weight:800,color:'#3d4654'}));
     const rx=52+half;canvasRound(ctx,rx,1544,half,238,16,'#f5f9ff','#93abc4');canvasFit(ctx,'術語白話',rx+20,1568,half-40,{max:25,min:20,weight:950,color:'#173a5d'});['ABC＝起漲、前高、回檔。','三叉戟＝三個關鍵價位。','共振＝多個訊號同時出現；空手＝還沒買。'].forEach((row,index)=>canvasWrap(ctx,row,rx+20,1615+index*52,half-40,{size:17,min:14,maxLines:2,weight:800,color:'#3d4654'}));

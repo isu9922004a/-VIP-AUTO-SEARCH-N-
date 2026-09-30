@@ -187,6 +187,9 @@ function buildAssistantText(e){
 
 function wrapCanvasText(ctx,text,x,y,maxWidth,lineHeight,maxLines=2){const words=String(text||"").split("");let line="",lines=[];for(const ch of words){const t=line+ch;if(ctx.measureText(t).width>maxWidth&&line){lines.push(line);line=ch;if(lines.length===maxLines-1)break;}else line=t;}if(line&&lines.length<maxLines)lines.push(line);lines.forEach((l,i)=>ctx.fillText(l,x,y+i*lineHeight));}
 function appendAssistantCanvasV47(base,e,industry=null){
+  // V50 新手十秒決策圖已把成交密集區收進「進階參考」。再次追加舊卡會遺失
+  // v50NewbieFirst 標記，進而觸發下游重複插卡與裁切；完整成品必須原樣返回。
+  if(base?.dataset?.v50NewbieFirst==='true')return base;
   // R4.5：圖片版移除整個「少爺助理｜公司、法人」展示，只保留使用者指定的主要成交密集區。
   // 網頁、文字報告與底層公司／法人／大戶／產業資料不變；緊縮高度以利 iPhone 12 Pro Max 單頁滿版。
   if(!e)return base;const extra=138,out=document.createElement("canvas");out.width=base.width;out.height=base.height+extra;const c=out.getContext("2d");c.drawImage(base,0,0);c.fillStyle="#eef3f8";c.fillRect(0,base.height,out.width,extra);
@@ -202,7 +205,7 @@ if(typeof originalGenerator==="function")window.generateStockImageByModeV51=asyn
   const report=typeof lastReportData!=="undefined"?lastReportData:null;
   if(!report){if(message)message.textContent="請先完成個股分析，再生成圖片報告。";return;}
   const old=button?.textContent||"";if(button){button.disabled=true;button.textContent="圖片產生中…";}
-try{if(document.fonts?.ready)await document.fonts.ready;const base=professional?window.renderStockProfessionalInfographicV51(report):window.renderStockInfographicV46(report);let canvas=appendAssistantCanvasV47(base,report.shitoAssistantEvidence,report.industryContext);if(withWatermark&&typeof window.applyAntiTheftWatermarkV3761==="function")window.applyAntiTheftWatermarkV3761(canvas,"stock");const d=String(report.closeDate||"").replace(/\D/g,"").slice(0,8)||"latest",filename=window.sanitizeFilenameV3328(`石頭少爺_${report.name||report.code}_${report.code}_${professional?"專業":"新手"}個股圖片報告_${d}_V50_R5.3.2.5.5_新手十秒決策版.png`);await window.showInfographicPreviewV3328(canvas,filename,`${window.formatStockNameWithCode(report.name,report.code)}｜個股盤後報告`);const note=document.getElementById("imagePreviewNote");if(note)note.textContent=`${professional?"專業完整":"新手簡易"}版為 ${canvas.width}×${canvas.height}；圖片已移除公司／法人助理區，只保留主要成交密集區。`;if(message)message.textContent="✅ 圖片報告已產生；公司／法人助理區已移除，主要成交密集區保留。";}catch(err){console.error(err);if(message)message.textContent=`❌ 圖片產生失敗：${err?.message||"未知錯誤"}`;}finally{if(button){button.disabled=false;button.textContent=old;}}
+try{if(document.fonts?.ready)await document.fonts.ready;const base=professional?window.renderStockProfessionalInfographicV51(report):window.renderStockInfographicV46(report);let canvas=appendAssistantCanvasV47(base,report.shitoAssistantEvidence,report.industryContext);if(withWatermark&&typeof window.applyAntiTheftWatermarkV3761==="function")window.applyAntiTheftWatermarkV3761(canvas,"stock");const d=String(report.closeDate||"").replace(/\D/g,"").slice(0,8)||"latest",filename=window.sanitizeFilenameV3328(`石頭少爺_${report.name||report.code}_${report.code}_${professional?"專業":"新手"}個股圖片報告_${d}_V50_R5.3.2.5.6_圖片防覆蓋與K線修正版.png`);await window.showInfographicPreviewV3328(canvas,filename,`${window.formatStockNameWithCode(report.name,report.code)}｜個股盤後報告`);const note=document.getElementById("imagePreviewNote");if(note)note.textContent=`${professional?"專業完整":"新手簡易"}版為 ${canvas.width}×${canvas.height}；圖片已移除公司／法人助理區，只保留主要成交密集區。`;if(message)message.textContent="✅ 圖片報告已產生；公司／法人助理區已移除，主要成交密集區保留。";}catch(err){console.error(err);if(message)message.textContent=`❌ 圖片產生失敗：${err?.message||"未知錯誤"}`;}finally{if(button){button.disabled=false;button.textContent=old;}}
 };
 
 window.SHITO_ASSISTANT_RULES_V1=SHITO_ASSISTANT_RULES_V1;

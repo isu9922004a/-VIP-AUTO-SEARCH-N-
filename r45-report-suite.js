@@ -1,9 +1,9 @@
-/* V50 R5.3.2.5.5: image-report layout consistency fix; stock logic is unchanged. */
+/* V50 R5.3.2.5.6: image-report layout consistency fix; stock logic is unchanged. */
 (function(){
 'use strict';
 
-const RELEASE=window.R45_RELEASE_LABEL||'石頭少爺 Agent V50 正式版｜R5.3.2.5.5｜新手十秒決策版';
-const FILE_VERSION=window.R45_FILE_VERSION||'V50_R5.3.2.5.5_新手十秒決策版';
+const RELEASE=window.R45_RELEASE_LABEL||'石頭少爺 Agent V50 正式版｜R5.3.2.5.6｜圖片防覆蓋與K線修正版';
+const FILE_VERSION=window.R45_FILE_VERSION||'V50_R5.3.2.5.6_圖片防覆蓋與K線修正版';
 const E=window.ShitouTechnicalEvidenceR45;
 const DETAIL={width:1284,height:2778,top:92,bottom:70,side:22};
 const IPHONE_12_PRO_MAX={width:1284,height:2778,minReadableScale:.90};
