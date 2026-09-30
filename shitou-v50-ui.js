@@ -15,6 +15,8 @@
     .replaceAll('V50_R5.3.2.5.4_蕭明道量價與專業版面整合修正版',FILE_VERSION)
     .replaceAll('石頭少爺 Agent V50 正式版｜R5.3.2.5.5｜新手十秒決策版',RELEASE)
     .replaceAll('V50_R5.3.2.5.5_新手十秒決策版',FILE_VERSION)
+    .replaceAll('石頭少爺 Agent V50 正式版｜R5.3.2.5.6.1｜新手白話與完整專業報告版',RELEASE)
+    .replaceAll('V50_R5.3.2.5.6.1_新手白話與完整專業報告版',FILE_VERSION)
     .replaceAll('最新收盤','最新收盤');
   const get=input=>input?.v50AnalysisResult||C.analyze(input);
   const taipeiTime=value=>{try{return new Intl.DateTimeFormat('zh-TW',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(new Date(value));}catch(_){return '資料不足';}};
@@ -158,19 +160,51 @@
     copyDataset(base,canvas);canvas.dataset.v50NewbieFirst='true';canvas.dataset.reportMode=base.dataset?.reportMode||'beginner';canvas.dataset.layoutAudit=encodeURIComponent(JSON.stringify({size:`${canvas.width}x${canvas.height}`,newbieFirst:true,noOverlap:true,sections:{headlineTop:130,headlineBottom:408,keyLevelsTop:430,keyLevelsBottom:658,scenariosTop:687,scenariosBottom:909,chartTop:942,chartBottom:1520,reasonsTop:1544,reasonsBottom:1782,mnemonicTop:1804,mnemonicBottom:1962,advancedTop:1984,advancedBottom:2234,footerTop:2256},stageCards:[]}));
     return canvas;
   }
+  function professionalCourseGuide(input,analysis=null,decision=null){
+    const a=analysis||get(input),d=decision||beginnerDecision(input,a),w=a?.wave,c=a?.course;
+    const valid=!!(w?.ok&&c?.ok&&a?.quality?.state==='READY'&&w.date===a.dataDate);
+    const show=value=>finitePrice(value)===null?'資料不足':`${price(value)} 元`;
+    const branches=[
+      {title:'向上突破｜先看真假',text:'收盤高過前兩天最高價；還要有量、收得強，並通過正式進場檢查。'},
+      {title:'橫向整理｜先等方向',text:'沒有新突破或跌破，不一定就是盤整；要再看價格與成交量是否收斂。'},
+      {title:'向下跌破｜先管風險',text:'收盤低過前兩天最低價；帶量且收得弱時，先停止新買並檢查防守。'}
+    ];
+    if(!valid){
+      const reason=a?.quality?.state==='DATE_MISMATCH'?'行情日期不一致':w?.reason||c?.reason||'完成日 K 或成交量資料不完整';
+      return {key:'DATA',icon:'⚪',status:'資料不足，三盤不下結論',explain:`${reason}；不把缺資料寫成突破、跌破或盤整。`,action:'還沒買先等資料補齊；已持有仍依原風險計畫，不憑本卡加碼。',thresholds:'前兩日高低點：資料不足',volume:'成交量：資料不足，不能確認量價。',angle:'角度：資料不足，不判斷均線方向。',time:'時間：只看完成日 K；盤中須重查。',position:'位置：資料不足，不推算追價距離。',relative:'產業相對大盤：資料不足，不硬判強弱。',score:'課程條件分：資料不足',branches,sourceDate:a?.dataDate||'資料不足'};
+    }
+    const pan=c.threePan?.key||'NO_TURN',consolidating=w.phase==='BASE_BUILDING'||w.phase==='HEALTHY_PULLBACK';
+    const states={
+      BREAKOUT_CONFIRMED:['🟢','三盤向上突破，量價已確認','今天收盤高過前兩天最高價，量至少達前五日均量 1.10 倍，且收盤偏強。'],
+      BREAKOUT_UNCONFIRMED:['🟠','價格過關，但突破尚未確認','今天收盤跨過前兩天最高價；量或收盤位置未配合，先防假突破。'],
+      BREAKDOWN_CONFIRMED:['🔴','三盤向下跌破，風險升高','今天收盤低過前兩天最低價，並帶量弱收；先管風險，不猜反彈。'],
+      BREAKDOWN_UNCONFIRMED:['🟠','收盤跌破三盤低點，先防守','已低過前兩天最低價；即使量未確認，也不能當成安全買點。'],
+      NO_TURN:consolidating?['🟡',w.phase==='HEALTHY_PULLBACK'?'量縮整理，等再次轉強':'盤整收斂，方向尚未選出','今天沒有新的三盤突破或跌破；價格／量能正在整理，先等方向。']:['⚪','三盤沒有新轉折，先觀察','收盤尚未跨過前兩天高低點；這不等於已確認盤整或即將上漲。']
+    };
+    const [icon,status,explain]=states[pan]||states.NO_TURN;
+    let action='還沒買先等完成日 K 的方向與量價確認；已持有看原防守價。';
+    if(pan==='BREAKOUT_CONFIRMED')action=d.formalExecutionAllowed?'可列入下個交易日盤中重新評估；突破訊號不是開盤直接買。':'雖有突破，正式進場檢查未通過；還沒買仍先等。';
+    else if(pan==='BREAKOUT_UNCONFIRMED')action='先看後續收盤能否守住突破價、成交量是否跟上；目前不追價。';
+    else if(pan.startsWith('BREAKDOWN'))action='還沒買先停止新買；已持有依原防守價與個人風險計畫處理。';
+    const ratio=w.threePanVolumeRatio==null?NaN:Number(w.threePanVolumeRatio),volume=Number.isFinite(ratio)?`成交量：今天約是前五日均量 ${ratio.toFixed(2)} 倍；量大但收盤弱也不算強。`:'成交量：前五日均量不足，量價確認暫停。';
+    const slope=w.maSlope?.ma21==null?NaN:Number(w.maSlope.ma21),angle=Number.isFinite(slope)?`角度：21 日線${slope>0?'向上':slope<0?'向下':'走平'}；只看股價碰線，不能當成趨勢翻轉。`:'角度：21 日線方向資料不足。';
+    const gap=w.gap21Pct==null?NaN:Number(w.gap21Pct),position=Number.isFinite(gap)?`位置：收盤在 21 日線${gap>=0?'上方':'下方'}約 ${Math.abs(gap).toFixed(1)}%；離線太遠不追。`:'位置：21 日線距離資料不足。';
+    const relative=Number(c.relativeStrength),relativeText=c.relativeStrength===null||!Number.isFinite(relative)?'產業相對大盤：資料不足，不能說個股一定較強。':`產業相對大盤：${relative>=0?'強':'弱'}約 ${Math.abs(relative).toFixed(1)} 個百分點，僅作背景。`;
+    return {key:pan,icon,status,explain,action,thresholds:`前三盤關卡：前兩日最高 ${show(w.prior2High)}／最低 ${show(w.prior2Low)}`,volume,angle,time:'時間：盤後完成日 K；盤中須重查。',position,relative:relativeText,score:`課程條件完整度 ${c.score}/100（不是勝率或買進許可）`,branches,sourceDate:a.dataDate};
+  }
   function renderProfessionalFullCanvas(base,input,analysis,decision){
     // Add a beginner decision panel by extending the canvas. The complete professional
     // evidence below it is copied pixel-for-pixel; no section is squeezed or overlaid.
     if(!base||typeof document==='undefined')return base;
-    const source=compactPreviousCards(base),plan=newbiePlan(input,analysis,decision);
-    const cut=Math.min(112,source.height),extra=390,out=document.createElement('canvas');
+    const source=compactPreviousCards(base),plan=newbiePlan(input,analysis,decision),guide=professionalCourseGuide(input,analysis,decision);
+    const cut=Math.min(112,source.height),decisionHeight=390,extra=1150,out=document.createElement('canvas');
     out.width=source.width;out.height=source.height+extra;
     const ctx=out.getContext('2d'),W=out.width;
     ctx.fillStyle='#eef3f8';ctx.fillRect(0,0,W,out.height);
     ctx.drawImage(source,0,0,W,cut,0,0,W,cut);
     ctx.drawImage(source,0,cut,W,source.height-cut,0,cut+extra,W,source.height-cut);
     const x=40,w=W-80,top=cut+10;
-    canvasRound(ctx,x,top,w,extra-20,18,'#fffaf0','#d3a348');
+    canvasRound(ctx,x,top,w,decisionHeight-20,18,'#fffaf0','#d3a348');
     canvasFit(ctx,'新手先看｜現在是否適合進場？',x+24,top+18,w-48,{max:31,min:22,weight:950,color:'#17324f'});
     const noBuy=decision?.formalExecutionAllowed!==true;
     canvasFit(ctx,`還沒買：${noBuy?'現在先不要買':'可列入盤中條件式評估'}`,x+24,top+67,w-48,{max:32,min:23,weight:950,color:noBuy?'#a85c00':'#137447'});
@@ -178,8 +212,32 @@
     canvasWrap(ctx,`要等：${decision?.wait||'價格、成交量與正式條件同步確認。'}`,x+24,top+183,w-48,{size:21,min:17,maxLines:2,weight:800,color:'#334155'});
     canvasWrap(ctx,`已持有：${plan.holder}`,x+24,top+250,w-48,{size:21,min:17,maxLines:2,weight:850,color:'#9e2f3b'});
     canvasFit(ctx,`關鍵價：20 日均線 ${plan.turnText}｜防守 ${plan.defenseText}｜上方關卡 ${plan.pressureText}`,x+24,top+320,w-48,{max:19,min:15,weight:800,color:'#536174'});
+    const ty=cut+400,th=730;
+    canvasRound(ctx,x,ty,w,th,18,'#f5f9ff','#93abc4');
+    canvasFit(ctx,'蕭明道量價觀察｜三盤怎麼看？',x+24,ty+18,w-48,{max:30,min:22,weight:950,color:'#173a5d'});
+    canvasFit(ctx,guide.score,x+24,ty+57,w-48,{max:19,min:15,weight:850,color:'#536174'});
+    canvasRound(ctx,x+18,ty+96,w-36,124,14,guide.key.startsWith('BREAKDOWN')?'#fff0f1':guide.key==='BREAKOUT_CONFIRMED'?'#eef9f2':'#fff8df',guide.key.startsWith('BREAKDOWN')?'#d66570':guide.key==='BREAKOUT_CONFIRMED'?'#68b98d':'#d6a233');
+    canvasFit(ctx,`${guide.icon} 今天的判讀：${guide.status}`,x+34,ty+106,w-68,{max:26,min:19,weight:950,color:guide.key.startsWith('BREAKDOWN')?'#a52635':'#173a5d'});
+    canvasWrap(ctx,guide.explain,x+34,ty+147,w-68,{size:19,min:16,maxLines:2,weight:800,color:'#334155'});
+    canvasFit(ctx,guide.thresholds,x+34,ty+191,w-68,{max:17,min:14,weight:800,color:'#536174'});
+    const gap=12,bw=(w-36-gap*2)/3;
+    guide.branches.forEach((item,index)=>{const bx=x+18+index*(bw+gap);canvasRound(ctx,bx,ty+240,bw,166,13,'#ffffff','#c8d7e7');canvasFit(ctx,item.title,bx+15,ty+254,bw-30,{max:21,min:16,weight:950,color:index===0?'#137447':index===2?'#a52635':'#9a5a05'});canvasWrap(ctx,item.text,bx+15,ty+292,bw-30,{size:17,min:15,maxLines:4,weight:800,color:'#334155'});});
+    const half=(w-48)/2,left=x+18,right=left+half+12;
+    canvasRound(ctx,left,ty+426,half,180,13,'#ffffff','#c8d7e7');canvasRound(ctx,right,ty+426,half,180,13,'#ffffff','#c8d7e7');
+    canvasFit(ctx,'量、價、時間、角度',left+16,ty+440,half-32,{max:22,min:18,weight:950,color:'#173a5d'});
+    canvasWrap(ctx,guide.volume,left+16,ty+477,half-32,{size:17,min:15,maxLines:2,weight:800,color:'#334155'});
+    canvasWrap(ctx,guide.angle,left+16,ty+526,half-32,{size:17,min:15,maxLines:2,weight:800,color:'#334155'});
+    canvasFit(ctx,guide.time,left+16,ty+579,half-32,{max:15,min:13,weight:750,color:'#64748b'});
+    canvasFit(ctx,'位置、產業、下個交易日',right+16,ty+440,half-32,{max:22,min:18,weight:950,color:'#173a5d'});
+    canvasWrap(ctx,guide.position,right+16,ty+477,half-32,{size:17,min:15,maxLines:2,weight:800,color:'#334155'});
+    canvasWrap(ctx,guide.relative,right+16,ty+526,half-32,{size:17,min:15,maxLines:2,weight:800,color:'#334155'});
+    canvasFit(ctx,`盤後資料日：${guide.sourceDate}`,right+16,ty+579,half-32,{max:15,min:13,weight:750,color:'#64748b'});
+    canvasRound(ctx,x+18,ty+624,w-36,88,13,'#fffaf0','#d3a348');
+    canvasFit(ctx,'新手下一步｜訊號不是買點',x+34,ty+637,w-68,{max:21,min:17,weight:950,color:'#92550a'});
+    canvasWrap(ctx,guide.action,x+34,ty+667,w-68,{size:18,min:16,maxLines:2,weight:850,color:'#334155'});
+    canvasFit(ctx,'課程概念轉譯，非講師本人評語；正式進場仍依原系統條件。',x+24,ty+710,w-48,{max:14,min:12,weight:700,color:'#64748b'});
     copyCanvasData(source,out);out.dataset.reportMode='professional';out.dataset.v50ProfessionalFull='true';
-    out.dataset.layoutAudit=encodeURIComponent(JSON.stringify({size:`${W}x${out.height}`,professionalFull:true,originalHeight:source.height,insertedAt:cut,insertedHeight:extra,originalContentPreserved:true,noOverlap:true}));
+    out.dataset.layoutAudit=encodeURIComponent(JSON.stringify({size:`${W}x${out.height}`,professionalFull:true,originalHeight:source.height,insertedAt:cut,insertedHeight:extra,originalContentPreserved:true,noOverlap:true,courseGuide:{key:guide.key,decisionTop:top,decisionBottom:top+decisionHeight-20,teachingTop:ty,teachingBottom:ty+th,sourceContentStarts:cut+extra}}));
     return out;
   }
   function beginnerTextBlock(input){
@@ -286,6 +344,6 @@
     if(typeof root.sanitizeFilenameV3328==='function'){const base=root.sanitizeFilenameV3328;root.sanitizeFilenameV3328=function(value){return base(versionize(value).replace(/V(?:40|47|48|49)_R[\w.\-]+_[^\s/\\]+/g,FILE_VERSION));};}
     root.R50_RELEASE_LABEL=RELEASE;root.R50_FILE_VERSION=FILE_VERSION;root.SHITOU_V50_ACCEPTANCE={release:RELEASE,dataTiming:'POST_CLOSE_ONLY',singleAnalysisResult:true,researchShadowOnly:true,formalGateChanged:false,scoreChanged:false,rankingChanged:false,stopChanged:false};
   }
-  root.ShitouV50UI=Object.freeze({RELEASE,FILE_VERSION,IPHONE_REPORT_WIDTH,IPHONE_REPORT_HEIGHT,versionize,get,fibPlain,beginnerDecision,newbiePlan,renderNewbieFirstCanvas,renderProfessionalFullCanvas,beginnerTextBlock,cardHtml,compactPreviousCards,compactVerticalWhitespace,iphoneFullCanvas,safeCanvasInsert,install});
+  root.ShitouV50UI=Object.freeze({RELEASE,FILE_VERSION,IPHONE_REPORT_WIDTH,IPHONE_REPORT_HEIGHT,versionize,get,fibPlain,beginnerDecision,newbiePlan,professionalCourseGuide,renderNewbieFirstCanvas,renderProfessionalFullCanvas,beginnerTextBlock,cardHtml,compactPreviousCards,compactVerticalWhitespace,iphoneFullCanvas,safeCanvasInsert,install});
   install();
 })(typeof window!=='undefined'?window:globalThis);
