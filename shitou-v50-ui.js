@@ -123,6 +123,7 @@
   function canvasWrap(ctx,text,x,y,maxWidth,{size=18,min=14,maxLines=3,lineHeight=1.4,weight=750,color='#334155'}={}){const family="'Noto Sans TC','Microsoft JhengHei',sans-serif",chars=[...String(text??'')];let fontSize=size,lines=[];const build=()=>{ctx.font=`${weight} ${fontSize}px ${family}`;const out=[];let line='';for(const char of chars){const next=line+char;if(line&&ctx.measureText(next).width>maxWidth){out.push(line);line=char;}else line=next;}if(line)out.push(line);return out;};for(lines=build();lines.length>maxLines&&fontSize>min;fontSize--)lines=build();const shown=lines.slice(0,maxLines);if(lines.length>maxLines&&shown.length){let last=shown.at(-1);while(last&&ctx.measureText(`${last}…`).width>maxWidth)last=last.slice(0,-1);shown[shown.length-1]=`${last}…`;}ctx.textAlign='left';ctx.textBaseline='top';ctx.font=`${weight} ${fontSize}px ${family}`;ctx.fillStyle=color;shown.forEach((line,index)=>ctx.fillText(line,x,y+index*fontSize*lineHeight));return shown.length*fontSize*lineHeight;}
   function renderNewbieFirstCanvas(base,input,analysis,decision){
     if(!base||typeof document==='undefined'||typeof base.getContext!=='function')return null;
+    if(root.ShitouReportLayoutV563)return root.ShitouReportLayoutV563.beginner(base,input,analysis,decision);
     const plan=newbiePlan(input,analysis,decision),canvas=document.createElement('canvas');if(typeof canvas.getContext!=='function')return null;canvas.width=1152;canvas.height=2492;const ctx=canvas.getContext('2d'),W=canvas.width;
     ctx.fillStyle='#eef3f8';ctx.fillRect(0,0,W,canvas.height);ctx.imageSmoothingEnabled=true;if('imageSmoothingQuality' in ctx)ctx.imageSmoothingQuality='high';
     const headerH=Math.min(116,base.height);ctx.drawImage(base,0,0,base.width,headerH,0,0,W,116);
@@ -193,6 +194,7 @@
     return {key:pan,icon,status,explain,action,thresholds:`前三盤關卡：前兩日最高 ${show(w.prior2High)}／最低 ${show(w.prior2Low)}`,volume,angle,time:'時間：盤後完成日 K；盤中須重查。',position,relative:relativeText,score:`課程條件完整度 ${c.score}/100（不是勝率或買進許可）`,branches,sourceDate:a.dataDate};
   }
   function renderProfessionalFullCanvas(base,input,analysis,decision){
+    if(root.ShitouReportLayoutV563)return root.ShitouReportLayoutV563.professional(base,input,analysis,decision);
     // Add a beginner decision panel by extending the canvas. The complete professional
     // evidence below it is copied pixel-for-pixel; no section is squeezed or overlaid.
     if(!base||typeof document==='undefined')return base;
@@ -214,7 +216,7 @@
     canvasFit(ctx,`關鍵價：20 日均線 ${plan.turnText}｜防守 ${plan.defenseText}｜上方關卡 ${plan.pressureText}`,x+24,top+320,w-48,{max:19,min:15,weight:800,color:'#536174'});
     const ty=cut+400,th=730;
     canvasRound(ctx,x,ty,w,th,18,'#f5f9ff','#93abc4');
-    canvasFit(ctx,'蕭明道量價觀察｜三盤怎麼看？',x+24,ty+18,w-48,{max:30,min:22,weight:950,color:'#173a5d'});
+    canvasFit(ctx,'量價觀察｜三盤怎麼看？',x+24,ty+18,w-48,{max:30,min:22,weight:950,color:'#173a5d'});
     canvasFit(ctx,guide.score,x+24,ty+57,w-48,{max:19,min:15,weight:850,color:'#536174'});
     canvasRound(ctx,x+18,ty+96,w-36,124,14,guide.key.startsWith('BREAKDOWN')?'#fff0f1':guide.key==='BREAKOUT_CONFIRMED'?'#eef9f2':'#fff8df',guide.key.startsWith('BREAKDOWN')?'#d66570':guide.key==='BREAKOUT_CONFIRMED'?'#68b98d':'#d6a233');
     canvasFit(ctx,`${guide.icon} 今天的判讀：${guide.status}`,x+34,ty+106,w-68,{max:26,min:19,weight:950,color:guide.key.startsWith('BREAKDOWN')?'#a52635':'#173a5d'});
@@ -235,7 +237,7 @@
     canvasRound(ctx,x+18,ty+624,w-36,88,13,'#fffaf0','#d3a348');
     canvasFit(ctx,'新手下一步｜訊號不是買點',x+34,ty+637,w-68,{max:21,min:17,weight:950,color:'#92550a'});
     canvasWrap(ctx,guide.action,x+34,ty+667,w-68,{size:18,min:16,maxLines:2,weight:850,color:'#334155'});
-    canvasFit(ctx,'課程概念轉譯，非講師本人評語；正式進場仍依原系統條件。',x+24,ty+710,w-48,{max:14,min:12,weight:700,color:'#64748b'});
+    canvasFit(ctx,'正式進場仍依原系統條件。',x+24,ty+710,w-48,{max:14,min:12,weight:700,color:'#64748b'});
     copyCanvasData(source,out);out.dataset.reportMode='professional';out.dataset.v50ProfessionalFull='true';
     out.dataset.layoutAudit=encodeURIComponent(JSON.stringify({size:`${W}x${out.height}`,professionalFull:true,originalHeight:source.height,insertedAt:cut,insertedHeight:extra,originalContentPreserved:true,noOverlap:true,courseGuide:{key:guide.key,decisionTop:top,decisionBottom:top+decisionHeight-20,teachingTop:ty,teachingBottom:ty+th,sourceContentStarts:cut+extra}}));
     return out;
@@ -323,7 +325,7 @@
     if(!base||typeof root.insertStageCanvasCardV53245!=='function')return base;const a=get(input),decision=options.market?null:beginnerDecision(input,a);
     if(options.professional)return renderProfessionalFullCanvas(base,input,a,decision);
     const compactBase=compactPreviousCards(base),height=options.market?190:286;
-    if(!options.market){const newbie=renderNewbieFirstCanvas(compactBase,input,a,decision);if(newbie)return iphoneFullCanvas(newbie);}
+    if(!options.market){const newbie=renderNewbieFirstCanvas(compactBase,input,a,decision);if(newbie)return newbie.dataset?.unifiedReport==='true'?newbie:iphoneFullCanvas(newbie);}
     let insertY=Math.min(220,Math.max(112,Math.round((compactBase.height||0)*.055)));
     try{const audit=canvasAudit(compactBase);for(const card of audit?.stageCards||[]){const bottom=Number(card?.insertY)+Number(card?.height);if(Number.isFinite(bottom))insertY=Math.max(insertY,Math.round(bottom));}const professionalTopEnd=Number(audit?.sections?.topEvidencePanelBottom);if(!options.market&&Number.isFinite(professionalTopEnd))insertY=Math.max(insertY,Math.round(professionalTopEnd)+8);}catch(_){}
     insertY=Math.max(0,Math.min(Math.max(0,(compactBase.height||height)-height),insertY));
@@ -339,7 +341,7 @@
     for(const [name,hostId,boxId,title] of [['renderMomentumScanResultV3765','momentumList','v50MomentumSummary','V50 主升候選結構總覽'],['renderDayTradeScanResultV1','dayTradeList','v50DayTradeSummary','V50 下一交易日短線觀察總覽']]){
       if(typeof root[name]!=='function')continue;const base=root[name];root[name]=function(scan,...rest){attachScan(scan);const out=base(scan,...rest),host=document.getElementById(hostId);let box=document.getElementById(boxId);if(!box&&host){box=document.createElement('div');box.id=boxId;host.prepend(box);}const top=scan?.candidates?.[0];if(box)box.innerHTML=top?cardHtml(top,title):`<section class="v50-panel"><div class="v50-title">${esc(title)}</div><p>本次沒有候選可建立盤後結構說明。</p></section>`;return out;};
     }
-    for(const name of ['renderStockInfographicV46','renderStockProfessionalInfographicV51']){if(typeof root[name]!=='function')continue;const base=root[name],professional=name==='renderStockProfessionalInfographicV51';root[name]=function(report,...rest){return safeCanvasInsert(base(report,...rest),report,'新手先看｜現在適不適合買？',{professional});};}
+    for(const name of ['renderStockInfographicV46','renderStockProfessionalInfographicV51']){if(typeof root[name]!=='function')continue;const base=root[name],professional=name==='renderStockProfessionalInfographicV51';root[name]=function(report,...rest){const rendered=professional&&root.ShitouReportLayoutV563?root.ShitouReportLayoutV563.captureProfessional(()=>base(report,...rest)):base(report,...rest);return safeCanvasInsert(rendered,report,'新手先看｜現在適不適合買？',{professional});};}
     if(typeof root.renderMarketInfographicV3328==='function'){const base=root.renderMarketInfographicV3328;root.renderMarketInfographicV3328=function(report,...rest){return safeCanvasInsert(base(report,...rest),report,'V50 大盤盤後結構',{market:true});};}
     if(typeof root.sanitizeFilenameV3328==='function'){const base=root.sanitizeFilenameV3328;root.sanitizeFilenameV3328=function(value){return base(versionize(value).replace(/V(?:40|47|48|49)_R[\w.\-]+_[^\s/\\]+/g,FILE_VERSION));};}
     root.R50_RELEASE_LABEL=RELEASE;root.R50_FILE_VERSION=FILE_VERSION;root.SHITOU_V50_ACCEPTANCE={release:RELEASE,dataTiming:'POST_CLOSE_ONLY',singleAnalysisResult:true,researchShadowOnly:true,formalGateChanged:false,scoreChanged:false,rankingChanged:false,stopChanged:false};

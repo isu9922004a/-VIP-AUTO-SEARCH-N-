@@ -67,8 +67,8 @@
     return {ok:true,model:MODEL,role:ROLE,score,key,icon,label,coverageMax:max,coveragePct:Math.round(max/100*100),threePan:pan,components,openingChecklist,trigger,defense,relativeStrength:relative,rankingUse:'同一正式等級內的次排序；不能繞過原 Gate',notWinRate:true,sourceEvidence:SOURCE_EVIDENCE};
   }
   function textBlock(input){
-    const a=input?.model===MODEL?input:analyze(input);if(!a.ok)return `【蕭明道量價判讀】\n資料不足：${a.reason}`;
-    return [`【蕭明道量價判讀｜明日開盤適合度】`,`${a.icon} ${a.label}｜${a.score}/100（條件完整度，不是勝率）`,`三盤白話：${a.threePan.plain}`,'五項量化：',...a.components.map(item=>`- ${item.label}：${item.available?`${item.earned}/${item.max}`:'資料不足'}｜${item.plain}`),'明日開盤只看：',...a.openingChecklist.map((item,index)=>`${index+1}. ${item}`),`定位：${a.rankingUse}。`].join('\n');
+    const a=input?.model===MODEL?input:analyze(input);if(!a.ok)return `【量價判讀】\n資料不足：${a.reason}`;
+    return [`【量價判讀｜明日開盤適合度】`,`${a.icon} ${a.label}｜${a.score}/100（條件完整度，不是勝率）`,`三盤白話：${a.threePan.plain}`,'五項量化：',...a.components.map(item=>`- ${item.label}：${item.available?`${item.earned}/${item.max}`:'資料不足'}｜${item.plain}`),'明日開盤只看：',...a.openingChecklist.map((item,index)=>`${index+1}. ${item}`),`定位：${a.rankingUse}。`].join('\n');
   }
   return Object.freeze({MODEL,ROLE,SOURCE_EVIDENCE,num,relativeStrengthOf,threePanState,analyze,textBlock});
 });

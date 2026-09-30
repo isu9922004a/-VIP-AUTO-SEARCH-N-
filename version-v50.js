@@ -1,8 +1,8 @@
 'use strict';
 
 (function(root){
-  const RELEASE='石頭少爺 Agent V50 正式版｜R5.3.2.5.6.2｜三盤量價白話專業版';
-  const FILE_VERSION='V50_R5.3.2.5.6.2_三盤量價白話專業版';
+  const RELEASE='石頭少爺 Agent V50 正式版｜R5.3.2.5.6.3｜圖片統一排版完整版';
+  const FILE_VERSION='V50_R5.3.2.5.6.3_圖片統一排版完整版';
   const VERSION=Object.freeze({
     major:50,
     release:RELEASE,

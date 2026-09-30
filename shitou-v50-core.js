@@ -214,7 +214,7 @@
     lines.push(`昨日高低點研究：${a.previousDay.label||a.previousDay.reason}`);
     lines.push(fib?.available?`波段回撤量尺：${fib.direction==='UP'?'上漲波段回吐':'下跌波段回補'} ${fib.retracementPct.toFixed(1)}%｜${fib.zone.label}｜起點 ${fib.waveStart.date||'-'} ${fib.waveStart.price.toFixed(2)} → 終點 ${fib.waveEnd.date||'-'} ${fib.waveEnd.price.toFixed(2)}。比例只描述幅度，不代表一定反轉。`:`波段回撤量尺：${a.fib.reason}`);
     if(a.candle.available)lines.push(`最新K棒：${a.candle.labels.join('、')}｜${a.candle.plain}`);
-    if(!options.market&&a.course?.ok)lines.push(`蕭明道量價適合度：${a.course.score}/100（條件完整度，不是勝率）｜${a.course.threePan.label}｜${a.course.label}`);
+    if(!options.market&&a.course?.ok)lines.push(`量價適合度：${a.course.score}/100（條件完整度，不是勝率）｜${a.course.threePan.label}｜${a.course.label}`);
     if(options.market){
       lines.push(`大盤環境：${a.trend.label}｜以完成日K確認，不作個股操作指示。`);
     }else if(a.openingDecision?.headline){

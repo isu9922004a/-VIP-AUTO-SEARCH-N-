@@ -1,9 +1,9 @@
-/* V50 R5.3.2.5.6.2: 教材證據與明日開盤白話判讀；正式 Gate、分數與排名不變。 */
+/* V50 R5.3.2.5.6.3: 教材證據與明日開盤白話判讀；正式 Gate、分數與排名不變。 */
 (function(){
 'use strict';
 
-const RELEASE='石頭少爺 Agent V50 正式版｜R5.3.2.5.6.2｜三盤量價白話專業版';
-const FILE_VERSION='V50_R5.3.2.5.6.2_三盤量價白話專業版';
+const RELEASE='石頭少爺 Agent V50 正式版｜R5.3.2.5.6.3｜圖片統一排版完整版';
+const FILE_VERSION='V50_R5.3.2.5.6.3_圖片統一排版完整版';
 const E=window.ShitouTechnicalEvidenceR45;
 window.R45_RELEASE_LABEL=RELEASE;
 window.R45_FILE_VERSION=FILE_VERSION;

@@ -1,4 +1,4 @@
-/* Strong Stock V50 R5.3.2.5.6.2 — 圖片版面一致性；原選股與排序邏輯不變。 */
+/* Strong Stock V50 R5.3.2.5.6.3 — 圖片版面一致性；原選股與排序邏輯不變。 */
 (function(root){
   'use strict';
   const F=root.ShitouStrongStockFilterV47;
@@ -30,7 +30,7 @@
   const isCpuError=value=>/exceeded\s*CPU|CPU\s*time\s*limit|CPU.*(?:超限|用量)|1102|script.*exceeded/i.test(String(value||''));
   const isRetryable=value=>/CPU|1102|timeout|timed out|aborted|failed to fetch|network|HTTP\s*(?:429|5\d\d)|服務暫時|連線|逾時|分析未回傳/i.test(String(value||''));
   const statusTitle=scan=>scan.fullMarketCertified?'完整市場驗證報告':'部分驗證報告｜非全市場完整排名';
-  const RELEASE_R493='石頭少爺 Agent V50 正式版｜R5.3.2.5.6.2｜三盤量價白話專業版';
+  const RELEASE_R493='石頭少爺 Agent V50 正式版｜R5.3.2.5.6.3｜圖片統一排版完整版';
   const triggerMeta=c=>{
     const close=F.number(c?.close),trigger=F.number(c?.trigger);
     const crossed=close!==null&&trigger!==null&&close>=trigger;
@@ -177,7 +177,7 @@
       `資料不足${scan.data}｜服務失敗${scan.failed}（CPU ${scan.cpuFailed}）｜確定不符${scan.rejected}｜已驗證候選${scan.candidates.length}｜S${scan.counts.S}／A${scan.counts.A}／B${scan.counts.B}`,
       scan.fullMarketCertified?'本次完整市場與所有候選驗證完成。':'⚠️ 部分驗證：本次名單與排序僅代表成功驗證的股票，不是全市場完整排名；失敗、資料不足、未分析者均未判斷。',
       ...(scan.breaker?[`⚠️ 資源熔斷：${scan.breaker}；剩餘 ${scan.pending} 檔尚未分析，請先處理 Worker CPU 問題。`]:[]),
-      '新版主軸：三盤價格過關後，還要檢查今日量相對前5日均量及收盤位置；價過關但量價不配合，先當疑似假突破。蕭明道量價適合度整合趨勢角度、三盤、成交量、追價距離與產業相對強弱，只在同一正式等級內次排序，不是勝率，也不能繞過原進場檢查。',
+      '新版主軸：三盤價格過關後，還要檢查今日量相對前5日均量及收盤位置；價過關但量價不配合，先當疑似假突破。量價適合度整合趨勢角度、三盤、成交量、追價距離與產業相對強弱，只在同一正式等級內次排序，不是勝率，也不能繞過原進場檢查。',
       '僅使用完成日K；金融、生技依官方產業分類排除；資料不同日、缺漏或超限時如實標記；排序分不代表勝率。', `━━━━━━━━━━ ${scan.fullMarketCertified?'全部已入選股票':'本次已驗證候選（非全市場名次）'} ━━━━━━━━━━`];
     scan.candidates.forEach((c,i)=>{const t=triggerMeta(c);lines.push(`${i+1}. ${c.name}（${c.code}）｜${c.status} ${c.label}｜明日開盤適合度 ${fmt(c.courseSuitabilityScore,0)}/100（非勝率）｜原條件分 ${c.score}｜收盤 ${fmt(c.close)}｜日期 ${c.date}
    ${c.courseV52?.threePan?.icon||'⚪'}三盤白話：${c.courseV52?.threePan?.plain||'資料不足'}
