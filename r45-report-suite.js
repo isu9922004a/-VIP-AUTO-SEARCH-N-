@@ -714,7 +714,7 @@ async function generateStock(mode='beginner',withWatermark=false){
   let result;
   if(professional||source.dataset?.unifiedReport==='true'){
     if(withWatermark&&typeof original.watermark==='function')original.watermark(source,'stock');
-    result={pages:[source],segments:[[0,source.height]],sourceHeight:source.height,size:`${source.width}x${source.height}`,singleLong:true,professionalFull:professional,iphoneFullScreen:false,fitScale:1};
+    result={pages:[source],segments:[[0,source.height]],sourceHeight:source.height,size:`${source.width}x${source.height}`,singleLong:true,professionalFull:professional,iphoneFullScreen:false,nativeScale:1};
   }else result=fitIphoneStockReport(source,{title:`${report.name||report.code}（${report.code||report.stock||'-'}）個股新手報告`,date:report.closeDate,watermark:withWatermark});
   const layoutNote=source.dataset?.unifiedReport==='true'?'統一版面單張長圖；高度隨完整內容調整':professional?'專業完整內容保留為單張長圖，避免縮小文字或裁切證據':(result.iphoneFullScreen?'iPhone 12 Pro Max 1284×2778 單頁滿版':'內容無法在可讀比例下單頁容納，已安全分頁');
   await showPages(result.pages,{title:`${report.name||report.code} 個股圖片報告`,prefix:`石頭少爺_${report.name||report.code}_${report.code||report.stock}_${professional?'專業完整':'新手'}個股圖片報告${withWatermark?'_防盜浮水印':''}`,date:dateOf(report.closeDate),note:`${layoutNote}；新手結論與專業證據分區呈現，價位不是自動買點`,kind:'stock'});
