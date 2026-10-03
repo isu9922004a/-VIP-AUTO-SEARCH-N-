@@ -680,11 +680,12 @@ function mountPreviewActions(){
 
 async function showPages(pages,{title,prefix,date='latest',note='',kind='report'}={}){
   if(!Array.isArray(pages)||!pages.length)throw new Error('沒有可預覽的頁面');
-  const names=pages.length===1?[safeName(`${prefix}_單一張完整長圖_${date}_${FILE_VERSION}.png`)]:pages.map((_,index)=>safeName(`${prefix}_${String(index+1).padStart(2,'0')}-${pages.length}_${date}_${FILE_VERSION}.png`));
+  const iphoneSingle=pages.length===1&&pages[0]?.dataset?.iphoneFullScreen==='1284x2778';
+  const names=pages.length===1?[safeName(`${prefix}_${iphoneSingle?'iPhone12ProMax_1284x2778_單張滿版':'單一張完整長圖'}_${date}_${FILE_VERSION}.png`)]:pages.map((_,index)=>safeName(`${prefix}_${String(index+1).padStart(2,'0')}-${pages.length}_${date}_${FILE_VERSION}.png`));
   previewSet={pages,names,title,index:0,zipName:safeName(`${prefix}_完整${pages.length}頁_${date}_${FILE_VERSION}.zip`),kind};
   if(typeof original.show==='function')await original.show(pages[0],names[0],`${title}｜第 1/${pages.length} 頁`);
   mountPreviewActions();await setPreviewPage(0);
-  const element=document.getElementById('imagePreviewNote');if(element)element.textContent=pages.length===1?`${note}｜完整內容已合併為單一張 PNG，可直接預覽或下載。`:`${note}｜共 ${pages.length} 頁；可逐頁預覽／下載，或下載完整ZIP。`;
+  const element=document.getElementById('imagePreviewNote');if(element)element.textContent=pages.length===1?`${note}｜${pages[0]?.dataset?.iphoneFullScreen==='1284x2778'?'已輸出 1284×2778 單張滿版 PNG':'完整內容已合併為單一張 PNG'}，可直接預覽或下載。`:`${note}｜共 ${pages.length} 頁；可逐頁預覽／下載，或下載完整ZIP。`;
   return previewSet;
 }
 
@@ -714,9 +715,9 @@ async function generateStock(mode='beginner',withWatermark=false){
   let result;
   if(professional||source.dataset?.unifiedReport==='true'){
     if(withWatermark&&typeof original.watermark==='function')original.watermark(source,'stock');
-    result={pages:[source],segments:[[0,source.height]],sourceHeight:source.height,size:`${source.width}x${source.height}`,singleLong:true,professionalFull:professional,iphoneFullScreen:false,fitScale:1};
+    result={pages:[source],segments:[[0,source.height]],sourceHeight:source.height,size:`${source.width}x${source.height}`,singleLong:true,professionalFull:professional,iphoneFullScreen:source.dataset?.iphoneFullScreen==='1284x2778',fullBleed:source.dataset?.iphoneFullScreen==='1284x2778',fitScale:1};
   }else result=fitIphoneStockReport(source,{title:`${report.name||report.code}（${report.code||report.stock||'-'}）個股新手報告`,date:report.closeDate,watermark:withWatermark});
-  const layoutNote=source.dataset?.unifiedReport==='true'?'統一版面單張長圖；高度隨完整內容調整':professional?'專業完整內容保留為單張長圖，避免縮小文字或裁切證據':(result.iphoneFullScreen?'iPhone 12 Pro Max 1284×2778 單頁滿版':'內容無法在可讀比例下單頁容納，已安全分頁');
+  const layoutNote=result.iphoneFullScreen?'iPhone 12 Pro Max 1284×2778 單張滿版；A～F 僅重排版、不改分析內容':source.dataset?.unifiedReport==='true'?'統一版面單張長圖；高度隨完整內容調整':professional?'專業完整內容保留為單張長圖，避免縮小文字或裁切證據':'內容無法在可讀比例下單頁容納，已安全分頁';
   await showPages(result.pages,{title:`${report.name||report.code} 個股圖片報告`,prefix:`石頭少爺_${report.name||report.code}_${report.code||report.stock}_${professional?'專業完整':'新手'}個股圖片報告${withWatermark?'_防盜浮水印':''}`,date:dateOf(report.closeDate),note:`${layoutNote}；新手結論與專業證據分區呈現，價位不是自動買點`,kind:'stock'});
   return result;
 }
