@@ -372,6 +372,16 @@ body{
 .image-preview-wrap{background:#e9eef5;border-radius:14px;padding:10px;max-height:72vh;overflow:auto;text-align:center}
 .image-preview-wrap img{display:block;width:100%;height:auto;max-width:1000px;margin:0 auto;border-radius:8px;background:#fff;box-shadow:0 6px 20px rgba(0,0,0,.12)}
 @media(max-width:600px){.image-modal{padding:0}.image-modal-card{padding:8px;border-radius:0}.image-preview-wrap{padding:0;border-radius:0;max-height:82vh}.image-preview-wrap img{max-width:none;border-radius:0}.image-modal-actions{gap:8px}.image-save-link,.image-share-btn{min-width:140px}}
+@media(max-width:600px){
+  #imagePreviewModal.professional-report-preview{padding:0;background:#f2f2f7;overflow-x:hidden;overflow-y:auto;scrollbar-width:none}
+  #imagePreviewModal.professional-report-preview::-webkit-scrollbar{display:none}
+  #imagePreviewModal.professional-report-preview .image-modal-card{width:100%;max-width:none;box-sizing:border-box;margin:0;padding:0;border:0;border-radius:0;box-shadow:none}
+  #imagePreviewModal.professional-report-preview .image-modal-head{padding:10px max(12px,env(safe-area-inset-right)) 10px max(12px,env(safe-area-inset-left));margin:0}
+  #imagePreviewModal.professional-report-preview .image-preview-wrap{width:100%;box-sizing:border-box;max-height:none;overflow:visible;padding:0;border:0;border-radius:0;background:#f2f2f7}
+  #imagePreviewModal.professional-report-preview .image-preview-wrap img{width:100%;max-width:none;height:auto;margin:0;border:0;border-radius:0;box-shadow:none}
+  #imagePreviewModal.professional-report-preview .image-modal-actions{margin:0;padding:8px 12px max(12px,env(safe-area-inset-bottom));background:var(--card)}
+  #imagePreviewModal.professional-report-preview .image-preview-note{margin:0;padding:0 12px 12px;background:var(--card)}
+}
 .image-modal-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:14px}
 .image-save-link,.image-share-btn{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;border:0;border-radius:11px;padding:12px 18px;font-size:15px;font-weight:900;cursor:pointer;min-width:170px}
 .image-save-link{background:#0b5ed7;color:#fff}
@@ -1878,8 +1888,8 @@ body.dark .v46-reason,body.dark .v46-note,body.dark .v46-family{color:#d2dae7}bo
             </div>
           </div>
           <div class="stock-image-generator-card" data-mode="professional">
-            <div class="stock-image-generator-title">專業完整版｜K線、ABC、分數與完整價位</div>
-            <div class="stock-image-generator-note">保留完整技術資料，結論與操作說明同步改成白話。</div>
+            <div class="stock-image-generator-title">專業版｜K線、ABC與完整價位</div>
+            <div class="stock-image-generator-note">圖片報告移除 D 區七項條件分；其餘分析與操作說明保留。</div>
             <div class="stock-image-generator-actions">
               <button id="generateStockProfessionalImageButton" class="copy-btn image-btn" type="button" onclick="generateStockProfessionalInfographicV51(false)">🖼️ 生成專業個股圖片分析報告</button>
               <button id="generateStockProfessionalWatermarkImageButton" class="copy-btn watermark-image-btn" type="button" onclick="generateStockProfessionalInfographicV51(true)">🛡️ 生成專業個股圖片分析報告（防盜浮水印）</button>
@@ -23035,6 +23045,7 @@ async function showInfographicPreviewV3328(canvas,filename,title){
   img.src=infographicPreviewUrlV3328;link.href=infographicPreviewUrlV3328;link.download=filename;head.textContent=`🖼️ ${title}｜PNG 預覽`;
   let canShare=false;try{const f=new File([blob],filename,{type:"image/png"});canShare=!!(navigator.share&&navigator.canShare&&navigator.canShare({files:[f]}));}catch{}
   share.style.display=canShare?"inline-flex":"none";
+  modal.classList.toggle("professional-report-preview",canvas?.dataset?.reportMode==="professional");
   modal.classList.add("show");modal.setAttribute("aria-hidden","false");document.body.style.overflow="hidden";
 }
 
@@ -31971,7 +31982,7 @@ async function generateStockImageByModeV51(mode="beginner",withWatermark=false){
     await showInfographicPreviewV3328(canvas,filename,title);
     const note=document.getElementById("imagePreviewNote");
     if(note)note.textContent=professional
-      ?`專業完整版為 ${canvas.width}×${canvas.height}，保留K線、ABC、分數與完整價位；說明已改成白話。${withWatermark?"本張已套用防盜浮水印。":"可另生成防盜浮水印版。"}`
+      ?`專業版為 ${canvas.width}×${canvas.height}，已移除 D 區七項條件分，保留K線、ABC與完整價位；手機可滿寬向下捲動查看。${withWatermark?"本張已套用防盜浮水印。":"可另生成防盜浮水印版。"}`
       :`新手簡易版為 ${canvas.width}×${canvas.height}，集中顯示結論、身分建議、關鍵價位與風險。${withWatermark?"本張已套用防盜浮水印。":"可另生成防盜浮水印版。"}`;
     if(message){message.style.color="var(--green)";message.textContent=`✅ ${reportName}${withWatermark?"（防盜浮水印版）":""}已產生，可預覽、儲存 PNG 或直接分享。`;}
   }catch(err){
@@ -34925,7 +34936,7 @@ document.querySelectorAll(".version-pill,footer strong").forEach(el=>{if(/石頭
 })();
 </script>
 
-<script src="./report-layout-v563.js?v=R5.3.2.5.6.3.1"></script>
+<script src="./report-layout-v563.js?v=R5.3.2.5.6.3.1-mobile-report-2"></script>
 <script src="./shitou-v50-ui.js?v=R5.3.2.5.6.3.1"></script>
 
 </body>
