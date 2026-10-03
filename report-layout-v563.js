@@ -51,7 +51,6 @@
       const reflowBC=content.scenarios.length===3&&content.bullets.length>0&&!content.research;
       l.image('professional-original-top',source,oldX,bodyTop,oldW,(reflowBC?bcTop:dTitle)-bodyTop);
       if(reflowBC){const scenarioItems=[];content.scenarios.forEach((value,i)=>scenarioItems.push(text(['✅ 怎樣才算轉強','▶ 如果繼續整理','✖ 哪裡跌破要退出'][i],{weight:850,color:colors[['green','yellow','red'][i]][1]}),text(value)));scenarioItems.push(text('⚠️ 以上可進／續抱／減碼／退出僅為技術條件的白話風控，不保證漲跌，交易風險仍需自負。',{size:17,color:colors.red[1]}));l.row('professional-scenarios-details',[card('B. 明天三種走法｜看到什麼就怎麼做',scenarioItems),card('C. 詳細判斷依據｜想知道原因再看',[...content.bullets,...content.next])]);}
-      l.title('metrics-title','D. 七項條件分｜盤前分數只供觀察，不代表現在可以執行');for(let i=0;i<content.metrics.length;i+=2)l.row(`metrics-${i}`,content.metrics.slice(i,i+2).map(m=>card(m.title,[text(m.value,{size:25,weight:850}),m.sub],m.tone)));
       l.image('advanced-original-heading',source,oldX,s.efTop,oldW,132*scale);
       for(let i=0;i<content.map.length;i++){const m=content.map[i];l.row(`price-${i}`,[card(`${m.value}｜${m.label}`,[text(m.status,{weight:850,color:m.color}),m.action])]);}
       const mapBottom=s.efTop+744*scale;l.image('advanced-original-note',source,oldX,mapBottom-60*scale,oldW,60*scale);
