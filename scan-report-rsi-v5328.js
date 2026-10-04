@@ -1,18 +1,31 @@
 (function(root){'use strict';const P=root.ShitouScanPolicy5328;if(!P)return;
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-let statusCache=null,pending=null;
+const statusCache=new Map(),pending=new Map();
+function validStatus(s,d){return s?.ready===true&&P.date(s.date)===d&&['twseCodes','tpexCodes','specialCodes'].every(k=>Array.isArray(s[k])&&s[k].every(c=>typeof c==='string'&&/^\d{4,6}$/.test(c)));}
+function embeddedStatus(){try{return JSON.parse(document.querySelector('meta[name="shitou-scan-exclusions"]')?.content||'null');}catch(_){return null;}}
+function remoteStatusUrls(bundle,d){
+ // Reuse only the exact trusted repository serving this Worker's market snapshot.
+ try{const u=new URL(bundle.meta?.snapshotUrl);if(u.origin!=='https://raw.githubusercontent.com'||!/^\/isu9922004a\/-VIP-AUTO-SEARCH-N-\/[^/]+\/data\/market\/latest\.json$/.test(u.pathname))return [];
+  return [new URL('scan-exclusions.json',u).href,new URL('exclusions/'+d+'.json',u).href,new URL('latest.json',u).href];
+ }catch(_){return [];}
+}
 async function statusFor(bundle){
  const d=P.date(bundle.meta?.targetTradeDate||bundle.meta?.completedTradeDate);if(!d)throw Error('市場日期缺失，不能確認全額交割排除');
- if(bundle.exclusionStatus?.ready&&P.date(bundle.exclusionStatus.date)===d)return bundle.exclusionStatus;
- if(statusCache?.date===d)return statusCache;
- if(root.ShitouOfflineScanExclusions5328?.ready===true&&P.date(root.ShitouOfflineScanExclusions5328.date)===d){statusCache=root.ShitouOfflineScanExclusions5328;return statusCache;}
- if(pending?.date===d)return pending.promise;
+ for(const s of [bundle.exclusionStatus,statusCache.get(d),root.ShitouOfflineScanExclusions5328,embeddedStatus()])if(validStatus(s,d)){statusCache.set(d,s);return s;}
+ if(pending.has(d))return pending.get(d);
  const promise=(async()=>{
-  try{const r=await fetch('./data/market/scan-exclusions.json?_date='+d,{cache:'no-store',signal:AbortSignal.timeout(12000)});if(r.ok){const local=await r.json();if(local.ready===true&&P.date(local.date)===d){statusCache=local;return local;}}}catch(_){}
+  const diagnostics=[],fileMode=root.location?.protocol==='file:',localUrls=fileMode?[]:['./data/market/scan-exclusions.json','./data/market/exclusions/'+d+'.json'];
+  async function load(url){try{const join=url.includes('?')?'&':'?',r=await fetch(url+join+'_date='+d,{cache:'no-store',signal:AbortSignal.timeout(url.startsWith('./api/')?40000:10000)});if(!r.ok){diagnostics.push('HTTP '+r.status);return null;}const payload=await r.json(),s=payload.exclusionStatus||payload;if(validStatus(s,d)){statusCache.set(d,s);return s;}diagnostics.push('名單日期 '+(P.date(s.date)||'未提供'));}catch(e){diagnostics.push(e?.name==='TimeoutError'?'連線逾時':'連線或跨網域限制');}return null;}
+  for(const url of [...localUrls,...remoteStatusUrls(bundle,d)]){const s=await load(url);if(s)return s;}
+  // The supplied loopback launcher performs official requests on the server,
+  // because TPEx does not grant browser cross-origin access.
+  if(!fileMode&&['127.0.0.1','localhost','[::1]'].includes(root.location?.hostname)){
+   const s=await load('./api/scan-exclusions?date='+d);if(s)return s;
+  }
   const urls=[`https://www.twse.com.tw/exchangeReport/TWT85U?response=json&date=${d.replace(/-/g,'')}`,'https://www.tpex.org.tw/openapi/v1/tpex_cmode'];
-  try{const responses=await Promise.all(urls.map(async url=>{const r=await fetch(url,{cache:'no-store',signal:AbortSignal.timeout(16000)});if(!r.ok)throw Error('HTTP '+r.status);return r.json();}));statusCache=P.parseOfficial(...responses,d);return statusCache;}
-  catch(e){throw Error('全額交割官方排除名單未取得或不同日；本輪暫停。請更新 data/market/scan-exclusions.json 後重試。'+e.message);}
- })();pending={date:d,promise};try{return await promise;}finally{pending=null;}
+  try{const responses=await Promise.all(urls.map(async url=>{const r=await fetch(url,{cache:'no-store',signal:AbortSignal.timeout(16000)});if(!r.ok)throw Error('HTTP '+r.status);return r.json();}));const s=P.parseOfficial(...responses,d);statusCache.set(d,s);return s;}
+  catch(e){throw Error('全額交割排除名單尚未完成核對（行情日 '+d+'）。請以資料夾內「啟動程式.cmd」開啟後重試，程式會自動取得同日官方名單。'+(diagnostics.length?'｜'+[...new Set(diagnostics)].join('／'):'')+'；若官方資料不同日，仍須等待更新。');}
+ })();pending.set(d,promise);try{return await promise;}finally{if(pending.get(d)===promise)pending.delete(d);}
 }
 const loader=root.loadMarketBundleFromWorkerV3766;
 if(typeof loader==='function')root.loadMarketBundleFromWorkerV3766=async function(...args){const b=await loader.apply(this,args);return P.applyStatus(b,await statusFor(b));};
