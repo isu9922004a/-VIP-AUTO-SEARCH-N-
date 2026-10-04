@@ -1,6 +1,6 @@
 'use strict';
 
-/* 蕭明道課程量價判讀層
+/* 量價判讀層
  * 來源是使用者提供的上、下集字幕。字幕有辨識錯字，因此只採用可由完成日 K
  * 客觀重算的原則：量、價、時間、角度、相對強弱、三盤與風險先行。
  */
@@ -12,13 +12,13 @@
   const MODEL='XIAOMINGDAO_VOLUME_PRICE_V52';
   const ROLE='SELECTION_TIE_RANK_AND_EXPLANATION';
   const SOURCE_EVIDENCE=Object.freeze([
-    Object.freeze({file:'蕭明道上.srt',time:'00:49:28–00:50:14',principle:'三盤是日線風險保險；遇到風險可先退出，之後再買回。'}),
-    Object.freeze({file:'蕭明道上.srt',time:'01:11:55–01:12:21',principle:'型態突破或跌破要靠量，突破前常先量縮整理。'}),
-    Object.freeze({file:'蕭明道上.srt',time:'01:00:38–01:00:52',principle:'角度平緩、量能不配合的突破要防假突破。'}),
-    Object.freeze({file:'蕭明道下.srt',time:'00:00:04–00:00:32',principle:'個股要和產業、大盤比較相對強弱。'}),
-    Object.freeze({file:'蕭明道下.srt',time:'00:35:09–00:35:22',principle:'不要只把前低或均線當支撐，必須回到量價結構。'}),
-    Object.freeze({file:'蕭明道下.srt',time:'01:14:51–01:15:23',principle:'判讀由量、價、時間、角度共同組成。'}),
-    Object.freeze({file:'蕭明道下.srt',time:'00:41:08–00:41:29',principle:'先避免套牢；可控制的小損失優先於硬等反彈。'})
+    Object.freeze({file:'量價分析上集.srt',time:'00:49:28–00:50:14',principle:'三盤是日線風險保險；遇到風險可先退出，之後再買回。'}),
+    Object.freeze({file:'量價分析上集.srt',time:'01:11:55–01:12:21',principle:'型態突破或跌破要靠量，突破前常先量縮整理。'}),
+    Object.freeze({file:'量價分析上集.srt',time:'01:00:38–01:00:52',principle:'角度平緩、量能不配合的突破要防假突破。'}),
+    Object.freeze({file:'量價分析下集.srt',time:'00:00:04–00:00:32',principle:'個股要和產業、大盤比較相對強弱。'}),
+    Object.freeze({file:'量價分析下集.srt',time:'00:35:09–00:35:22',principle:'不要只把前低或均線當支撐，必須回到量價結構。'}),
+    Object.freeze({file:'量價分析下集.srt',time:'01:14:51–01:15:23',principle:'判讀由量、價、時間、角度共同組成。'}),
+    Object.freeze({file:'量價分析下集.srt',time:'00:41:08–00:41:29',principle:'先避免套牢；可控制的小損失優先於硬等反彈。'})
   ]);
   const num=value=>{if(value===null||value===undefined||value==='')return null;const n=Number(value);return Number.isFinite(n)?n:null;};
   const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));

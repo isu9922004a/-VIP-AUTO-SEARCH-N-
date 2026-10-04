@@ -7,12 +7,12 @@
   const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
   const price=value=>Number.isFinite(Number(value))?(Number(value)>=1000?Number(value).toFixed(0):Number(value)>=100?Number(value).toFixed(1):Number(value).toFixed(2)):'資料不足';
   const versionize=value=>String(value??'')
-    .replaceAll('石頭少爺 Agent V50 正式版｜R5.3.2.5.2｜蕭明道量價與新手開盤整合版',RELEASE)
-    .replaceAll('V50_R5.3.2.5.2_蕭明道量價與新手開盤整合版',FILE_VERSION)
-    .replaceAll('石頭少爺 Agent V50 正式版｜R5.3.2.5.3｜蕭明道量價與圖片版面完整修正版',RELEASE)
-    .replaceAll('V50_R5.3.2.5.3_蕭明道量價與圖片版面完整修正版',FILE_VERSION)
-    .replaceAll('石頭少爺 Agent V50 正式版｜R5.3.2.5.4｜蕭明道量價與專業版面整合修正版',RELEASE)
-    .replaceAll('V50_R5.3.2.5.4_蕭明道量價與專業版面整合修正版',FILE_VERSION)
+    .replaceAll('石頭少爺 Agent V50 正式版｜R5.3.2.5.2｜量價與新手開盤整合版',RELEASE)
+    .replaceAll('V50_R5.3.2.5.2_量價與新手開盤整合版',FILE_VERSION)
+    .replaceAll('石頭少爺 Agent V50 正式版｜R5.3.2.5.3｜量價與圖片版面完整修正版',RELEASE)
+    .replaceAll('V50_R5.3.2.5.3_量價與圖片版面完整修正版',FILE_VERSION)
+    .replaceAll('石頭少爺 Agent V50 正式版｜R5.3.2.5.4｜量價與專業版面整合修正版',RELEASE)
+    .replaceAll('V50_R5.3.2.5.4_量價與專業版面整合修正版',FILE_VERSION)
     .replaceAll('石頭少爺 Agent V50 正式版｜R5.3.2.5.5｜新手十秒決策版',RELEASE)
     .replaceAll('V50_R5.3.2.5.5_新手十秒決策版',FILE_VERSION)
     .replaceAll('石頭少爺 Agent V50 正式版｜R5.3.2.5.6.1｜新手白話與完整專業報告版',RELEASE)

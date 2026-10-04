@@ -10,6 +10,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>石頭少爺 Agent V50 正式版｜R5.3.2.5.6.3.1｜圖片統一排版完整版</title>
+<script src="./scan-exclusions-rsi-v5328.js?v=R5328"></script>
 <script src="./version-v50.js?v=R5.3.2.5.6.3.1"></script>
 
 <style>
@@ -1142,7 +1143,7 @@ body.dark .v46-reason,body.dark .v46-note,body.dark .v46-family{color:#d2dae7}bo
         <select id="momentumDeepLimit" style="max-width:100%;padding:8px;border-radius:8px">
           <option value="70">主升快篩排序前70檔（較快）</option><option value="140">主升快篩排序前140檔</option><option value="all">全部主升快篩合格股票（較久）</option>
         </select>
-        <div class="meta">金融、生技、流動性及主升快篩門檻沿用原設定。上限外與停止後未完成者會分別列出。</div>
+        <div class="meta">三策略共用排除全額交割、DR、特殊商品、金融、生技、營建與低流動性；其餘主升門檻沿用原設定。上限外與停止後未完成者會分別列出。</div>
       </div>
       <div class="momentum-action-row">
         <button id="momentumScanButton" class="btn momentum-btn" type="button" onclick="runMomentumScanV3769()">🚀 主動式主升掃描</button>
@@ -1197,7 +1198,7 @@ body.dark .v46-reason,body.dark .v46-note,body.dark .v46-family{color:#d2dae7}bo
       <div class="rule" style="margin-top:12px"><label for="strongStockDeepLimit">完整日K深入分析範圍：</label>
         <select id="strongStockDeepLimit" style="padding:9px;max-width:100%;border-radius:8px">
           <option value="70">快篩前70檔</option><option value="140" selected>快篩前140檔</option><option value="all">全部快篩合格股（可能需較久）</option>
-        </select><div class="meta">先快篩完整市場，金融與生技依官方產業分類排除。上限外僅屬尚未分析，不得算成淘汰或全市場零候選。</div>
+        </select><div class="meta">先快篩完整市場；共用七類排除條件，官方變更交易名單與市場同日才掃描。上限外僅屬尚未分析，不得算成淘汰或全市場零候選。</div>
       </div>
       <div class="strong-stock-actions">
         <button id="strongStockScanButton" class="btn" type="button" onclick="runStrongStockScanV47()">🔎 查詢強勢飆股濾網</button>
@@ -25783,13 +25784,13 @@ async function loadMarketBundleFromWorkerV3766(bundlePath=MOMENTUM_MARKET_BUNDLE
       const quoteMap=new Map(),sectorMap=new Map();
       for(const row of data.rows){
         const code=String(row?.code||"").trim(); if(!/^[1-9]\d{3}$/.test(code))continue;
-        const q={code,market:row.market||"",close:numLooseV3765(row.close),open:numLooseV3765(row.open),high:numLooseV3765(row.high),low:numLooseV3765(row.low),volume:numLooseV3765(row.volume),tradeValue:numLooseV3765(row.tradeValue),change:numLooseV3765(row.change),pct:numLooseV3765(row.pct),closePos:numLooseV3765(row.closePos)};
+        const q={...row,code,market:row.market||"",close:numLooseV3765(row.close),open:numLooseV3765(row.open),high:numLooseV3765(row.high),low:numLooseV3765(row.low),volume:numLooseV3765(row.volume),tradeValue:numLooseV3765(row.tradeValue),change:numLooseV3765(row.change),pct:numLooseV3765(row.pct),closePos:numLooseV3765(row.closePos)};
         if(!(q.close>0)||!(q.open>0)||!(q.high>0)||!(q.low>0))continue;
         quoteMap.set(code,q);
-        sectorMap.set(code,{market:q.market,industry:String(row.industry||row.industryName||""),industryCode:String(row.industryCode||""),industryName:String(row.industryName||row.industry||""),industryRaw:String(row.industryRaw||"")});
+        sectorMap.set(code,{...row,market:q.market,industry:String(row.industry||row.industryName||""),industryCode:String(row.industryCode||""),industryName:String(row.industryName||row.industry||""),industryRaw:String(row.industryRaw||"")});
       }
       if(!quoteMap.size)throw new Error("Market Worker 批次快照為空");
-      return {map:quoteMap,sectorMap,meta:data.meta||{},cached:data.cached===true,source:data.source||"Cloudflare Market Worker",snapshotRows:data.rows.length,snapshotDropped:data.rows.length-quoteMap.size};
+      return {map:quoteMap,sectorMap,meta:data.meta||{},exclusionStatus:data.exclusionStatus||null,cached:data.cached===true,source:data.source||"Cloudflare Market Worker",snapshotRows:data.rows.length,snapshotDropped:data.rows.length-quoteMap.size};
     }catch(e){
       lastErr=e;
       if(e?.noRetry)break;
@@ -34929,7 +34930,9 @@ document.querySelectorAll(".version-pill,footer strong").forEach(el=>{if(/石頭
 <script src="./report-layout-v563.js?v=R5.3.2.5.6.3.1-iphone12pm-fullscreen1"></script>
 <script src="./shitou-v50-ui.js?v=R5.3.2.5.6.3.1"></script>
 
-<script src="./teacher-three-pan-ui.js?v=teacher-v1"></script>
+<script src="./teacher-three-pan-ui.js?v=R5328"></script>
+<script src="./data/market/scan-exclusions.js?v=R5328"></script>
+<script src="./scan-report-rsi-v5328.js?v=R5328"></script>
 </body>
 
 </html>

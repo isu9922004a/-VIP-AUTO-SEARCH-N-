@@ -4,7 +4,7 @@ const WIDTH=1284,HEIGHT=2778;
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const current=()=>typeof lastReportData!=='undefined'?lastReportData:null;
 const get=input=>C.analyze(input).teacher;
-const theme={ink:'#17324f',muted:'#60748a',blue:'#244f78',red:'#aa2f48',green:'#15755e',yellow:'#926020'};
+const theme={ink:'#17324f',muted:'#3d536b',blue:'#244f78',red:'#aa2f48',green:'#15755e',yellow:'#926020'};
 function wrap(ctx,s,w,size,weight=700){ctx.font=`${weight} ${size}px 'Microsoft JhengHei','Noto Sans TC',sans-serif`;const lines=[];for(const p of String(s??'').split('\n')){let line='';for(const ch of p){if(line&&ctx.measureText(line+ch).width>w){lines.push(line);line=ch;}else line+=ch;}lines.push(line);}return lines;}
 function fit(ctx,s,x,y,w,h,max=25,min=18,color=theme.ink,weight=700){let lines,size=max;for(;size>=min;size--){lines=wrap(ctx,s,w,size,weight);if(lines.length*size*1.32<=h)break;}if(size<min)throw Error('文字超出安全區：'+String(s).slice(0,30));ctx.font=`${weight} ${size}px 'Microsoft JhengHei','Noto Sans TC',sans-serif`;ctx.textBaseline='top';ctx.textAlign='left';ctx.fillStyle=color;lines.forEach((line,i)=>ctx.fillText(line,x,y+i*size*1.32));return lines.length*size*1.32;}
 function box(ctx,x,y,w,h,title,body,tone='blue',options={}){
@@ -26,8 +26,8 @@ function professional(base,input){
  const mark=(id,top,bottom,role)=>sections.push({id,top,bottom,role});
  crop(ctx,source,0,0,source.width,bodyTop,0,0,WIDTH,132);mark('header-original',0,132,'preserved');
  const d=root.ShitouV50UI.beginnerDecision(input),p=root.ShitouV50UI.newbiePlan(input,C.analyze(input),d),g=guide(input);
- box(ctx,M,140,inner,164,'新手先看｜三盤波段與原進場條件',[
-  a.ok?`${a.phaseLabel}｜${a.formalEligible?'量价波段資格通過；仍查原進場條件':'本次未取得強勢資格'}`:a.reason,
+ box(ctx,M,140,inner,164,'新手先看｜三盤波段與原進場條件｜'+root.ShitouScanPolicy5328.rsiText(input),[
+  a.ok?`${a.phaseLabel}｜${a.formalEligible?'量價波段資格通過；仍查原進場條件':'本次未取得強勢資格'}`:a.reason,
   `空手：${d.verdict}｜${a.ok?a.plain:d.reason}`,
   `已持有：${a.ok&&a.signal.key==='DOWN'?'三盤退出／風控訊號已成立':p.holder}`
  ],a.ok&&a.signal.key==='DOWN'?'red':'yellow',{size:21,min:15,titleSize:24,titleH:28,pad:12});mark('decision',140,304,'updated');
@@ -38,9 +38,9 @@ function professional(base,input){
  crop(ctx,source,oldX,bodyTop,oldW,bcTop-bodyTop,M,670,inner,880);mark('A-chart-original',670,1550,'preserved');
  // B完整像素保留，C只換右欄；不依賴原版文字擷取是否包含研究卡。
  const col=(inner-G)/2;if(content.scenarios?.length===3){const bLines=[];content.scenarios.forEach((value,i)=>bLines.push(['怎樣才算轉強','如果繼續整理','哪裡跌破要退出'][i]+'：'+value));bLines.push('以上可進／續抱／減碼／退出僅為技術條件的白話風控，不保證漲跌，交易風險仍需自負。');box(ctx,M,1558,col,330,'B. 明天三種走法｜原內容',bLines,'blue',{size:20,min:12,titleSize:24,titleH:32,pad:14});}else crop(ctx,source,24*k,bcTop,760*k,780*k,M,1558,col,330);mark('B-original',1558,1888,'preserved');
- box(ctx,M+col+G,1558,col,330,'C. 三盤與波段戰法',strategyLines(a),a.ok&&a.signal.key==='DOWN'?'red':'blue',{size:21,min:16,titleSize:26,titleH:34,pad:18});mark('C-teacher',1558,1888,'replaced');
+ box(ctx,M+col+G,1558,col,330,'C. 三盤與波段戰法',[...strategyLines(a),root.ShitouScanPolicy5328.rsiText(input,true),root.ShitouScanPolicy5328.volumeText(input)],a.ok&&a.signal.key==='DOWN'?'red':'blue',{size:21,min:16,titleSize:26,titleH:34,pad:18});mark('C-teacher',1558,1888,'replaced');
  const dSourceTop=s.dTitleTop-42*k;crop(ctx,source,oldX,dSourceTop,oldW,s.efTop-dSourceTop,M,1896,inner,212);mark('D-seven-metrics-original',1896,2108,'preserved');
- fit(ctx,'E. 廖崧沂・蕭明道｜量潮接力與波段應變',M,2116,inner,34,27,20,theme.ink,900);
+ fit(ctx,'E. 量潮接力與波段應變',M,2116,inner,34,27,20,theme.ink,900);
  const eLeft=a.ok?[`MA8 ${T.fmt(a.ma[8])}${T.arrow(a.maSlope[8])}／MA21 ${T.fmt(a.ma[21])}${T.arrow(a.maSlope[21])}／MA55 ${T.fmt(a.ma[55])}${T.arrow(a.maSlope[55])}`,`MV5 ${T.arrow(a.mvSlope[5])}／MV13 ${T.arrow(a.mvSlope[13])}／MV34 ${T.arrow(a.mvSlope[34])}：${a.volumePhase}`,a.angle]:[a.reason];
  const eRight=a.ok?[`下根向上 > ${T.fmt(a.next.high)}／向下 < ${T.fmt(a.next.low)}（完成收盤）`,relativeText(a),`型態：${a.pattern.label}；${a.pattern.plain}`,`依據：PDF 19、38、57–58、67、85–103；上集49:28。分段／三日止漲是工程約定。`]:['資料不足，不生成判斷。'];
  box(ctx,M,2158,col,250,'量價與角度',eLeft,'blue',{size:21,min:16,titleH:31,pad:16});box(ctx,M+col+G,2158,col,250,'條件與依據',eRight,'blue',{size:21,min:15,titleH:31,pad:16});mark('E-teacher',2116,2408,'replaced');
@@ -57,14 +57,14 @@ function chart(ctx,b,x,y,w,h){
  data.forEach((r,j)=>{const xx=x+(j+.5)*step,color=r.close>=r.open?'#c94860':'#188574';ctx.strokeStyle=color;ctx.lineWidth=2.4;ctx.beginPath();ctx.moveTo(xx,Y(r.high));ctx.lineTo(xx,Y(r.low));ctx.stroke();ctx.fillStyle=color;ctx.fillRect(xx-step*.23,Math.min(Y(r.open),Y(r.close)),step*.46,Math.max(3,Math.abs(Y(r.open)-Y(r.close))));});
  fit(ctx,'MA8 金／MA21 藍／MA55 紫｜最近60根完成K',x,y+h+8,w,30,23,18,theme.muted);
  const volMax=Math.max(...data.map(r=>r.volume))||1,vy=y+h+48,vh=90;data.forEach((r,j)=>{ctx.fillStyle=r.close>=r.open?'#c94860':'#188574';const hh=r.volume/volMax*vh;ctx.fillRect(x+j*step+2,vy+vh-hh,Math.max(2,step-4),hh);});
- fit(ctx,'成交量（股）｜圖表無未來資料',x,vy+vh+6,w,28,21,18,theme.muted);
+ fit(ctx,'成交量（股）｜'+root.ShitouScanPolicy5328.volumeText({dailySeries:b,closeDate:b.at(-1).date}),x,vy+vh+6,w,28,21,18,theme.muted);
 }
 function render(input){
  const a=get(input),r=input.report||input,canvas=document.createElement('canvas');canvas.width=WIDTH;canvas.height=HEIGHT;const ctx=canvas.getContext('2d'),sections=[];ctx.fillStyle='#eef3f8';ctx.fillRect(0,0,WIDTH,HEIGHT);
- ctx.fillStyle='#15344e';ctx.fillRect(0,0,WIDTH,186);fit(ctx,`${r.name||'個股'}（${r.code||r.stock||'-'}）｜三盤趨勢`,42,25,1200,78,40,22,'#fff',900);fit(ctx,`廖崧沂・蕭明道教材｜完成日K｜資料日 ${a.date||'不足'}`,42,121,1200,38,25,19,'#c8dbe9');
- if(!a.ok){box(ctx,36,210,1212,250,'資料不足，暫停三盤判讀',[a.reason,'補齊完成OHLCV與相同資料日後再產生報告。'],'yellow');canvas.dataset.layoutAudit=encodeURIComponent(JSON.stringify({size:'1284x2778',noOverlap:true,dataBlocked:true}));return canvas;}
+ ctx.fillStyle='#15344e';ctx.fillRect(0,0,WIDTH,186);fit(ctx,`${r.name||'個股'}（${r.code||r.stock||'-'}）｜三盤趨勢`,42,25,1200,78,40,22,'#fff',900);fit(ctx,`量價波段分析｜完成日K｜資料日 ${a.date||'不足'}｜${root.ShitouScanPolicy5328.rsiText(r)}`,42,121,1200,38,25,19,'#c8dbe9');
+ if(!a.ok){box(ctx,36,210,1212,250,'資料不足，暫停三盤判讀',[a.reason,root.ShitouScanPolicy5328.rsiText(r,true),root.ShitouScanPolicy5328.volumeText(r),'補齊完成OHLCV與相同資料日後再產生報告。'],'yellow');canvas.dataset.layoutAudit=encodeURIComponent(JSON.stringify({size:'1284x2778',noOverlap:true,dataBlocked:true}));return canvas;}
  const M=36,W=1212,G=16,H=(W-G)/2,mark=(id,top,bottom)=>sections.push({id,top,bottom});
- box(ctx,M,208,W,220,`${a.phaseLabel}｜收盤 ${T.fmt(a.close)}`,[a.plain,`強勢名單資格：${a.formalEligible?'通過；實際進場仍需重查':'未通過；分數不能解除失效或等待'}。`,`${a.longLabel}；${a.pattern.label}。`],a.signal.key==='DOWN'?'red':a.formalEligible?'green':'yellow',{titleSize:34,titleH:47,size:27,min:23});mark('verdict',208,428);
+ box(ctx,M,208,W,220,`${a.phaseLabel}｜收盤 ${T.fmt(a.close)}`,[a.plain,`強勢名單資格：${a.formalEligible?'通過；實際進場仍需重查':'未通過；分數不能解除失效或等待'}。`,`${a.longLabel}；${a.pattern.label}。 ${root.ShitouScanPolicy5328.rsiText(r,true)}`],a.signal.key==='DOWN'?'red':a.formalEligible?'green':'yellow',{titleSize:34,titleH:47,size:27,min:23});mark('verdict',208,428);
  box(ctx,M,444,H,168,'本次三盤關卡',[`前兩日高 ${T.fmt(a.signal.high)}／低 ${T.fmt(a.signal.low)}`,`${a.signalLabel}；相等不算。`],'blue',{size:25,min:22});
  box(ctx,M+H+G,444,H,168,'下一根三盤關卡',[`向上 > ${T.fmt(a.next.high)}／向下 < ${T.fmt(a.next.low)}`,`由今日＋昨日更新，僅以完成收盤確認。`],'blue',{size:25,min:21});mark('levels',444,612);
  box(ctx,M,628,W,708,'K線・教材均線・成交量',[],'blue');chart(ctx,a.bars,M+22,690,W-44,426);mark('chart',628,1336);
@@ -82,11 +82,11 @@ function render(input){
 }
 let activeReport=null;
 function mount(input){activeReport=input;let panel=document.getElementById('teacherThreePanPanel');if(!panel){panel=document.createElement('section');panel.id='teacherThreePanPanel';panel.className='v50-panel';const target=document.getElementById('v50StockDecision')||document.getElementById('beginnerCommandCenterV46')||document.getElementById('result');if(!target)return;target.insertAdjacentElement('afterend',panel);}
- const a=get(input);panel.innerHTML=`<div class="v50-title">三盤趨勢分析專區｜廖崧沂・蕭明道</div><p>${esc(a.ok?a.phaseLabel:a.reason)}</p><p>${esc(a.ok?a.plain:'補齊資料後再分析。')}</p><div class="actions"><button type="button" id="generateThreePanImageButton" ${a.ok?'':'disabled'}>一鍵生成三盤圖片｜iPhone 12 Pro Max</button><button type="button" id="copyThreePanReportButton">一鍵複製三盤文字</button></div><p id="threePanMessage" role="status" aria-live="polite"></p><pre style="white-space:pre-wrap;line-height:1.7;font-size:14px;max-height:440px;overflow:auto">${esc(T.text(input))}</pre>`;
+ const a=get(input);panel.innerHTML=`<div class="v50-title">三盤趨勢分析專區</div><p>${esc(a.ok?a.phaseLabel:a.reason)}</p><p>${esc(a.ok?a.plain:'補齊資料後再分析。')}</p><div class="actions"><button type="button" id="generateThreePanImageButton" ${a.ok?'':'disabled'}>一鍵生成三盤圖片｜iPhone 12 Pro Max</button><button type="button" id="copyThreePanReportButton">一鍵複製三盤文字</button></div><p id="threePanMessage" role="status" aria-live="polite"></p><pre style="white-space:pre-wrap;line-height:1.7;font-size:14px;max-height:440px;overflow:auto">${esc(T.text(input))}</pre>`;
  panel.querySelector('#generateThreePanImageButton').onclick=generate;panel.querySelector('#copyThreePanReportButton').onclick=copy;
 }
 function selected(){const r=current();if(r&&(!activeReport||r!==(activeReport.report||activeReport)))return r;return activeReport||r;}
-async function generate(){const r=selected(),message=document.getElementById('threePanMessage'),button=document.getElementById('generateThreePanImageButton');if(!r){if(message)message.textContent='請先完成個股分析。';return;}if(button)button.disabled=true;try{const c=render(r),a=get(r);if(!a.ok)throw Error(a.reason);await root.showInfographicPreviewV3328(c,root.sanitizeFilenameV3328(`石頭少爺_${(r.report||r).code||(r.report||r).stock}_三盤趨勢_${a.date}_R5327.png`),'三盤趨勢分析｜1284×2778 滿版');if(message)message.textContent='圖片已生成，可儲存 PNG 或分享。';}catch(e){if(message)message.textContent='生成未完成：'+e.message;}finally{if(button)button.disabled=false;}}
+async function generate(){const r=selected(),message=document.getElementById('threePanMessage'),button=document.getElementById('generateThreePanImageButton');if(!r){if(message)message.textContent='請先完成個股分析。';return;}if(button)button.disabled=true;try{const c=render(r),a=get(r);if(!a.ok)throw Error(a.reason);await root.showInfographicPreviewV3328(c,root.sanitizeFilenameV3328(`石頭少爺_${(r.report||r).code||(r.report||r).stock}_三盤趨勢_${a.date}_R5328.png`),'三盤趨勢分析｜1284×2778 滿版');if(message)message.textContent='圖片已生成，可儲存 PNG 或分享。';}catch(e){if(message)message.textContent='生成未完成：'+e.message;}finally{if(button)button.disabled=false;}}
 async function copy(){const r=selected(),message=document.getElementById('threePanMessage');if(!r){if(message)message.textContent='請先完成個股分析。';return;}try{const text=T.text(r);if(navigator.clipboard?.writeText)await navigator.clipboard.writeText(text);else{const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();const ok=document.execCommand('copy');ta.remove();if(!ok)throw Error('瀏覽器未允許複製，請從下方文字選取複製');}if(message)message.textContent='三盤文字報告已複製。';}catch(e){if(message)message.textContent='複製未完成：'+e.message;}}
 root.ShitouThreePanUI=Object.freeze({WIDTH,HEIGHT,get,guide,professional,render,mount,generate,copy,fit,box});
 root.renderThreePanStockInfographic=render;root.buildThreePanStockReportText=T.text;
