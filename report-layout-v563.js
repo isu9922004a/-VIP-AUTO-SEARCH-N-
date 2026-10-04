@@ -58,6 +58,7 @@
     ctx.fillStyle=fill;ctx.fillRect(x,y,w,h);if(!(source&&sw>0&&sh>0&&w>0&&h>0))return;const scale=Math.min(w/sw,h/sh),dw=Math.round(sw*scale),dh=Math.round(sh*scale),dx=Math.round(x+(w-dw)/2),dy=Math.round(y+(h-dh)/2);ctx.drawImage(source,sx,sy,sw,sh,dx,dy,dw,dh);
   }
   function professional(base,input,a,d){
+    if(root.ShitouThreePanUI)return root.ShitouThreePanUI.professional(base,input);
     const U=root.ShitouV50UI,source=U.compactPreviousCards(base),report=input.report||input,p=U.newbiePlan(input,a,d),g=U.professionalCourseGuide(input,a,d);let content=null,audit=null;
     try{content=JSON.parse(decodeURIComponent(source.dataset.professionalLayoutContent));audit=JSON.parse(decodeURIComponent(source.dataset.layoutAudit));}catch(_){}
     const canvas=document.createElement('canvas');canvas.width=1284;canvas.height=2778;const ctx=canvas.getContext('2d');ctx.fillStyle='#eef3f8';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.imageSmoothingEnabled=true;if('imageSmoothingQuality' in ctx)ctx.imageSmoothingQuality='high';

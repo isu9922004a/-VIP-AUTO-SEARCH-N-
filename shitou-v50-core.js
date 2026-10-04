@@ -26,18 +26,7 @@
   const isoDate=value=>{const match=String(value??'').trim().match(/^(\d{4})[-/]?(\d{2})[-/]?(\d{2})$/);if(!match)return null;const text=`${match[1]}-${match[2]}-${match[3]}`,date=new Date(`${text}T00:00:00Z`);return Number.isFinite(date.getTime())&&date.toISOString().slice(0,10)===text?text:null;};
   const deepFreeze=value=>{if(!value||typeof value!=='object'||Object.isFrozen(value))return value;Object.freeze(value);for(const child of Object.values(value))deepFreeze(child);return value;};
 
-  function normalizeBars(source){
-    const rows=[];
-    for(const item of Array.isArray(source)?source:[]){
-      const date=isoDate(item?.date||item?.tradeDate),open=number(item?.open),high=number(item?.high),low=number(item?.low),close=number(item?.close),volume=number(item?.volume??item?.vol);
-      if(!date||!(open>0&&high>0&&low>0&&close>0&&volume!==null&&volume>=0))continue;
-      if(high<Math.max(open,close,low)||low>Math.min(open,close,high))continue;
-      rows.push({date,open,high,low,close,volume});
-    }
-    rows.sort((a,b)=>a.date.localeCompare(b.date));
-    const map=new Map();for(const row of rows)map.set(row.date,row);
-    return [...map.values()];
-  }
+  function normalizeBars(source){return W.normalizeBars(source);}
 
   function confirmedPivots(source,left=3,right=3){
     const bars=normalizeBars(source),pivots=[];
@@ -196,12 +185,12 @@
   }
 
   function build(input){
-    const candidate=input&&typeof input==='object'?input:{},report=candidate.report||candidate,source=report?.dailySeries||report?.rows||report?.history||candidate?.dailySeries||[],bars=normalizeBars(source),quality=dataQuality(report,bars,Array.isArray(source)?source.length:0),trend=trendStructure(bars),wave=bars.length>=60&&W?.analyzeBars?W.analyzeBars(bars):{ok:false,reason:'完整日K少於60根'},course=X?.analyze?X.analyze(candidate,wave):null,fib=fibAnalysis(bars),previousDay=previousDayResearch(bars,trend),candle=candleEvidence(bars,trend),opening=B?.analyze?B.analyze(report):null;
-    const result={model:MODEL,release:RELEASE,dataTiming:DATA_TIMING,generatedAt:new Date().toISOString(),dataDate:quality.finalDate,quality,barsUsed:bars.length,latestClose:bars.at(-1)?.close??null,trend,wave,course,fib,previousDay,candle,movingAverageInertia:movingAverageInertia(bars),gaps:gapResearch(bars),confluence:confluenceMap(bars,fib,wave),openingDecision:opening,formalBefore:formalSnapshot(candidate),courseIntegration:{affectsStrongStockTieRank:true,affectsFormalExecutionGate:false,affectsStop:false,scoreSemantic:'CONDITION_COMPLETENESS_NOT_WIN_RATE'},research:{role:RESEARCH_ROLE,affectsFormalGate:false,affectsScore:false,affectsRanking:false,affectsStop:false,affectsObservationPrice:false},plain:{headline:trend.label,summary:trend.plain}};
+    const candidate=input&&typeof input==='object'?input:{},report=candidate.report||candidate,source=report?.canonicalBars||report?.dailySeries||report?.rows||report?.history||candidate?.dailySeries||[],bars=normalizeBars(source),quality=dataQuality(report,bars,Array.isArray(source)?source.length:0),trend=trendStructure(bars),wave=bars.length>=60&&W?.analyzeBars?W.analyzeBars(bars):{ok:false,reason:'完整日K少於60根'},course=X?.analyze?X.analyze(candidate,wave):null,fib=fibAnalysis(bars),previousDay=previousDayResearch(bars,trend),candle=candleEvidence(bars,trend),opening=B?.analyze?B.analyze(report):null;
+    const teacher=globalThis.ShitouTeacherThreePan.fromReport(candidate);const result={teacher,volumeAudit:report.volumeAudit||null,model:MODEL,release:RELEASE,dataTiming:DATA_TIMING,generatedAt:new Date().toISOString(),dataDate:quality.finalDate,quality,barsUsed:bars.length,latestClose:bars.at(-1)?.close??null,trend,wave,course,fib,previousDay,candle,movingAverageInertia:movingAverageInertia(bars),gaps:gapResearch(bars),confluence:confluenceMap(bars,fib,wave),openingDecision:opening,formalBefore:formalSnapshot(candidate),courseIntegration:{affectsStrongStockTieRank:true,teacherEligibility:true,affectsFormalExecutionGate:true,affectsStop:true,scoreSemantic:'CONDITION_COMPLETENESS_NOT_WIN_RATE'},research:{role:RESEARCH_ROLE,affectsFormalGate:false,affectsScore:false,affectsRanking:false,affectsStop:false,affectsObservationPrice:false},plain:{headline:trend.label,summary:trend.plain}};
     return deepFreeze(result);
   }
 
-  function fingerprint(input){const report=input?.report||input||{},rows=report?.dailySeries||report?.rows||report?.history||[],relative=input?.industryContext?.relativeStrength??report?.industryContext?.relativeStrength??'';return `${rows.length}|${rows.at?.(-1)?.date||''}|${rows.at?.(-1)?.close||''}|${rows.at?.(-1)?.volume||''}|${report?.closeDate||''}|${relative}`;}
+  function fingerprint(input){const r=input?.report||input||{};return JSON.stringify([r.canonicalBars||r.dailySeries||r.rows||r.history||[],r.close,r.closeDate,r.marketDate,r.marketDataDate,r.volumeAudit,input?.industryContext||r.industryContext,input?.relativeComparison||r.relativeComparison]);}
   function analyze(input){
     const key=input?.report&&typeof input.report==='object'?input.report:(input&&typeof input==='object'?input:null),mark=fingerprint(input);
     if(key){const saved=cache.get(key);if(saved?.fingerprint===mark)return saved.result;const result=build(input);cache.set(key,{fingerprint:mark,result});return result;}

@@ -28,47 +28,26 @@
     return values.map(num).find(value=>value!==null)??null;
   }
   function threePanState(w){
-    const ratio=w?.threePanVolumeRatio;
-    if(w?.threeBreakoutConfirmed)return {key:'BREAKOUT_CONFIRMED',icon:'✅',label:'三盤突破＋量價確認',plain:`今天收盤高過前兩天最高價，今日量約為前5日均量 ${ratio.toFixed(2)} 倍，且收盤靠近日高；可列入明日盤中確認，但不是開盤直接買。`};
-    if(w?.threeBreakout)return {key:'BREAKOUT_UNCONFIRMED',icon:'🟠',label:'價格過關、量價未確認',plain:`今天收盤雖高過前兩天最高價，但量比 ${ratio?.toFixed(2)??'-'} 倍或收盤位置沒有配合；先當疑似假突破，不追價。`};
-    if(w?.threeBreakdownConfirmed)return {key:'BREAKDOWN_CONFIRMED',icon:'🔴',label:'帶量三盤跌破',plain:`今天收盤低過前兩天最低價，而且帶量弱收；風險已確認，空手不進場，持股先依防守價處理。`};
-    if(w?.threeBreakdown)return {key:'BREAKDOWN_UNCONFIRMED',icon:'🟠',label:'三盤跌破、先防守',plain:'今天收盤低過前兩天最低價；即使量能尚未完整確認，也先把防守放前面，不賭立即反彈。'};
-    return {key:'NO_TURN',icon:'⚪',label:'三盤尚未轉折',plain:'最近三個完成交易日還沒有形成新的收盤突破或跌破；現在以等待為主。'};
+    if(w?.threeBreakdown)return {key:'BREAKDOWN_CONFIRMED',icon:'🔴',label:'三盤跌破／波段風控',plain:'收盤一破二；量縮或均線偏多均不能解除已發生的跌破。'};
+    if(w?.threeBreakoutConfirmed)return {key:'BREAKOUT_CONFIRMED',icon:'✅',label:'三盤發動／量潮接力',plain:'收盤一過二，攻擊量與較大潮配合；仍需下日重新查核。'};
+    if(w?.threeBreakout)return {key:'BREAKOUT_UNCONFIRMED',icon:'🟠',label:'三盤向上／發動證據待接力',plain:'價格訊號成立，量潮背景仍待確認；不足不直接稱假突破。'};
+    return {key:'NO_TURN',icon:'⚪',label:'無新三盤轉折',plain:'沒有新的三盤訊號；既有波段是否延續、盤整是否成立須分別判讀。'};
   }
   function component(key,label,earned,max,plain,available=true){return {key,label,earned:available?clamp(Math.round(earned),0,max):null,max,available,plain};}
   function analyze(input,waveAnalysis=null){
-    const report=reportOf(input),w=waveAnalysis?.ok?waveAnalysis:W?.analyzeReport?.(report);
-    if(!w?.ok)return {ok:false,model:MODEL,role:ROLE,score:null,label:'資料不足',reason:w?.reason||'量價核心未載入',components:[],sourceEvidence:SOURCE_EVIDENCE};
-    const pan=threePanState(w),positiveSlopes=[w.maSlope?.ma8>0,w.maSlope?.ma21>0,w.maSlope?.ma55>=0].filter(Boolean).length;
-    const trendEarned=(w.priceStack?13:0)+positiveSlopes*3+(w.fiveDayReturnPct>0?3:0);
-    const panEarned=pan.key==='BREAKOUT_CONFIRMED'?25:pan.key==='BREAKOUT_UNCONFIRMED'?8:pan.key==='NO_TURN'?11:pan.key==='BREAKDOWN_UNCONFIRMED'?4:0;
-    const ratio=num(w.threePanVolumeRatio),volumeEarned=ratio===null?0:(ratio>=1.1&&ratio<=3?12:ratio>=.9?8:ratio>=.7?5:2)+[w.mvSlope?.mv5>0,w.mvSlope?.mv13>=0].filter(Boolean).length*4;
-    const gap=Math.abs(num(w.gap21Pct)??99),positionEarned=gap<=6?15:gap<=10?12:gap<=15?7:gap<=18?3:0;
-    const relative=relativeStrengthOf(input),relativeAvailable=relative!==null,relativeEarned=!relativeAvailable?0:relative>=2?15:relative>0?12:relative>=-2?7:2;
-    const components=[
-      component('TREND_ANGLE','趨勢與角度',trendEarned,25,w.priceStack?'價格與均線方向偏多。':'價格與均線方向仍未完全同步。'),
-      component('THREE_PAN','三盤轉折',panEarned,25,pan.plain),
-      component('VOLUME','成交量確認',volumeEarned,20,ratio===null?'成交量資料不足。':`今日量約為前5日均量 ${ratio.toFixed(2)} 倍；突破要有量，量大價不動也要降級。`),
-      component('POSITION','位置與追價距離',positionEarned,15,gap<=10?`離21日線約 ${gap.toFixed(1)}%，位置仍可管理。`:`離21日線約 ${gap.toFixed(1)}%，追價容錯偏低。`),
-      component('RELATIVE','產業相對強弱',relativeEarned,15,relativeAvailable?`產業相對大盤約 ${relative>=0?'+':''}${relative.toFixed(1)} 個百分點。`:'產業相對強弱資料不足；本項不加分也不扣分。',relativeAvailable)
-    ];
-    const available=components.filter(item=>item.available),earned=available.reduce((sum,item)=>sum+item.earned,0),max=available.reduce((sum,item)=>sum+item.max,0),score=max?Math.round(earned/max*100):0;
-    const hardRisk=w.threeBreakdownConfirmed||w.phase==='WEAKENING'||gap>18||(w.fib?.direction==='UP'&&w.fib?.zone?.key==='BROKEN');
-    let key='WAIT',icon='🟠',label='現在先等，不適合急著進場';
-    if(hardRisk){key='AVOID';icon='🔴';label='目前不適合進場';}
-    else if(pan.key==='BREAKOUT_CONFIRMED'&&score>=75){key='CONDITIONAL';icon='🟢';label='可列入明日盤中條件確認';}
-    else if(score>=60){key='WATCH';icon='🟡';label='可以觀察，但還不能直接進場';}
-    const defense=num(w.support),trigger=num(w.trigger);
-    const openingChecklist=[
-      trigger?`價格：開盤後要能站穩 ${trigger.toFixed(2)}，只碰到不算確認。`:'價格：等待盤中建立可驗證的突破關卡。',
-      `成交量：突破時要有量；爆量卻推不動，立即降級為不追。`,
-      defense?`風險：跌破 ${defense.toFixed(2)}，停止新買並重新檢查。`:'風險：尚無可靠防守價，不建立新部位。'
-    ];
-    return {ok:true,model:MODEL,role:ROLE,score,key,icon,label,coverageMax:max,coveragePct:Math.round(max/100*100),threePan:pan,components,openingChecklist,trigger,defense,relativeStrength:relative,rankingUse:'同一正式等級內的次排序；不能繞過原 Gate',notWinRate:true,sourceEvidence:SOURCE_EVIDENCE};
+    const report=reportOf(input),w=waveAnalysis?.ok?waveAnalysis:W?.analyzeReport?.(report),T=globalThis.ShitouTeacherThreePan;
+    if(!w?.ok)return {ok:false,model:MODEL,role:ROLE,score:null,label:'資料不足',reason:w?.reason||'核心未載入',components:[],sourceEvidence:SOURCE_EVIDENCE};
+    const a=T.fromReport({...report,dailySeries:w.bars,canonicalBars:w.bars,industryContext:input?.industryContext||report.industryContext,relativeComparison:input?.relativeComparison||report.relativeComparison});
+    if(!a.ok)return {ok:false,model:MODEL,reason:a.reason,components:[]};
+    const pan=threePanState(w),relative=a.relative.industryVsMarket,relativeAvailable=relative!==null;
+    const components=[component('PRICE','價格環境',[a.priceStack,a.priceRising].filter(Boolean).length,2,a.longLabel),component('THREE_PAN','當前波段資格',a.formalEligible?1:0,1,a.plain),component('VOLUME','量潮接力',[a.volumeStack,a.tideRising,a.volumeStart].filter(Boolean).length,3,a.volumePhase)];
+    const score=a.score,key=a.signal.key==='DOWN'||a.exhaustion?'AVOID':a.formalEligible?'CONDITIONAL':'WATCH',icon=key==='AVOID'?'🔴':key==='CONDITIONAL'?'🟢':'🟡';
+    const openingChecklist=[`價格：下一根收盤高於 ${T.fmt(a.next.high)} 才是新三盤向上；已建立波段另看延續。`,`成交量：追蹤攻擊量與13／34日量潮；量縮創高與量縮止漲分開。`,`風險：下一根收盤低於 ${T.fmt(a.next.low)} 更新三盤風控；當前跌破不等明日確認。`];
+    return {ok:true,model:MODEL,role:ROLE,score,key,icon,label:a.phaseLabel,coverageMax:6,coveragePct:100,earned:a.completeness,threePan:pan,components,openingChecklist,trigger:a.next.high,defense:a.next.low,relativeStrength:relative,relativeAvailable,teacher:a,rankingUse:'先通過三盤波段資格，再按量潮條件覆蓋排序；分數不是勝率',notWinRate:true,sourceEvidence:SOURCE_EVIDENCE};
   }
   function textBlock(input){
     const a=input?.model===MODEL?input:analyze(input);if(!a.ok)return `【量價判讀】\n資料不足：${a.reason}`;
-    return [`【量價判讀｜明日開盤適合度】`,`${a.icon} ${a.label}｜${a.score}/100（條件完整度，不是勝率）`,`三盤白話：${a.threePan.plain}`,'五項量化：',...a.components.map(item=>`- ${item.label}：${item.available?`${item.earned}/${item.max}`:'資料不足'}｜${item.plain}`),'明日開盤只看：',...a.openingChecklist.map((item,index)=>`${index+1}. ${item}`),`定位：${a.rankingUse}。`].join('\n');
+    return [`【量價判讀｜量價波段狀態】`,`${a.icon} ${a.label}｜${a.score}/100（條件完整度，不是勝率）`,`三盤白話：${a.threePan.plain}`,'條件覆蓋（工程描述）：',...a.components.map(item=>`- ${item.label}：${item.available?`${item.earned}/${item.max}`:'資料不足'}｜${item.plain}`),'下一根完成日K觀察：',...a.openingChecklist.map((item,index)=>`${index+1}. ${item}`),`定位：${a.rankingUse}。`].join('\n');
   }
   return Object.freeze({MODEL,ROLE,SOURCE_EVIDENCE,num,relativeStrengthOf,threePanState,analyze,textBlock});
 });

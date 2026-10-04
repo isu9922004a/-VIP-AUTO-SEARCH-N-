@@ -18,7 +18,7 @@
     .replaceAll('石頭少爺 Agent V50 正式版｜R5.3.2.5.6.1｜新手白話與完整專業報告版',RELEASE)
     .replaceAll('V50_R5.3.2.5.6.1_新手白話與完整專業報告版',FILE_VERSION)
     .replaceAll('最新收盤','最新收盤');
-  const get=input=>input?.v50AnalysisResult||C.analyze(input);
+  const get=input=>C.analyze(input);
   const taipeiTime=value=>{try{return new Intl.DateTimeFormat('zh-TW',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(new Date(value));}catch(_){return '資料不足';}};
   const concise=(value,max=86)=>{const text=String(value??'').replace(/\s+/g,' ').trim();return text.length>max?`${text.slice(0,max-1)}…`:text;};
   const unique=items=>[...new Set((items||[]).filter(Boolean))];
@@ -55,9 +55,9 @@
     try{layer=typeof root.buildEducationLayerV46==='function'?root.buildEducationLayerV46(report):null;}catch(_){layer=null;}
     try{flow=layer&&typeof root.v46ActionFlowV511==='function'?root.v46ActionFlowV511(report,layer):null;}catch(_){flow=null;}
     const risk=layer?.decisionRiskState||{},context=layer?.sourceExecutionContext||{},levels=layer?.supportResistanceConfluence||{},opening=a.openingDecision||{};
-    const dataBlocked=['DATE_MISMATCH'].includes(a.quality?.state)||!a.dataDate;
-    const failed=context.failed===true||risk.key==='FAILED'||(!layer&&a.trend?.key==='BEAR');
-    const allowed=risk.displayActionAllowed===true&&layer?.executionAllowed===true;
+    const dataBlocked=['DATE_MISMATCH'].includes(a.quality?.state)||!a.dataDate||!a.teacher?.ok;
+    const failed=a.teacher?.signal?.key==='DOWN'||a.teacher?.exhaustion||context.failed===true||risk.key==='FAILED'||(!layer&&a.trend?.key==='BEAR');
+    const allowed=risk.displayActionAllowed===true&&layer?.executionAllowed===true&&a.teacher?.formalEligible===true;
     let key='WAIT',icon='🟠',tone='orange',verdict='目前不適合急著買，先等條件';
     if(dataBlocked){key='DATA';icon='⚪';tone='gray';verdict='資料不足，暫時不要買';}
     else if(failed){key='AVOID';icon='🔴';tone='red';verdict='目前不適合買進';}
@@ -68,9 +68,9 @@
     else if(!layer&&opening?.decision?.key==='PRIORITY_WATCH'&&a.trend?.key==='BULL'){key='WATCH';icon='🟡';tone='orange';verdict='可以優先觀察，但還不能直接買';}
     else if(!layer&&a.trend?.key==='SIDEWAYS'){key='WAIT_DIRECTION';icon='🟠';tone='orange';verdict='方向還沒確認，現在不適合急著買';}
     const fallbackReason=dataBlocked?'行情日期或完成日K資料不完整；資料不足時不補猜。':a.trend?.plain||opening?.plainText||'正式進場條件尚未完整。';
-    const reason=concise(beginnerPlain(risk.primary||fallbackReason),130);
+    const reason=concise(beginnerPlain(a.teacher?.plain||a.teacher?.reason||risk.primary||fallbackReason),130);
     const fallbackWait=a.trend?.key==='SIDEWAYS'?'先等方向變清楚，並確認價格守住支撐、成交量配合。':opening?.plainText||'等待價格、成交量與風險條件一起完成後再評估。';
-    const wait=concise(beginnerPlain(flow?.wait||fallbackWait),150);
+    const wait=concise(beginnerPlain(a.teacher?.ok?`下一根高 ${price(a.teacher.next.high)}／低 ${price(a.teacher.next.low)}；追蹤量潮，盤中需另查。`:flow?.wait||fallbackWait),150);
     const levelPrice=value=>Number.isFinite(Number(value))&&Number(value)>0?price(value):null;
     const observation=levelPrice(levels.observation),supportLow=levelPrice(levels.supportLow),supportHigh=levelPrice(levels.supportHigh),defense=levelPrice(levels.coreDefense),planFailure=levelPrice(levels.planFailure),structuralInvalid=levelPrice(levels.structuralInvalid);
     const support=supportLow?(supportHigh&&supportHigh!==supportLow?`${supportLow}～${supportHigh}`:supportLow):null;
@@ -162,6 +162,7 @@
     return canvas;
   }
   function professionalCourseGuide(input,analysis=null,decision=null){
+    if(root.ShitouThreePanUI)return root.ShitouThreePanUI.guide(input);
     const a=analysis||get(input),d=decision||beginnerDecision(input,a),w=a?.wave,c=a?.course;
     const valid=!!(w?.ok&&c?.ok&&a?.quality?.state==='READY'&&w.date===a.dataDate);
     const show=value=>finitePrice(value)===null?'資料不足':`${price(value)} 元`;
@@ -344,7 +345,7 @@
     for(const name of ['renderStockInfographicV46','renderStockProfessionalInfographicV51']){if(typeof root[name]!=='function')continue;const base=root[name],professional=name==='renderStockProfessionalInfographicV51';root[name]=function(report,...rest){const rendered=professional&&root.ShitouReportLayoutV563?root.ShitouReportLayoutV563.captureProfessional(()=>base(report,...rest)):base(report,...rest);return safeCanvasInsert(rendered,report,'新手先看｜現在適不適合買？',{professional});};}
     if(typeof root.renderMarketInfographicV3328==='function'){const base=root.renderMarketInfographicV3328;root.renderMarketInfographicV3328=function(report,...rest){return safeCanvasInsert(base(report,...rest),report,'V50 大盤盤後結構',{market:true});};}
     if(typeof root.sanitizeFilenameV3328==='function'){const base=root.sanitizeFilenameV3328;root.sanitizeFilenameV3328=function(value){return base(versionize(value).replace(/V(?:40|47|48|49)_R[\w.\-]+_[^\s/\\]+/g,FILE_VERSION));};}
-    root.R50_RELEASE_LABEL=RELEASE;root.R50_FILE_VERSION=FILE_VERSION;root.SHITOU_V50_ACCEPTANCE={release:RELEASE,dataTiming:'POST_CLOSE_ONLY',singleAnalysisResult:true,researchShadowOnly:true,formalGateChanged:false,scoreChanged:false,rankingChanged:false,stopChanged:false};
+    root.R50_RELEASE_LABEL=RELEASE;root.R50_FILE_VERSION=FILE_VERSION;root.SHITOU_V50_ACCEPTANCE={release:RELEASE,dataTiming:'POST_CLOSE_ONLY',singleAnalysisResult:true,researchShadowOnly:true,formalGateChanged:'STRONG_STOCK_TEACHER',scoreChanged:true,rankingChanged:true,stopChanged:'THREE_PAN_WAVE'};
   }
   root.ShitouV50UI=Object.freeze({RELEASE,FILE_VERSION,IPHONE_REPORT_WIDTH,IPHONE_REPORT_HEIGHT,versionize,get,fibPlain,beginnerDecision,newbiePlan,professionalCourseGuide,renderNewbieFirstCanvas,renderProfessionalFullCanvas,beginnerTextBlock,cardHtml,compactPreviousCards,compactVerticalWhitespace,iphoneFullCanvas,safeCanvasInsert,install});
   install();
