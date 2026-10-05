@@ -5,14 +5,14 @@ function validStatus(s,d){return s?.ready===true&&P.date(s.date)===d&&['twseCode
 function embeddedStatus(){try{return JSON.parse(document.querySelector('meta[name="shitou-scan-exclusions"]')?.content||'null');}catch(_){return null;}}
 const CANONICAL_MARKET_BASE='https://raw.githubusercontent.com/isu9922004a/-VIP-AUTO-SEARCH-N-/main/data/market/';
 function remoteStatusUrls(bundle,d){
- // 手機版只讀 GitHub Pages / 受信任的 GitHub Raw 靜態快照，不依賴本機啟動器。
+ // 手機版只讀 GitHub Pages / 受信任的 GitHub Raw 靜態快照，不依賴本機 .cmd / localhost。
  const bases=[CANONICAL_MARKET_BASE];
  try{
   const u=new URL(bundle.meta?.snapshotUrl);
   if(u.origin==='https://raw.githubusercontent.com'&&/^\/isu9922004a\/-VIP-AUTO-SEARCH-N-\/[^/]+\/data\/market\/latest\.json$/.test(u.pathname)){
    bases.unshift(new URL('./',u).href);
   }
- }catch(_){}
+ }catch(_){/* snapshotUrl 可省略；仍使用固定受信任 Repo */}
  const urls=[];
  for(const base of [...new Set(bases)]){
   const u=new URL(base);

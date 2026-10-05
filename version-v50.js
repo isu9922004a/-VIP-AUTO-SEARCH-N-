@@ -1,8 +1,8 @@
 'use strict';
 
 (function(root){
-  const RELEASE='石頭少爺 Agent V50 正式版｜R5.3.2.8｜七類排除與RSI 5T清晰報告版';
-  const FILE_VERSION='V50_R5.3.2.8_七類排除與RSI 5T清晰報告版';
+  const RELEASE='石頭少爺 Agent V50 正式版｜R5.3.2.8.1｜手機免CMD自動同步版';
+  const FILE_VERSION='V50_R5.3.2.8.1_手機免CMD自動同步版';
   const VERSION=Object.freeze({
     major:50,
     release:RELEASE,
