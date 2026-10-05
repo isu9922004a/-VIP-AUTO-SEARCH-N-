@@ -1,0 +1,49 @@
+name: Update scan exclusion list
+
+on:
+  workflow_dispatch:
+  schedule:
+    # GitHub cron uses UTC. Asia/Taipei: 17:45, 17:55, 18:05, 18:15, 18:30.
+    - cron: '45,55 9 * * 1-5'
+    - cron: '5,15,30 10 * * 1-5'
+    # Later safety retries: 19:00, 20:00, 21:00 and 22:00 Taipei.
+    - cron: '0 11,12,13,14 * * 1-5'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: market-data-update
+  cancel-in-progress: false
+
+jobs:
+  update-scan-exclusions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Fetch same-day official exclusion list
+        run: node scripts/update-scan-exclusions.mjs
+
+      - name: Commit exclusion snapshot when changed
+        shell: bash
+        run: |
+          if [ -z "$(git status --porcelain -- data/market/latest.json data/market/archive data/market/exclusions data/market/scan-exclusions.json data/market/scan-exclusions.js)" ]; then
+            echo "No exclusion snapshot change."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/market/latest.json data/market/archive data/market/exclusions data/market/scan-exclusions.json data/market/scan-exclusions.js
+          TRADE_DATE=$(node -e "const f=require('./data/market/latest.json');process.stdout.write(String(f.tradeDate||'unknown'))")
+          git commit -m "data: update scan exclusions ${TRADE_DATE}"
+          git push
