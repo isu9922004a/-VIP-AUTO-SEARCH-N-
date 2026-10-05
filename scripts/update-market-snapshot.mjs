@@ -6,6 +6,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
+import {updateScanExclusions} from './update-scan-exclusions.mjs';
 
 const ROOT = process.cwd();
 const LATEST_PATH = path.join(ROOT, 'data/market/latest.json');
@@ -636,7 +637,15 @@ export async function main() {
 
   const previous = await readJsonIfExists(LATEST_PATH);
   verifySnapshotAdvancement(snapshot, previous);
-  if (previous?.contentSha256 === snapshot.contentSha256) {
+  try {
+    snapshot.exclusionStatus = await updateScanExclusions(snapshot.tradeDate,ROOT);
+  } catch (error) {
+    const previousExclusionDate = String(previous?.exclusionStatus?.date || '').replace(/\\D/g,'');
+    if (previousExclusionDate === snapshot.tradeDate) snapshot.exclusionStatus = previous.exclusionStatus;
+    console.warn(`EXCLUSION_SYNC_DEFERRED: ${error?.message || error}`);
+  }
+  const exclusionIdentity = value => value ? JSON.stringify([value.date,value.twseCodes,value.tpexCodes,value.specialCodes]) : null;
+  if (previous?.contentSha256 === snapshot.contentSha256 && exclusionIdentity(previous?.exclusionStatus) === exclusionIdentity(snapshot.exclusionStatus)) {
     console.log(`No content change. Current complete trade date remains ${snapshot.tradeDate}.`);
     return;
   }
