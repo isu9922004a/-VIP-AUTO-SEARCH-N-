@@ -682,6 +682,7 @@ function mountPreviewActions(){
 
 async function showPages(pages,{title,prefix,date='latest',note='',kind='report'}={}){
   if(!Array.isArray(pages)||!pages.length)throw new Error('沒有可預覽的頁面');
+  if(kind==='stock'&&window.ShitouStockImageColors)pages.forEach(page=>window.ShitouStockImageColors.enhance(page));
   const iphoneSingle=pages.length===1&&pages[0]?.dataset?.iphoneFullScreen==='1284x2778';
   const names=pages.length===1?[safeName(`${prefix}_${iphoneSingle?'iPhone12ProMax_1284x2778_單張滿版':'單一張完整長圖'}_${date}_${FILE_VERSION}.png`)]:pages.map((_,index)=>safeName(`${prefix}_${String(index+1).padStart(2,'0')}-${pages.length}_${date}_${FILE_VERSION}.png`));
   previewSet={pages,names,title,index:0,zipName:safeName(`${prefix}_完整${pages.length}頁_${date}_${FILE_VERSION}.zip`),kind};
