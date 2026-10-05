@@ -2,6 +2,10 @@ name: Update scan exclusion list
 
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - 'scripts/update-scan-exclusions.mjs'
+      - '.github/workflows/update-scan-exclusions.yml'
   schedule:
     # GitHub cron uses UTC. Asia/Taipei: 17:45, 17:55, 18:05, 18:15, 18:30.
     - cron: '45,55 9 * * 1-5'
