@@ -25738,6 +25738,26 @@ buildMomentumScanTextReportV3763=function(scan){
 const MOMENTUM_MARKET_BUNDLE_PATH_V3766="?market=MOMENTUM_FAST&limit=70";
 const MOMENTUM_MARKET_BUNDLE_TIMEOUT_MS_V3766=20000;
 const MOMENTUM_MARKET_BUNDLE_RETRIES_V3766=3;
+const MARKET_SYNC_RETRY_DELAYS_V53282=[10000,20000];
+
+function showMarketSyncNoticeV53282(meta,attempt){
+  const m=meta||{};
+  const target=m.targetTradeDate||m.completedTradeDate||"今日";
+  const wait=MARKET_SYNC_RETRY_DELAYS_V53282[Math.max(0,Math.min(MARKET_SYNC_RETRY_DELAYS_V53282.length-1,attempt-1))]||10000;
+  const seconds=Math.round(wait/1000);
+  const msg=`⏳ 今日盤後行情正在同步｜目標 ${target}｜上市 ${m.twseQuoteDate||"同步中"}／上櫃 ${m.tpexQuoteDate||"同步中"}。系統將於約 ${seconds} 秒後自動重新確認，不會使用舊資料產生選股結果。`;
+  for(const id of ["momentumError","dayTradeError","strongStockError"]){
+    const el=document.getElementById(id);
+    if(!el)continue;
+    el.style.display="block";el.style.background="var(--yellowbg)";el.style.color="var(--yellow)";el.textContent=msg;
+  }
+}
+function clearMarketSyncNoticeV53282(){
+  for(const id of ["momentumError","dayTradeError","strongStockError"]){
+    const el=document.getElementById(id);
+    if(el&&/^⏳ 今日盤後行情正在同步/.test(el.textContent||"")){el.style.display="none";el.textContent="";}
+  }
+}
 
 function fetchWithAbortV3766(url,timeoutMs=MOMENTUM_MARKET_BUNDLE_TIMEOUT_MS_V3766){
   const controller=registerScanControllerV39B12OPT(new AbortController());
@@ -25773,7 +25793,10 @@ async function loadMarketBundleFromWorkerV3766(bundlePath=MOMENTUM_MARKET_BUNDLE
           m.subrequestPolicy?`請求策略 ${m.subrequestPolicy}`:null,
           Number.isFinite(Number(m.plannedExternalFetchMax))?`單次外部請求上限 ${m.plannedExternalFetchMax}`:null
         ].filter(Boolean).join("｜");
-        const err=new Error(detail);err.noRetry=true;throw err;
+        const err=new Error(detail);
+        err.marketSyncPending=true;
+        err.marketMeta=m;
+        throw err;
       }
       if(bundlePath==="?market=ALL_STOCKS"){
         if(data.mode!=="ALL_STOCKS")throw new Error("當沖需要完整市場快照，但伺服器回傳了預篩名單。");
@@ -25789,10 +25812,16 @@ async function loadMarketBundleFromWorkerV3766(bundlePath=MOMENTUM_MARKET_BUNDLE
         sectorMap.set(code,{...row,market:q.market,industry:String(row.industry||row.industryName||""),industryCode:String(row.industryCode||""),industryName:String(row.industryName||row.industry||""),industryRaw:String(row.industryRaw||"")});
       }
       if(!quoteMap.size)throw new Error("Market Worker 批次快照為空");
+      clearMarketSyncNoticeV53282();
       return {map:quoteMap,sectorMap,meta:data.meta||{},exclusionStatus:data.exclusionStatus||null,cached:data.cached===true,source:data.source||"Cloudflare Market Worker",snapshotRows:data.rows.length,snapshotDropped:data.rows.length-quoteMap.size};
     }catch(e){
       lastErr=e;
       if(e?.noRetry)break;
+      if(e?.marketSyncPending&&attempt<MOMENTUM_MARKET_BUNDLE_RETRIES_V3766){
+        showMarketSyncNoticeV53282(e.marketMeta,attempt);
+        await sleepMomentumV3763(MARKET_SYNC_RETRY_DELAYS_V53282[attempt-1]||10000);
+        continue;
+      }
       if(attempt<MOMENTUM_MARKET_BUNDLE_RETRIES_V3766)await sleepMomentumV3763(700*attempt+Math.floor(Math.random()*350));
     }
   }
