@@ -219,7 +219,7 @@ async function fetchJsonValue(url, label, retries = 5) {
         throw new Error(`${label} 回傳 HTML 而非 JSON｜${finalUrl}`);
       }
       const data = JSON.parse(text);
-      
+
       return { data, finalUrl, status:res.status, contentType, attempt };
     } catch (error) {
       lastError = error;
@@ -513,14 +513,14 @@ export async function buildSnapshot({twseQuoteRows,tpexQuoteRows,twseCompanyRows
   if (tpexCompanyRows.length < 300) throw new Error(`TPEx 公司清單筆數不足：${tpexCompanyRows.length}`);
 
   const twseIndustry = buildIndustryMap(twseCompanyRows, 'TWSE');
-  const tpexIndustry = buildIndustryMap(tpexCompanyRows, 'TPEx');
+  const tpexIndustry = buildIndustryMap(tpexCompanyRows, 'TPEX');
   const tpexOrdinary = new Set([...tpexIndustry.keys()]);
 
   const twse = twseQuoteRows
     .map(r => normalizeQuote(r, 'TWSE', twseDate, twseIndustry))
     .filter(r => r && isOrdinaryCode(r.code));
   const tpex = tpexQuoteRows
-    .map(r => normalizeQuote(r, 'TPEx', tpexDate, tpexIndustry))
+    .map(r => normalizeQuote(r, 'TPEX', tpexDate, tpexIndustry))
     .filter(r => r && isOrdinaryCode(r.code) && (tpexOrdinary.size < 300 || tpexOrdinary.has(r.code)));
 
   if (twse.length < 800) throw new Error(`TWSE 清洗後一般個股不足：${twse.length}`);
@@ -636,7 +636,7 @@ export async function main() {
   try {
     snapshot.exclusionStatus = await updateScanExclusions(snapshot.tradeDate,ROOT);
   } catch (error) {
-    const previousExclusionDate = String(previous?.exclusionStatus?.date || '').replace(/\\D/g,'');
+    const previousExclusionDate = String(previous?.exclusionStatus?.date || '').replace(/\D/g,'');
     if (previousExclusionDate === snapshot.tradeDate) snapshot.exclusionStatus = previous.exclusionStatus;
     console.warn(`EXCLUSION_SYNC_DEFERRED: ${error?.message || error}`);
   }
