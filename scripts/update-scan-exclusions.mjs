@@ -7,7 +7,23 @@ const P=createRequire(import.meta.url)('../scan-exclusions-rsi-v5328.js');
 export async function updateScanExclusions(tradeDate,root=process.cwd(),fetchImpl=fetch){
  const date=P.date(tradeDate);if(!date)throw Error('排除名單交易日期格式錯誤');const compact=date.replace(/-/g,'');
  const urls=[`https://www.twse.com.tw/exchangeReport/TWT85U?response=json&date=${compact}`,'https://www.tpex.org.tw/openapi/v1/tpex_cmode'];
- const values=await Promise.all(urls.map(async url=>{const r=await fetchImpl(url,{signal:AbortSignal.timeout(30000),headers:{Accept:'application/json'}});if(!r.ok)throw Error('變更交易來源HTTP '+r.status);return r.json();}));
+ const fetchOfficial=async(url,retries=5)=>{
+  let lastError=null;
+  for(let attempt=1;attempt<=retries;attempt++){
+   const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),45000);
+   try{
+    const r=await fetchImpl(url,{signal:controller.signal,headers:{Accept:'application/json'}});
+    const text=await r.text();
+    if(!r.ok)throw Error('變更交易來源HTTP '+r.status);
+    return JSON.parse(text);
+   }catch(error){
+    lastError=error;
+    if(attempt<retries)await new Promise(resolve=>setTimeout(resolve,2000*attempt));
+   }finally{clearTimeout(timer);}
+  }
+  throw lastError||Error('變更交易來源取得失敗');
+ };
+ const values=await Promise.all(urls.map(url=>fetchOfficial(url)));
  const status={...P.parseOfficial(...values,date),fetchedAt:new Date().toISOString(),sources:urls},text=JSON.stringify(status);
  const marketDir=path.join(root,'data/market');await fs.mkdir(marketDir,{recursive:true});
  const archive=path.join(marketDir,'exclusions',date+'.json');await fs.mkdir(path.dirname(archive),{recursive:true});
