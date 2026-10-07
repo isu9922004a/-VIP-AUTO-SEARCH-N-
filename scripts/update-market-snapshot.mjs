@@ -173,19 +173,14 @@ export function normalizeQuote(row, market, tradeDate, industryMap) {
   };
 }
 
-async function fetchJsonArray(url, label, retries = 3) {
+async function fetchJsonArray(url, label, retries = 5) {
   let lastError = null;
   for (let attempt = 1; attempt <= retries; attempt++) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 45000);
     try {
-      const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), 30000);
-      let res;
-      try {
-        // GitHub-hosted runner 直接向官方來源取得資料；不經 Cloudflare Worker。
-        res = await fetch(url, { method:'GET', signal: controller.signal, redirect:'follow' });
-      } finally {
-        clearTimeout(timer);
-      }
+      // Timeout covers both connection and response-body download.
+      const res = await fetch(url, { method:'GET', signal: controller.signal, redirect:'follow' });
       const finalUrl = res.url || url;
       const contentType = String(res.headers.get('content-type') || '');
       const text = await res.text();
@@ -199,24 +194,22 @@ async function fetchJsonArray(url, label, retries = 3) {
       return { rows:data, finalUrl, status:res.status, contentType, attempt };
     } catch (error) {
       lastError = error;
-      if (attempt < retries) await new Promise(r => setTimeout(r, 1500 * attempt));
+      if (attempt < retries) await new Promise(r => setTimeout(r, 2000 * attempt));
+    } finally {
+      clearTimeout(timer);
     }
   }
   throw lastError || new Error(`${label} 取得失敗`);
 }
 
-async function fetchJsonValue(url, label, retries = 3) {
+async function fetchJsonValue(url, label, retries = 5) {
   let lastError = null;
   for (let attempt = 1; attempt <= retries; attempt++) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 45000);
     try {
-      const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), 30000);
-      let res;
-      try {
-        res = await fetch(url, { method:'GET', signal:controller.signal, redirect:'follow' });
-      } finally {
-        clearTimeout(timer);
-      }
+      // Timeout covers both connection and response-body download.
+      const res = await fetch(url, { method:'GET', signal: controller.signal, redirect:'follow' });
       const finalUrl = res.url || url;
       const contentType = String(res.headers.get('content-type') || '');
       const text = await res.text();
@@ -226,10 +219,13 @@ async function fetchJsonValue(url, label, retries = 3) {
         throw new Error(`${label} 回傳 HTML 而非 JSON｜${finalUrl}`);
       }
       const data = JSON.parse(text);
+      
       return { data, finalUrl, status:res.status, contentType, attempt };
     } catch (error) {
       lastError = error;
-      if (attempt < retries) await new Promise(r => setTimeout(r, 1500 * attempt));
+      if (attempt < retries) await new Promise(r => setTimeout(r, 2000 * attempt));
+    } finally {
+      clearTimeout(timer);
     }
   }
   throw lastError || new Error(`${label} 取得失敗`);
