@@ -2,31 +2,34 @@ name: Update TWSE TPEx market snapshot
 
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/update-market-snapshot.yml'
+      - 'scripts/update-market-snapshot.mjs'
+      - 'scripts/update-scan-exclusions.mjs'
   schedule:
-    # GitHub cron uses UTC; tentative early attempts at 17:40, 17:50, 18:00 and 18:10 Taipei.
-    # Only same-date, complete official TWSE + TPEx data can replace the snapshot.
-    # GitHub-hosted snapshot updates DO NOT automatically guarantee Worker synchronization.
-    # GitHub scheduled jobs may start late; these are attempts, not promised availability times.
-    - cron: '40 9,10 * * 1-5'
-    - cron: '50 9 * * 1-5'
-    - cron: '0,20 10 * * 1-5'
-    - cron: '10 10 * * 1-5'
-    # Keep later safety attempts at 19:20, 20:20, 21:20 and 22:20 Taipei.
-    - cron: '20 11,12,13,14 * * 1-5'
-    # Morning safety run: 07:20 Asia/Taipei Monday-Friday.
-    - cron: '20 23 * * 0-4'
-
+    # GitHub scheduled jobs are best-effort and can be delayed. Use off-peak
+    # minute offsets plus repeated attempts through the entire post-close window.
+    # Times below are UTC; Asia/Taipei = UTC+8.
+    # 17:43, 17:53 Taipei.
+    - cron: '43,53 9 * * 1-5'
+    # Every 10 minutes from 18:03 through 20:53 Taipei.
+    - cron: '3,13,23,33,43,53 10-12 * * 1-5'
+    # Later safety attempts at 21:13 and 22:13 Taipei.
+    - cron: '13 13,14 * * 1-5'
+    # Morning safety run at 07:27 Taipei Monday-Friday.
+    - cron: '27 23 * * 0-4'
 permissions:
   contents: write
 
 concurrency:
   group: market-data-update
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   update-market-snapshot:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -38,8 +41,45 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Fetch official TWSE and TPEx data
-        run: node scripts/update-market-snapshot.mjs
+      - name: Fetch official TWSE and TPEx data with freshness retries
+        shell: bash
+        run: |
+          EXPECTED=$(node - <<'NODE'
+          const fs=require('fs');
+          let latest={};
+          try{latest=JSON.parse(fs.readFileSync('data/market/latest.json','utf8'));}catch{}
+          const now=new Date();
+          const parts=Object.fromEntries(new Intl.DateTimeFormat('en-US',{
+            timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit',weekday:'short'
+          }).formatToParts(now).filter(x=>x.type!=='literal').map(x=>[x.type,x.value]));
+          const today=`${parts.year}${parts.month}${parts.day}`;
+          const iso=`${parts.year}-${parts.month}-${parts.day}`;
+          const special=(latest.marketCalendar?.specialTradingDates||[]).some(x=>String(x?.date||'').replace(/\D/g,'')===today);
+          const closed=(latest.marketCalendar?.closures||[]).some(x=>String(x?.date||'').replace(/\D/g,'')===today);
+          const weekend=['Sat','Sun'].includes(parts.weekday);
+          process.stdout.write((special||(!closed&&!weekend))?today:'CLOSED');
+          NODE
+          )
+          echo "Expected market date: $EXPECTED"
+          for attempt in 1 2 3; do
+            echo "Snapshot attempt $attempt/3"
+            if node scripts/update-market-snapshot.mjs; then
+              if [ "$EXPECTED" = "CLOSED" ]; then
+                echo "Today is not an expected trading day; latest complete snapshot is valid."
+                exit 0
+              fi
+              ACTUAL=$(node -e "const f=require('./data/market/latest.json');process.stdout.write(String(f.tradeDate||''))")
+              if [ "$ACTUAL" = "$EXPECTED" ]; then
+                echo "Current-day complete snapshot ready: $ACTUAL"
+                exit 0
+              fi
+              echo "Official sources are still on $ACTUAL; waiting for same-day publication."
+            else
+              echo "Snapshot attempt $attempt failed; will retry if attempts remain."
+            fi
+            if [ "$attempt" -lt 3 ]; then sleep $((attempt * 60)); fi
+          done
+          echo "::warning::Same-day complete market snapshot is not available yet; keep previous complete snapshot and wait for the next scheduled attempt."
 
       - name: Commit snapshot when changed
         shell: bash
