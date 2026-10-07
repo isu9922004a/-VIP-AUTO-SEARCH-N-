@@ -53,7 +53,6 @@ jobs:
             timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit',weekday:'short'
           }).formatToParts(now).filter(x=>x.type!=='literal').map(x=>[x.type,x.value]));
           const today=`${parts.year}${parts.month}${parts.day}`;
-          const iso=`${parts.year}-${parts.month}-${parts.day}`;
           const special=(latest.marketCalendar?.specialTradingDates||[]).some(x=>String(x?.date||'').replace(/\D/g,'')===today);
           const closed=(latest.marketCalendar?.closures||[]).some(x=>String(x?.date||'').replace(/\D/g,'')===today);
           const weekend=['Sat','Sun'].includes(parts.weekday);
