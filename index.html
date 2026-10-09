@@ -8,9 +8,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>石頭少爺 Agent V50 正式版｜R5.3.2.5.6.3.1｜圖片統一排版完整版</title>
+<title>石頭少爺 Agent V50 正式版｜R5.3.2.8.3｜第二套 R1.2 快篩合格全量深掃</title>
 <script src="./scan-exclusions-rsi-v5328.js?v=R5328"></script>
-<script src="./version-v50.js?v=R5.3.2.5.6.3.1"></script>
+<script src="./version-v50.js?v=R5.3.2.8.3"></script>
 
 <style>
 
@@ -1168,8 +1168,9 @@ body.dark .v46-reason,body.dark .v46-note,body.dark .v46-family{color:#d2dae7}bo
         <select id="dayTradeDeepLimit" style="max-width:100%;padding:8px;border-radius:8px">
           <option value="70">快篩排序前 70 檔（較快）</option>
           <option value="140">前140檔（沿用既有安全上限，避免資料服務超載）</option>
+          <option value="all" selected>全部快篩合格股票（完整掃描，較久）</option>
         </select>
-        <div class="meta">先從完整市場快篩，再深入分析前70或140檔。選140檔時，若第一輪正式候選少於3檔，會自動從剩餘快篩合格股再擴掃最多60檔；不是放寬條件，而是增加覆蓋。範圍外股票只代表尚未分析，不代表不合格。</div>
+        <div class="meta">預設深入分析所有快篩合格股（例如488檔就掃488檔），不因140／200檔上限漏掉其餘股票；不放寬原分數及任何風險條件。仍可手動選70或140檔；選140檔時，若第一輪正式候選少於3檔，沿用原規則自動追加最多60檔。完整掃描耗時較長，請保持頁面開啟並查看即時進度。</div>
       </div>
       <div class="daytrade-action-row">
         <button id="dayTradeScanButton" class="btn daytrade-btn" type="button" title="交易日建議 17:35～18:00 查詢；報告的市場日期與個股日期必須一致" onclick="runDayTradeScanV1()">⚡ 明日當沖盤前適配（已檢查突破警訊）</button>
@@ -27423,7 +27424,7 @@ function dayTradePositiveV377736(value){
 
 function dayTradeDeepLimitV377736(){
   const value=document.getElementById("dayTradeDeepLimit")?.value;
-  return value==="all"?DAYTRADE_SAFE_MAX_V41:value==="140"?140:DAYTRADE_DEEP_LIMIT_V1;
+  return value==="all"?Infinity:value==="140"?140:DAYTRADE_DEEP_LIMIT_V1;
 }
 
 function dayTradeGradeV377736(score,fake){
@@ -34615,18 +34616,24 @@ async function r43RunDayTradeSecondRound(scan){
   const btn=document.getElementById("dayTradeScanButton"),err=document.getElementById("dayTradeError"),stopBtn=document.getElementById("dayTradeStopButton");
   dayTradeScanRunningV1=true;dayTradeScanAbortV1=false;
   if(btn){btn.disabled=true;btn.textContent=`🔄 第二輪擴掃 0/${codes.length}`;}
+  if(typeof window.dayTradeR11Progress==='function')window.dayTradeR11Progress('第二輪擴掃',0,codes.length,0,0,'維持原有嚴格篩選');
   if(stopBtn)stopBtn.classList.add("show");
   const bundle=await loadDayTradeMarketBundleV377736(),newCandidates=[];let hard=0,base=0,scoreLow=0,data=0,failed=0,fetched=0,marketFallback=0,directUsed=0;
+  const secondRoundDeadlineR11=window.dayTradeR11BeginSecondRound();
+  let secondRoundProcessedR11=0;
   const auditRows=[];
   for(let i=0;i<codes.length&&!dayTradeScanAbortV1;i++){
+    if(!window.dayTradeR11SecondRoundHasTime(secondRoundDeadlineR11))break;
+    secondRoundProcessedR11++;
     const code=String(codes[i]),q=bundle.map.get(code),item={code,name:LOCAL_NAME_MAP[code]||code,q};
     if(btn)btn.textContent=`🔄 第二輪擴掃 ${i+1}/${codes.length}｜${code}`;
+    if(typeof window.dayTradeR11Progress==='function')window.dayTradeR11Progress('第二輪擴掃',i,codes.length,fetched,failed,`正在檢查 ${code}`);
     if(!q){data++;auditRows.push({code,name:item.name,status:"DATA",reason:"第二輪市場快照缺少該股票"});continue;}
     let x=null,lastErr=null;
     try{
-      const payload=await fetchDeepBatchViaMarketWorkerV3768([item],"CORE");x=(payload?.results||[]).find(r=>String(r.code)===code);if(!x?.ok)throw new Error(x?.error||"第二輪DeepScan未回傳結果");
+      const payload=await window.dayTradeR11FetchSecondRoundCore(item,secondRoundDeadlineR11);x=(payload?.results||[]).find(r=>String(r.code)===code);if(!x?.ok)throw new Error(x?.error||"第二輪DeepScan未回傳結果");
     }catch(e){lastErr=e;
-      if(directUsed<8){try{x=await fetchDayTradeDirectFallbackV40(item);directUsed++;}catch(de){lastErr=de;x=null;}}
+      if(directUsed<8){try{x=await window.dayTradeR11FetchSecondRoundDirect(item,secondRoundDeadlineR11);directUsed++;}catch(de){lastErr=de;x=null;}}
     }
     if(!x?.ok){failed++;auditRows.push({code,name:item.name,status:"FAILED",reason:String(lastErr?.message||lastErr||"第二輪取得資料失敗")});await sleepMomentumV3763(1200);continue;}
     try{
@@ -34643,7 +34650,8 @@ async function r43RunDayTradeSecondRound(scan){
   if((enrich.failed||0)===0&&(enrich.pending||0)===0&&!enrich.aborted)combined.sort(dayTradeCompareV1);
   assignDayTradeDisplayRanksV40(combined);
   const formalAfter=combined.filter(c=>dayTradeFormalRankEligibleV53249(c)).length;
-  const n=codes.length,successAdd=newCandidates.length+hard+base+scoreLow;
+  const n=secondRoundProcessedR11,successAdd=newCandidates.length+hard+base+scoreLow;
+  if(typeof window.dayTradeR11Progress==='function')window.dayTradeR11Progress('第二輪擴掃完成',n,codes.length,fetched,failed,n<codes.length?'其餘保留未分析':'全部已處理');
   scan.candidates=combined;scan.initialDeepTotalR43=scan.total;scan.secondRoundTriggeredR43=true;scan.secondRoundAnalyzedR43=n;scan.secondRoundFormalBeforeR43=formalBefore;scan.secondRoundFormalAfterR43=formalAfter;
   scan.total=(scan.total||0)+n;scan.done=(scan.done||0)+n;scan.success=(scan.success||0)+successAdd;scan.requestSuccess=(scan.requestSuccess||0)+fetched;
   scan.hardGateSkipped=(scan.hardGateSkipped||0)+hard;scan.baseFilterSkipped=(scan.baseFilterSkipped||0)+base;scan.scoreSkipped=(scan.scoreSkipped||0)+scoreLow;scan.scoredCount=(scan.scoredCount||0)+newCandidates.length+scoreLow;
@@ -34763,7 +34771,7 @@ document.querySelectorAll(".version-pill,footer strong").forEach(el=>{if(/石頭
 // 5) 當沖結果核對補上「未形成有效判讀/詳細資料未完成」，讓總數對帳。
 // ========================================================================
 (function(){
-  const RELEASE='石頭少爺 Agent V50 正式版｜R5.3.2.5.6.3.1｜圖片統一排版完整版';
+  const RELEASE='石頭少爺 Agent V50 正式版｜R5.3.2.8.3｜第二套 R1.2 快篩合格全量深掃';
   const num=v=>{const n=Number(v);return Number.isFinite(n)?n:null;};
   const uniq=xs=>[...new Set((xs||[]).filter(Boolean))];
 
@@ -34964,6 +34972,7 @@ document.querySelectorAll(".version-pill,footer strong").forEach(el=>{if(/石頭
 <script src="./scan-report-rsi-v5328.js?v=R5328-mobile-auto"></script>
 <script src="./stock-image-colors-v1.js?v=20261005-deeper1"></script>
 <script src="./swing-afterclose-integration-v1.js?v=SWING_R1"></script>
+<script src="./daytrade-r11-performance.js?v=R1.2"></script>
 </body>
 
 </html>
