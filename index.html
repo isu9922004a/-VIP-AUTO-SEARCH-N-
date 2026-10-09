@@ -8,9 +8,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>石頭少爺 Agent V50 正式版｜R5.3.2.8.4｜第二套 R1.2 全量深掃｜R1.3 戰報驗證修復</title>
+<title>石頭少爺 Agent V50 正式版｜R5.3.2.8.6｜第二套 R1.5 全量掃描稽核｜R1.4 主升戰報修復</title>
 <script src="./scan-exclusions-rsi-v5328.js?v=R5328"></script>
-<script src="./version-v50.js?v=R5.3.2.8.4"></script>
+<script src="./version-v50.js?v=R5.3.2.8.6"></script>
 
 <style>
 
@@ -1094,7 +1094,7 @@ body.dark .v46-reason,body.dark .v46-note,body.dark .v46-family{color:#d2dae7}bo
 
     <p>盤後個股判讀＋大盤／產業／個股強弱＋三盤量價波段＋主升段／當沖風險確認</p>
 
-    <span class="version-pill">石頭少爺 Agent V50 正式版｜R5.3.2.5.6.3.1｜圖片統一排版完整版｜盤後資料｜強勢飆股新版主軸</span>
+    <span class="version-pill">石頭少爺 Agent V50 正式版｜R5.3.2.8.6｜第二套 R1.5 全量掃描稽核｜R1.4 主升戰報修復｜盤後資料｜強勢飆股新版主軸</span>
 
   </div>
 
@@ -1171,6 +1171,7 @@ body.dark .v46-reason,body.dark .v46-note,body.dark .v46-family{color:#d2dae7}bo
           <option value="all" selected>全部快篩合格股票（完整掃描，較久）</option>
         </select>
         <div class="meta">預設深入分析所有快篩合格股（例如488檔就掃488檔），不因140／200檔上限漏掉其餘股票；不放寬原分數及任何風險條件。仍可手動選70或140檔；選140檔時，若第一輪正式候選少於3檔，沿用原規則自動追加最多60檔。完整掃描耗時較長，請保持頁面開啟並查看即時進度。</div>
+        <div id="dayTradeScopeAuditR15" class="meta" aria-live="polite">掃描模式稽核：尚未執行</div>
       </div>
       <div class="daytrade-action-row">
         <button id="dayTradeScanButton" class="btn daytrade-btn" type="button" title="交易日建議 17:35～18:00 查詢；報告的市場日期與個股日期必須一致" onclick="runDayTradeScanV1()">⚡ 明日當沖盤前適配（已檢查突破警訊）</button>
@@ -1222,7 +1223,7 @@ body.dark .v46-reason,body.dark .v46-note,body.dark .v46-family{color:#d2dae7}bo
           <div id="momentumHeroTitle" class="momentum-hero-title">🚀 主動式主升掃描｜候選排行</div>
           <div id="momentumMeta" class="meta">-</div>
         </div>
-        <div class="meta" style="text-align:right">石頭少爺 Agent V50 正式版｜R5.3.2.5.6.3.1｜圖片統一排版完整版<br>盤後量價資金二次確認；三週期原始分數完整保留</div>
+        <div class="meta" style="text-align:right">石頭少爺 Agent V50 正式版｜R5.3.2.8.6｜第二套 R1.5 全量掃描稽核｜R1.4 主升戰報修復<br>盤後量價資金二次確認；三週期原始分數完整保留</div>
       </div>
       <div class="momentum-reminder">📌 判讀原則：排名是「主升型態相似度／位置品質」篩選，不是上漲保證。盈虧比是有效上下關卡的動態價差比，不是勝率；高檔延伸、RSI過熱或MA20乖離過大會另外警示。</div>
       <div class="momentum-summary-grid">
@@ -1264,7 +1265,7 @@ body.dark .v46-reason,body.dark .v46-note,body.dark .v46-family{color:#d2dae7}bo
           <div id="dayTradeMeta" class="meta">-</div>
         </div>
         <div class="meta" style="text-align:right">
-          石頭少爺 Agent V50 正式版｜R5.3.2.5.6.3.1｜圖片統一排版完整版<br>
+          石頭少爺 Agent V50 正式版｜R5.3.2.8.6｜第二套 R1.5 全量掃描稽核｜R1.4 主升戰報修復<br>
           當沖掃描排序分與三週期適配分分開呈現，不混合計算
         </div>
       </div>
@@ -1349,7 +1350,7 @@ body.dark .v46-reason,body.dark .v46-note,body.dark .v46-family{color:#d2dae7}bo
           <div id="marketChange" class="market-index-change flat">-</div>
         </div>
         <div style="text-align:right">
-          <div class="meta"><strong>石頭少爺 Agent V50 正式版｜R5.3.2.5.6.3.1｜圖片統一排版完整版</strong></div>
+          <div class="meta"><strong>石頭少爺 Agent V50 正式版｜R5.3.2.8.6｜第二套 R1.5 全量掃描稽核｜R1.4 主升戰報修復</strong></div>
           <div id="marketDate" class="meta">-</div>
           <div id="marketSource" class="meta">-</div>
         </div>
@@ -1915,7 +1916,7 @@ body.dark .v46-reason,body.dark .v46-note,body.dark .v46-family{color:#d2dae7}bo
   </div>
 </div>
 
-<footer class="footer"><strong>石頭少爺 Agent V50 正式版｜R5.3.2.5.6.3.1｜圖片統一排版完整版</strong><br>本頁使用最近完成交易日的盤後資料，不是即時看盤；網頁、文字與圖片報告共用同一份分析結果。三盤、價格三線與量能三線負責判斷方向，費波回撤只負責量「這一波吐回多少」；ABC／N字、KD、歷史支撐壓力仍保留作輔助。明確三盤跌破且強弱分界線轉弱時才啟動正式風險保護，不會只因碰到某個費波比例就淘汰或買進。<br>技術分析僅供研究與決策參考，不構成投資建議；所有分數都是條件評估，不是勝率或上漲機率。</footer>
+<footer class="footer"><strong>石頭少爺 Agent V50 正式版｜R5.3.2.8.6｜第二套 R1.5 全量掃描稽核｜R1.4 主升戰報修復</strong><br>本頁使用最近完成交易日的盤後資料，不是即時看盤；網頁、文字與圖片報告共用同一份分析結果。三盤、價格三線與量能三線負責判斷方向，費波回撤只負責量「這一波吐回多少」；ABC／N字、KD、歷史支撐壓力仍保留作輔助。明確三盤跌破且強弱分界線轉弱時才啟動正式風險保護，不會只因碰到某個費波比例就淘汰或買進。<br>技術分析僅供研究與決策參考，不構成投資建議；所有分數都是條件評估，不是勝率或上漲機率。</footer>
 
 <script>
 // V40｜三週期盤後適配度＋Decision Layer整合版。Worker分數為主，前端舊公式保留fallback；不使用盤中假資料。
@@ -27110,9 +27111,9 @@ function buildMomentumScanCompactTextReportV377713(scan){
 // R1.3｜只檢查戰報實際內容；版本更新不應讓完整報告誤判為截斷。
 // 只核對「⑤ 主升入選股票」區段的 TOP 列；摘要、安全榜、強度榜提到同檔不算真正列出。
 function momentumReportAuditR13(scan,text,compact){
-  const all=compact
-    ?(Array.isArray(scan?.candidates)?scan.candidates:(scan?.launchCandidates||[]))
-    :(scan?.launchCandidates||scan?.candidates||[]);
+  // R1.4: both report builders render scan.candidates in section ⑤.
+  // launchCandidates is the formal-only subset and must not be used to audit the full report.
+  const all=Array.isArray(scan?.candidates)?scan.candidates:(scan?.launchCandidates||[]);
   const body=String(text||"");
   const sectionStart=body.indexOf("【⑤ 🚀 主升入選股票");
   const sectionEnd=sectionStart<0?-1:body.indexOf("【⑥ ",sectionStart);
@@ -27141,6 +27142,10 @@ function momentumReportAuditR13(scan,text,compact){
   const summaryType=compact?"精簡戰報":"完整戰報";
   const footerMark=compact?"END-OF-MOMENTUM-COMPACT-REPORT-V43":"END-OF-MOMENTUM-REPORT-V43";
   const summaryOk=body.includes(summaryType+"實際列出 "+expected+" 檔")||body.includes(summaryType+"實際列出 "+expected+"檔");
+  const formalCount=all.filter(c=>c?.formalLaunchEligible===true).length;
+  const waitingCount=all.length-formalCount;
+  // Verify the formal/observation split independently: a complete TOP list must also have accurate counts.
+  const splitOk=new RegExp("全部入選\\s*"+expected+"\\s*檔｜主升結構合格\\s*"+formalCount+"\\s*檔｜觀察／降級\\s*"+waitingCount+"\\s*檔｜"+summaryType+"實際列出\\s*"+expected+"\\s*檔").test(body);
   const lastOk=expected?body.includes("最後一檔：TOP "+expected+" "+last):body.includes("最後一檔：無");
   // 必須有非空版本欄位；版本號碼本身不影響股票內容的完整性。
   const versionOk=/^前端版本：[^\r\n]+/m.test(body);
@@ -27148,6 +27153,7 @@ function momentumReportAuditR13(scan,text,compact){
     &&body.lastIndexOf("技術分析僅供研究與決策參考")>body.indexOf("完整結尾標記："+footerMark);
   if(!reason&&valid!==expected)reason="TOP 逐檔完整性未通過";
   if(!reason&&!summaryOk)reason="候選數量摘要缺漏或不符";
+  if(!reason&&!splitOk)reason="正式主升與觀察／降級數量摘要不一致";
   if(!reason&&!lastOk)reason="最後一檔核對失敗";
   if(!reason&&!versionOk)reason="前端版本欄位缺漏";
   if(!reason&&!endOk)reason="完整結尾標記或風險聲明缺漏";
@@ -27158,8 +27164,8 @@ function momentumReportAuditR13(scan,text,compact){
     listed:valid,
     found:headers.length,
     last,
-    formalCount:all.filter(c=>c?.formalLaunchEligible===true).length,
-    waitingCount:all.filter(c=>c?.formalLaunchEligible!==true).length
+    formalCount,
+    waitingCount
   };
 }
 function momentumFullReportAuditV377713(scan,text){return momentumReportAuditR13(scan,text,false);}
@@ -27447,6 +27453,23 @@ function dayTradeDeepLimitV377736(){
   return value==="all"?Infinity:value==="140"?140:DAYTRADE_DEEP_LIMIT_V1;
 }
 
+// R1.5 全量掃描模式稽核：只核對選單與實際工作清單，絕不修改候選或交易條件。
+function dayTradeScopeAuditR15(selection,actualLimit,pool){
+  const selected=String(selection||""),actual=actualLimit===Infinity?"all":String(actualLimit);
+  const qualified=pool?.ranked?.length??0,planned=pool?.deep?.length??0,deferred=pool?.deferred?.length??0;
+  const expected=selected==="all"?qualified:selected==="140"?Math.min(140,qualified):selected==="70"?Math.min(70,qualified):null;
+  if(expected===null)throw new Error(`掃描模式稽核失敗：未知選單模式 ${selected||"(空白)"}；已停止掃描。`);
+  if(actual!==selected||planned!==expected||deferred!==qualified-planned){
+    throw new Error(`全量掃描稽核失敗：使用者選擇 ${selected==="all"?"全部":selected+"檔"}，實際模式 ${actual==="all"?"全部":actual+"檔"}，快篩合格 ${qualified} 檔，計畫深掃 ${planned} 檔，未納入 ${deferred} 檔（預期深掃 ${expected} 檔）；本次已停止，不會誤標為完整榜。`);
+  }
+  return Object.freeze({selectedMode:selected,actualMode:actual,qualified,planned,deferred,expected,checked:true});
+}
+function dayTradeScopeAuditLabelR15(a,finalCount){
+  if(!a?.checked)return "掃描模式稽核：尚未完成";
+  const name=mode=>mode==="all"?"全部快篩合格股票":`${mode} 檔`;
+  const final=Number.isFinite(finalCount)?`｜本輪累計計畫 ${finalCount}`:"";
+  return `掃描模式稽核：使用者選擇 ${name(a.selectedMode)}｜實際模式 ${name(a.actualMode)}｜原始快篩合格 ${a.qualified}｜深掃計畫 ${a.planned}｜未納入 ${a.deferred}${final}｜核對通過`;
+}
 function dayTradeGradeV377736(score,fake){
   return score>=85&&fake.level==="LOW"?"S":score>=70&&fake.level!=="HIGH"?"A":score>=55?"B":"C";
 }
@@ -27634,6 +27657,7 @@ function dayTradeSummaryLinesV377736(scan){
   const enrich=scan.decisionEnrich||{requested:0,success:0,failed:0,retryRecovered:0,failedCodes:[]};
   return [
     `完整市場快照 ${scan.snapshotRows??scan.phase1Total??0} 檔｜快照格式可讀 ${scan.phase1Total||0}｜快篩合格 ${ranked}`,
+    dayTradeScopeAuditLabelR15(scan.scopeAuditR15,scan.total),
     `深入分析：計畫 ${total}｜完成 ${done}｜尚未完成 ${scan.pending??Math.max(0,total-done)}｜因範圍上限尚未分析 ${scan.deferredCount||0}`,
     `有效分析 ${scan.success||0}/${done}（${done?fmt((scan.successRate||0)*100,1)+"%":"未執行"}）；這是資料可用率，不是勝率`,
     `結果核對：候選 ${scan.candidates?.length||0}＋硬條件淘汰 ${scan.hardGateSkipped||0}＋分數不足 ${scan.scoreSkipped||0}＋資料不足 ${scan.dataSkippedCount||0}＋失敗 ${scan.failed||0}＝完成 ${done}`,
@@ -28333,7 +28357,11 @@ function isDayTradeResourceLimitV41(error){
 async function runDayTradeScanV1(){
   if(dayTradeScanRunningV1||momentumScanRunningV3762)return;
   const btn=document.getElementById("dayTradeScanButton"),stopBtn=document.getElementById("dayTradeStopButton"),err=document.getElementById("dayTradeError"),result=document.getElementById("dayTradeResult"),limitSelect=document.getElementById("dayTradeDeepLimit");
+  const selectedModeR15=String(limitSelect?.value||"");
   const deepLimit=dayTradeDeepLimitV377736();
+  let scopeAuditR15=null;
+  const scopeAuditElR15=document.getElementById("dayTradeScopeAuditR15");
+  if(scopeAuditElR15)scopeAuditElR15.textContent=`掃描模式稽核：使用者選擇 ${selectedModeR15==="all"?"全部快篩合格股票":selectedModeR15+" 檔"}｜等待快篩與深掃計畫核對`;
   dayTradeScanRunningV1=true;dayTradeScanAbortV1=false;lastDayTradeScanDataV1=null;
   if(btn){btn.disabled=true;btn.textContent="⚡ 完整市場資料快篩...";}
   if(limitSelect)limitSelect.disabled=true;
@@ -28346,6 +28374,10 @@ async function runDayTradeScanV1(){
     if(bundle.meta?.marketCoverageReady!==true)throw new Error("市場完整性檢查未通過，請先確認 TWSE／TPEx 行情完整。");
     if(bundle.meta?.industryCoverageReady!==true&&(DAYTRADE_EXCLUDE_FINANCIAL_V1||DAYTRADE_EXCLUDE_BIOTECH_V1))throw new Error("產業資料不足，無法確認金融／生技排除條件。");
     const p1=buildDayTradePhase1PoolV1(bundle,deepLimit),total=p1.deep.length,outcomes=new Map(),retryQueue=[],retryCodeSet=new Set();
+    // 必須先核對再進入 CORE 請求：選了「全部」卻只排 140 檔時，明確中止而非默默產出正式榜。
+    scopeAuditR15=dayTradeScopeAuditR15(selectedModeR15,deepLimit,p1);
+    if(scopeAuditElR15)scopeAuditElR15.textContent=dayTradeScopeAuditLabelR15(scopeAuditR15,total);
+    if(scopeAuditR15.selectedMode==="all"&&scopeAuditR15.planned!==scopeAuditR15.qualified)throw new Error("全量掃描稽核失敗：計畫深掃數與快篩合格數不同，已停止掃描。");
     let retryRecovered=0,consecutiveResourceFailures=0,maxResourceFailureStreak=0,directFallbackUsed=0;
     let resourcePaused=false,resourcePauseReason="",resourceProtectionTriggered=false,resourceCooldownCount=0,resourceCooldownRequested=false,deepRetryRoundsUsed=0;
     const retryLastErrors=new Map();
@@ -28504,7 +28536,7 @@ async function runDayTradeScanV1(){
       phase1Total:bundle.map.size,phase1Ranked:p1.ranked.length,phase1LiquiditySkipped:p1.liquidity.length,phase1NoQuote:p1.noQuote.length,
       financialSkipped:p1.financial.length,biotechSkipped:p1.biotech.length,
       deferredCount:p1.deferred.length,deferredCodes:p1.deferred.map(x=>x.code),pendingCodes:p1.deep.filter(x=>!outcomes.has(x.code)||outcomes.get(x.code).status==="RETRY").map(x=>x.code),
-      deepLimit:Number.isFinite(deepLimit)?deepLimit:"all",sCount:count(c=>c.grade==="S"),aCount:count(c=>c.grade==="A"),bCount:count(c=>c.grade==="B"),
+      deepLimit:Number.isFinite(deepLimit)?deepLimit:"all",scopeAuditR15,sCount:count(c=>c.grade==="S"),aCount:count(c=>c.grade==="A"),bCount:count(c=>c.grade==="B"),
       lowTurnCount:count(c=>c.setup.key==="LOW_TURN"),breakoutCount:count(c=>c.setup.key==="BREAKOUT"),continuationCount:count(c=>c.setup.key==="CONTINUATION"),
       marketBundleMeta:bundle.meta,source:`${V40_RELEASE_LABEL}｜完整市場快照→單檔串行深入分析→完整個股資料有限補抓；補抓失敗保留原候選；原當沖掃描分公式不變`,
       chipContract:"report.dayTradeChips（可選；缺資料時不補猜、不扣分）"
@@ -28517,6 +28549,7 @@ async function runDayTradeScanV1(){
     }
   }catch(error){
     console.error(error);
+    if(scopeAuditElR15&&/掃描模式稽核失敗|全量掃描稽核失敗/.test(String(error?.message||"")))scopeAuditElR15.textContent=`❌ ${error.message}`;
     if(err){
       err.style.display="block";
       err.style.background=dayTradeScanAbortV1?"var(--yellowbg)":"var(--redbg)";
@@ -34791,7 +34824,7 @@ document.querySelectorAll(".version-pill,footer strong").forEach(el=>{if(/石頭
 // 5) 當沖結果核對補上「未形成有效判讀/詳細資料未完成」，讓總數對帳。
 // ========================================================================
 (function(){
-  const RELEASE='石頭少爺 Agent V50 正式版｜R5.3.2.8.4｜第二套 R1.2 全量深掃｜R1.3 戰報驗證修復';
+  const RELEASE='石頭少爺 Agent V50 正式版｜R5.3.2.8.6｜第二套 R1.5 全量掃描稽核｜R1.4 主升戰報修復';
   const num=v=>{const n=Number(v);return Number.isFinite(n)?n:null;};
   const uniq=xs=>[...new Set((xs||[]).filter(Boolean))];
 
