@@ -8,9 +8,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>石頭少爺 Agent V50 正式版｜R5.3.2.8.3｜第二套 R1.2 快篩合格全量深掃</title>
+<title>石頭少爺 Agent V50 正式版｜R5.3.2.8.4｜第二套 R1.2 全量深掃｜R1.3 戰報驗證修復</title>
 <script src="./scan-exclusions-rsi-v5328.js?v=R5328"></script>
-<script src="./version-v50.js?v=R5.3.2.8.3"></script>
+<script src="./version-v50.js?v=R5.3.2.8.4"></script>
 
 <style>
 
@@ -27107,43 +27107,63 @@ function buildMomentumScanCompactTextReportV377713(scan){
   return lines.join("\n");
 }
 
-function momentumFullReportAuditV377713(scan,text){
-  const all=Array.isArray(scan?.candidates)?scan.candidates:(scan?.launchCandidates||[]);
-  const codes=all.map(c=>String(c?.report?.stock||c?.report?.code||"")).filter(Boolean);
+// R1.3｜只檢查戰報實際內容；版本更新不應讓完整報告誤判為截斷。
+// 只核對「⑤ 主升入選股票」區段的 TOP 列；摘要、安全榜、強度榜提到同檔不算真正列出。
+function momentumReportAuditR13(scan,text,compact){
+  const all=compact
+    ?(Array.isArray(scan?.candidates)?scan.candidates:(scan?.launchCandidates||[]))
+    :(scan?.launchCandidates||scan?.candidates||[]);
   const body=String(text||"");
-  const listed=codes.filter(code=>body.includes("（"+code+"）")).length;
-  const last=all.length?momentumSafeStockNameV377712(all[all.length-1])+"（"+(all[all.length-1]?.report?.stock||all[all.length-1]?.report?.code||"-")+"）":null;
+  const sectionStart=body.indexOf("【⑤ 🚀 主升入選股票");
+  const sectionEnd=sectionStart<0?-1:body.indexOf("【⑥ ",sectionStart);
+  const section=sectionStart>=0&&sectionEnd>sectionStart?body.slice(sectionStart,sectionEnd):"";
+  const lines=section.split(/\r?\n/);
+  const headers=lines.map((line,i)=>({line,i})).filter(x=>/^TOP \d+｜/.test(x.line));
+  const mandatory=compact?["【波段】","【近端】","【技術】","【判讀】"]:["【位置】","【波段】","【防守】","【技術】","【判讀】"];
+  const codeOf=c=>String(c?.report?.stock||c?.report?.code||"-");
+  const nameOf=c=>momentumSafeStockNameV377712(c);
+  let valid=0,reason="";
+  if(sectionStart<0||sectionEnd<0)reason="缺少第⑤或第⑥節邊界";
+  else if(headers.length!==all.length)reason="第⑤節的 TOP 股票筆數不一致";
+  else{
+    for(let i=0;i<all.length;i++){
+      const title="TOP "+(i+1)+"｜"+nameOf(all[i])+"（"+codeOf(all[i])+"）｜";
+      const from=headers[i].i,to=i+1<headers.length?headers[i+1].i:lines.length;
+      const block=lines.slice(from,to).join("\n");
+      if(!headers[i].line.startsWith(title)){reason="第 "+(i+1)+" 檔股票名稱、代號或排行不一致";break;}
+      const missing=mandatory.find(x=>!block.includes(x));
+      if(missing){reason="第 "+(i+1)+" 檔缺少 "+missing+" 段落";break;}
+      valid++;
+    }
+  }
+  const expected=all.length;
+  const last=expected?nameOf(all[expected-1])+"（"+codeOf(all[expected-1])+"）":null;
+  const summaryType=compact?"精簡戰報":"完整戰報";
+  const footerMark=compact?"END-OF-MOMENTUM-COMPACT-REPORT-V43":"END-OF-MOMENTUM-REPORT-V43";
+  const summaryOk=body.includes(summaryType+"實際列出 "+expected+" 檔")||body.includes(summaryType+"實際列出 "+expected+"檔");
+  const lastOk=expected?body.includes("最後一檔：TOP "+expected+" "+last):body.includes("最後一檔：無");
+  // 必須有非空版本欄位；版本號碼本身不影響股票內容的完整性。
+  const versionOk=/^前端版本：[^\r\n]+/m.test(body);
+  const endOk=body.includes("完整結尾標記："+footerMark)
+    &&body.lastIndexOf("技術分析僅供研究與決策參考")>body.indexOf("完整結尾標記："+footerMark);
+  if(!reason&&valid!==expected)reason="TOP 逐檔完整性未通過";
+  if(!reason&&!summaryOk)reason="候選數量摘要缺漏或不符";
+  if(!reason&&!lastOk)reason="最後一檔核對失敗";
+  if(!reason&&!versionOk)reason="前端版本欄位缺漏";
+  if(!reason&&!endOk)reason="完整結尾標記或風險聲明缺漏";
   return {
-    ok:listed===all.length
-      &&(!last||body.includes(last))
-      &&body.includes(V40_RELEASE_LABEL)
-      &&(body.includes("完整報告結束")||body.includes("END-OF-MOMENTUM-REPORT-V43")),
-    expected:all.length,
-    listed,
+    ok:!reason,
+    reason,
+    expected,
+    listed:valid,
+    found:headers.length,
     last,
     formalCount:all.filter(c=>c?.formalLaunchEligible===true).length,
     waitingCount:all.filter(c=>c?.formalLaunchEligible!==true).length
   };
 }
-
-function momentumCompactReportAuditV377713(scan,text){
-  const all=Array.isArray(scan?.candidates)?scan.candidates:(scan?.launchCandidates||[]);
-  const codes=all.map(c=>String(c?.report?.stock||c?.report?.code||"")).filter(Boolean);
-  const body=String(text||"");
-  const listed=codes.filter(code=>body.includes("（"+code+"）")).length;
-  const last=all.length?momentumSafeStockNameV377712(all[all.length-1])+"（"+(all[all.length-1]?.report?.stock||all[all.length-1]?.report?.code||"-")+"）":null;
-  return {
-    ok:listed===all.length
-      &&(!last||body.includes(last))
-      &&body.includes(V40_RELEASE_LABEL)
-      &&(body.includes("精簡報告結束")||body.includes("END-OF-MOMENTUM-COMPACT-REPORT-V43")),
-    expected:all.length,
-    listed,
-    last,
-    formalCount:all.filter(c=>c?.formalLaunchEligible===true).length,
-    waitingCount:all.filter(c=>c?.formalLaunchEligible!==true).length
-  };
-}
+function momentumFullReportAuditV377713(scan,text){return momentumReportAuditR13(scan,text,false);}
+function momentumCompactReportAuditV377713(scan,text){return momentumReportAuditR13(scan,text,true);}
 
 async function momentumWriteClipboardV377713(text){
   if(navigator.clipboard?.writeText){
@@ -27233,7 +27253,7 @@ async function copyMomentumScanReportV3763(){
 
   if(!audit.ok){
     msg.style.color="var(--red)";
-    msg.textContent="❌ 精簡戰報組字不完整：候選 "+audit.expected+"檔｜實際列出 "+audit.listed+"檔。已停止複製。";
+    msg.textContent="❌ 精簡戰報內容驗證失敗：候選 "+audit.expected+"檔｜實際完整列出 "+audit.listed+"檔｜原因："+audit.reason+"。已停止複製。";
     return;
   }
 
@@ -27265,7 +27285,7 @@ function downloadMomentumFullReportV377713(){
   const audit=momentumFullReportAuditV377713(lastMomentumScanDataV3762,text);
   if(!audit.ok){
     msg.style.color="var(--red)";
-    msg.textContent="❌ 完整詳細戰報組字不完整，已停止下載。";
+    msg.textContent="❌ 完整詳細戰報內容驗證失敗："+audit.reason+"。已停止下載。";
     return;
   }
 
@@ -27299,7 +27319,7 @@ async function copyMomentumFullReportPartV377713(partNo){
   const audit=momentumFullReportAuditV377713(lastMomentumScanDataV3762,full);
   if(!audit.ok){
     msg.style.color="var(--red)";
-    msg.textContent="❌ 完整詳細戰報組字不完整，已停止分段複製。";
+    msg.textContent="❌ 完整詳細戰報內容驗證失敗："+audit.reason+"。已停止分段複製。";
     return;
   }
 
@@ -34771,7 +34791,7 @@ document.querySelectorAll(".version-pill,footer strong").forEach(el=>{if(/石頭
 // 5) 當沖結果核對補上「未形成有效判讀/詳細資料未完成」，讓總數對帳。
 // ========================================================================
 (function(){
-  const RELEASE='石頭少爺 Agent V50 正式版｜R5.3.2.8.3｜第二套 R1.2 快篩合格全量深掃';
+  const RELEASE='石頭少爺 Agent V50 正式版｜R5.3.2.8.4｜第二套 R1.2 全量深掃｜R1.3 戰報驗證修復';
   const num=v=>{const n=Number(v);return Number.isFinite(n)?n:null;};
   const uniq=xs=>[...new Set((xs||[]).filter(Boolean))];
 
