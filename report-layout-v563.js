@@ -19,7 +19,7 @@
     finish(base,mode,extra={}){const canvas=document.createElement('canvas');canvas.width=T.width;canvas.height=Math.ceil(this.y);const ctx=canvas.getContext('2d');ctx.fillStyle=T.bg;ctx.fillRect(0,0,canvas.width,canvas.height);for(const op of this.ops)op(ctx);Object.assign(canvas.dataset,base?.dataset||{});canvas.dataset.reportMode=mode;canvas.dataset.unifiedReport='true';canvas.dataset.reportText=encodeURIComponent(JSON.stringify(this.texts));canvas.dataset.layoutAudit=encodeURIComponent(JSON.stringify({size:`${canvas.width}x${canvas.height}`,unified:true,noOverlap:this.audit.every((item,i)=>!i||item.top>=this.audit[i-1].bottom),sections:this.audit,theme:T,...extra}));if(mode==='professional')canvas.dataset.v50ProfessionalFull='true';else canvas.dataset.v50NewbieFirst='true';return canvas;}
   }
   const card=(title,body=[],tone='blue')=>({tone,items:[text(title,{size:T.title,weight:850,color:(colors[tone]||colors.blue)[1]}),...body.map(row=>typeof row==='string'?text(row):row)]});
-  function captureProfessional(render){const captured={metrics:[],map:[],scenarios:[],bullets:[],next:[],snr:[],research:false},saved={};let inSnr=false;const wrap=(name,hook)=>{if(typeof root[name]!=='function')return;saved[name]=root[name];root[name]=function(...args){hook(args);return saved[name].apply(this,args);};};const normalize=value=>plain(root.v51ProfessionalPlainText?.(value)??value);
+  function captureProfessional(render){const captured={metrics:[],map:[],scenarios:[],bullets:[],next:[],snr:[],topText:[],footerText:[],research:false},saved={};let inSnr=false;const wrap=(name,hook)=>{if(typeof root[name]!=='function')return;saved[name]=root[name];root[name]=function(...args){hook(args);return saved[name].apply(this,args);};};const normalize=value=>plain(root.v51ProfessionalPlainText?.(value)??value);
     wrap('drawMetricCardV3328',args=>{if(Math.round(args[2])===2192)captured.metrics.push({title:normalize(args[5]),value:normalize(args[6]),sub:normalize(args[7]),tone:args[8]||'blue'});});
     wrap('drawStockMapRowV3661',args=>{const it=args[1];captured.map.push({value:`${root.fmt(it.value)} 元`,label:normalize(root.stockImagePlainTextV41(it.label)),status:`${it.biasIcon||'🟡'} ${it.bias||'中性'}`,action:normalize(root.stockImagePlainTextV41(`持有者：${it.holderAction}｜${it.holderNote}｜空手者：${it.nonHolderAction}｜${it.nonHolderNote}`)),color:it.color});});
     wrap('drawReportTextBoxV377734',args=>{if(args[2]===68&&[1483,1687,1891].includes(args[3]))captured.scenarios.push(normalize(args[1]));if(args[2]===824&&String(args[1]).startsWith('🎯 下一步：'))captured.next.push(normalize(args[1]));});
@@ -27,7 +27,12 @@
     wrap('drawResearchValidationCardV3673',()=>{captured.research=true;});
     wrap('v46CanvasLines',args=>{if(inSnr)captured.snr.push(normalize(args[1]));});
     if(typeof root.appendProfessionalSnrPanelV532==='function'){saved.appendProfessionalSnrPanelV532=root.appendProfessionalSnrPanelV532;root.appendProfessionalSnrPanelV532=function(...args){inSnr=true;try{return saved.appendProfessionalSnrPanelV532.apply(this,args);}finally{inSnr=false;}};}
-    try{const result=render();result.dataset.professionalLayoutContent=encodeURIComponent(JSON.stringify(captured));return result;}finally{for(const [name,fn] of Object.entries(saved))root[name]=fn;}
+    const proto=root.CanvasRenderingContext2D.prototype,oldPaint=proto.fillText;
+    proto.fillText=function(value,x,y,...args){const t=this.getTransform(),scale=this.canvas.width/1600,logicalY=(t.b*x+t.d*y+t.f)/scale;
+      if(this.canvas.width===1152){const valueText=normalize(value);if(logicalY>=158&&logicalY<794&&!captured.topText.includes(valueText))captured.topText.push(valueText);if(logicalY>=3278&&!captured.footerText.includes(valueText))captured.footerText.push(valueText);}
+      return oldPaint.call(this,value,x,y,...args);
+    };
+    try{const result=render();result.dataset.professionalLayoutContent=encodeURIComponent(JSON.stringify(captured));return result;}finally{proto.fillText=oldPaint;for(const [name,fn] of Object.entries(saved))root[name]=fn;}
   }
   function beginner(base,input,a,d){const report=input.report||input,U=root.ShitouV50UI,p=U.newbiePlan(input,a,d),l=new Layout();l.header(report,a);
     l.row('decision-empty',[card(`👤 還沒買：${p.empty}`,[],p.formalExecutionAllowed?'green':'yellow')]);l.row('decision-holder',[card(`💼 已持有：${p.holder}`,[],'red')]);l.row('decision-today',[card(`● ${p.today}`,[],p.formalExecutionAllowed?'green':'yellow')]);

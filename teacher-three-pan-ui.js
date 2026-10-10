@@ -20,35 +20,9 @@ function guide(input){const a=get(input);if(!a.ok)return {key:'DATA',icon:'⚪',
  return {key:a.signal.key==='DOWN'?'BREAKDOWN_CONFIRMED':a.formalEligible?'BREAKOUT_CONFIRMED':'NO_TURN',icon:a.signal.key==='DOWN'?'🔴':a.formalEligible?'🟢':'🟡',status:a.phaseLabel,explain:a.plain,action:a.formalEligible?'下日重新查價格與量潮；名單資格不等於開盤直接買。':'空手等待價格與攻擊量同步；持有追蹤波段退出條件。',thresholds:`本次前兩日高 ${T.fmt(a.signal.high)}／低 ${T.fmt(a.signal.low)}`,volume:`量潮：${a.volumePhase}；5 ${T.arrow(a.mvSlope[5])}／13 ${T.arrow(a.mvSlope[13])}／34 ${T.arrow(a.mvSlope[34])}`,angle:`角度：${a.angle}`,time:'完成日K；未完成波段不作已完成比較。',position:`價格背景：${a.longLabel}；三盤波段另判。`,relative:relativeText(a),score:`工程條件覆蓋 ${a.completeness}/6（不是勝率）`,sourceDate:a.date,branches:[{title:'向上突破',text:`下一根收盤 > ${T.fmt(a.next.high)}，另查攻擊量與較大潮。`},{title:'區間內',text:'無新三盤不等於盤整；須波段收斂與量能佐證。'},{title:'向下跌破',text:`下一根收盤 < ${T.fmt(a.next.low)}，更新波段風控。`}]};
 }
 function professional(base,input){
- const source=root.ShitouV50UI.compactPreviousCards(base),a=get(input),canvas=document.createElement('canvas');canvas.width=WIDTH;canvas.height=HEIGHT;const ctx=canvas.getContext('2d');ctx.fillStyle='#eef3f8';ctx.fillRect(0,0,WIDTH,HEIGHT);
- let audit={},content={};try{audit=JSON.parse(decodeURIComponent(source.dataset.layoutAudit));content=JSON.parse(decodeURIComponent(source.dataset.professionalLayoutContent));}catch(e){throw Error('原版報告區塊資料缺失，停止輸出避免遺漏');}
- const s=audit.sections,M=28,G=8,inner=1228,k=source.width/1600,oldX=24*k,oldW=source.width-48*k,bodyTop=158*k,bcTop=1334*k,sections=[];
- const mark=(id,top,bottom,role)=>sections.push({id,top,bottom,role});
- crop(ctx,source,0,0,source.width,bodyTop,0,0,WIDTH,132);mark('header-original',0,132,'preserved');
- const d=root.ShitouV50UI.beginnerDecision(input),p=root.ShitouV50UI.newbiePlan(input,C.analyze(input),d),g=guide(input);
- box(ctx,M,140,inner,164,'新手先看｜三盤波段與原進場條件｜'+root.ShitouScanPolicy5328.rsiText(input),[
-  a.ok?`${a.phaseLabel}｜${a.formalEligible?'量價波段資格通過；仍查原進場條件':'本次未取得強勢資格'}`:a.reason,
-  `空手：${d.verdict}｜${a.ok?a.plain:d.reason}`,
-  `已持有：${a.ok&&a.signal.key==='DOWN'?'三盤退出／風控訊號已成立':p.holder}`
- ],a.ok&&a.signal.key==='DOWN'?'red':'yellow',{size:21,min:15,titleSize:24,titleH:28,pad:12});mark('decision',140,304,'updated');
- fit(ctx,'教材量價觀察｜三盤、波段、量潮分開判',M,312,inner,28,24,19,theme.ink,900);
- const leftW=688;box(ctx,M,344,leftW,94,g.status,[g.explain,g.thresholds],a.ok&&a.signal.key==='DOWN'?'red':'yellow',{size:16,min:12,titleSize:18,titleH:22,pad:10});box(ctx,M+leftW+G,344,inner-leftW-G,94,'下一步｜訊號與執行分開',[g.action,g.score],'blue',{size:15,min:12,titleSize:18,titleH:22,pad:10});
- const bw=(inner-2*G)/3;g.branches.forEach((x,i)=>box(ctx,M+i*(bw+G),446,bw,98,x.title,x.text,['green','yellow','red'][i],{size:16,min:12,titleSize:18,titleH:22,pad:10}));
- const half=(inner-G)/2;box(ctx,M,552,half,110,'量價時間與角度',[g.volume,g.angle,g.time],'blue',{size:15,min:11,titleSize:18,titleH:22,pad:10});box(ctx,M+half+G,552,half,110,'環境與相對比較',[g.position,g.relative,`資料日 ${g.sourceDate}`],'blue',{size:15,min:11,titleSize:18,titleH:22,pad:10});mark('guide',312,662,'updated');
- crop(ctx,source,oldX,bodyTop,oldW,bcTop-bodyTop,M,670,inner,880);mark('A-chart-original',670,1550,'preserved');
- // B完整像素保留，C只換右欄；不依賴原版文字擷取是否包含研究卡。
- const col=(inner-G)/2;if(content.scenarios?.length===3){const bLines=[];content.scenarios.forEach((value,i)=>bLines.push(['怎樣才算轉強','如果繼續整理','哪裡跌破要退出'][i]+'：'+value));bLines.push('以上可進／續抱／減碼／退出僅為技術條件的白話風控，不保證漲跌，交易風險仍需自負。');box(ctx,M,1558,col,330,'B. 明天三種走法｜原內容',bLines,'blue',{size:20,min:12,titleSize:24,titleH:32,pad:14});}else crop(ctx,source,24*k,bcTop,760*k,780*k,M,1558,col,330);mark('B-original',1558,1888,'preserved');
- box(ctx,M+col+G,1558,col,330,'C. 三盤與波段戰法',[...strategyLines(a),root.ShitouScanPolicy5328.rsiText(input,true),root.ShitouScanPolicy5328.volumeText(input)],a.ok&&a.signal.key==='DOWN'?'red':'blue',{size:21,min:16,titleSize:26,titleH:34,pad:18});mark('C-teacher',1558,1888,'replaced');
- const dSourceTop=s.dTitleTop-42*k;crop(ctx,source,oldX,dSourceTop,oldW,s.efTop-dSourceTop,M,1896,inner,212);mark('D-seven-metrics-original',1896,2108,'preserved');
- fit(ctx,'E. 量潮接力與波段應變',M,2116,inner,34,27,20,theme.ink,900);
- const eLeft=a.ok?[`MA8 ${T.fmt(a.ma[8])}${T.arrow(a.maSlope[8])}／MA21 ${T.fmt(a.ma[21])}${T.arrow(a.maSlope[21])}／MA55 ${T.fmt(a.ma[55])}${T.arrow(a.maSlope[55])}`,`MV5 ${T.arrow(a.mvSlope[5])}／MV13 ${T.arrow(a.mvSlope[13])}／MV34 ${T.arrow(a.mvSlope[34])}：${a.volumePhase}`,a.angle]:[a.reason];
- const eRight=a.ok?[`下根向上 > ${T.fmt(a.next.high)}／向下 < ${T.fmt(a.next.low)}（完成收盤）`,relativeText(a),`型態：${a.pattern.label}；${a.pattern.plain}`,`依據：PDF 19、38、57–58、67、85–103；上集49:28。分段／三日止漲是工程約定。`]:['資料不足，不生成判斷。'];
- box(ctx,M,2158,col,250,'量價與角度',eLeft,'blue',{size:21,min:16,titleH:31,pad:16});box(ctx,M+col+G,2158,col,250,'條件與依據',eRight,'blue',{size:21,min:15,titleH:31,pad:16});mark('E-teacher',2116,2408,'replaced');
- if(content.snr?.length===8){const f=content.snr;box(ctx,M,2416,inner,190,f[0],[],'blue',{titleSize:24,titleH:28,pad:12});fit(ctx,[f[1],f[2]].join('\n'),M+14,2458,col-28,58,17,12);fit(ctx,[f[3],f[4]].join('\n'),M+col+G+14,2458,col-28,58,17,12);fit(ctx,f[5],M+14,2522,inner-28,22,16,12);fit(ctx,f[6],M+14,2550,col-28,44,16,12);fit(ctx,f[7],M+col+G+14,2550,col-28,44,16,12);}else crop(ctx,source,oldX,s.footerCutTop,oldW,310,M,2416,inner,190);mark('F-original',2416,2606,'preserved');
- const footerFrom=Math.min(source.height,s.footerCutTop+310);crop(ctx,source,oldX,footerFrom,oldW,source.height-footerFrom,0,2614,WIDTH,164);mark('footer-original',2614,2778,'preserved');
- Object.assign(canvas.dataset,source.dataset);canvas.dataset.reportMode='professional';canvas.dataset.teacherThreePan='true';canvas.dataset.iphoneFullScreen='1284x2778';canvas.dataset.teacherText=T.text({...input,report:input.report||input});
- canvas.dataset.layoutAudit=encodeURIComponent(JSON.stringify({size:'1284x2778',noOverlap:true,textOverflowCount:0,sections,preserved:['header','A','chart','B','D','F','footer'],replaced:['C','E'],metricCount:content.metrics?.length||0,fullBleed:true,sourceSize:`${source.width}x${source.height}`}));return canvas;
+ return root.ShitouMobileProfessional5329(base,input);
 }
+
 function chart(ctx,b,x,y,w,h){
  const data=b.slice(-60),start=b.length-data.length,maValues=data.flatMap((r,j)=>[8,21,55].map(n=>T.sma(b,'close',n,start+j+1)).filter(v=>v!==null)),min=Math.min(...data.map(r=>r.low),...maValues),max=Math.max(...data.map(r=>r.high),...maValues),pad=(max-min)*.06||max*.01,lo=min-pad,hi=max+pad,Y=v=>y+(hi-v)/(hi-lo)*h,step=w/data.length;
  ctx.fillStyle='#fff';ctx.fillRect(x,y,w,h);for(let i=0;i<4;i++){const v=lo+(hi-lo)*i/3,yy=Y(v);ctx.strokeStyle='#e2e9f1';ctx.beginPath();ctx.moveTo(x,yy);ctx.lineTo(x+w,yy);ctx.stroke();fit(ctx,T.fmt(v),x+5,i===3?yy+3:yy-25,100,26,19,16,theme.muted);}

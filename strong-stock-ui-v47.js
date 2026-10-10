@@ -8,7 +8,7 @@
   const BATCH=8,REQUEST_GAP=250,CPU_RETRY_GAP=1800,RETRY_GAP=800;
   const DAILY_BATCH_TIMEOUT_MS=32000;
   const CACHE_KEY='SHITOU_STRONG_STOCK_TEACHER_R5328';
-  const CACHE_REV='TEACHER_V1_CANONICAL_VOLUME_EXCLUSIONS_RSI5';
+  const CACHE_REV='R5329_SWING_RISK';
   const CPU_BREAKER_CONSECUTIVE=4;
   const FAILURE_WINDOW_SIZE=16;
   const MARKET_ENDPOINT_R49=(typeof MARKET_API_BASE_URL!=='undefined'&&MARKET_API_BASE_URL)?MARKET_API_BASE_URL:'https://shitou-taiwanmarket-api.d318426.workers.dev';
@@ -17,7 +17,7 @@
   const id=key=>document.getElementById('strongStock'+key);
   const html=value=>String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
   const fmt=(value,digits=2)=>value!==null&&value!==undefined&&value!==''&&Number.isFinite(Number(value))?Number(value).toFixed(digits):'資料不足';
-  const fibLine=c=>{const t=c?.wave?.teacher;return t?`教材波段：${t.phaseLabel}｜${t.volumePhase}｜${t.pattern.label}`:'教材波段：資料不足';};
+  const fibLine=c=>{const risk=c?.swingRisk5329?root.ShitouSwingRisk5329.describe(c.swingRisk5329)+'；':'';const t=c?.wave?.teacher;return t?risk+`教材波段：${t.phaseLabel}｜${t.volumePhase}｜${t.pattern.label}`:'教材波段：資料不足';};
   const displayError=(text,type='error')=>{const el=id('Error');if(el){el.style.display='block';el.style.color=type==='warn'?'var(--yellow)':'var(--red)';el.textContent=text;}};
   const note=text=>{const el=id('Message');if(el)el.textContent=text;};
   const marketDateDiagnostic=meta=>{
@@ -30,7 +30,7 @@
   const isCpuError=value=>/exceeded\s*CPU|CPU\s*time\s*limit|CPU.*(?:超限|用量)|1102|script.*exceeded/i.test(String(value||''));
   const isRetryable=value=>/CPU|1102|timeout|timed out|aborted|failed to fetch|network|HTTP\s*(?:429|5\d\d)|服務暫時|連線|逾時|分析未回傳/i.test(String(value||''));
   const statusTitle=scan=>scan.fullMarketCertified?'完整市場驗證報告':'部分驗證報告｜非全市場完整排名';
-  const RELEASE_R493='石頭少爺 Agent V50 正式版｜R5.3.2.8｜七類排除與RSI 5T清晰報告版';
+  const RELEASE_R493=root.ShitouReleaseV50?.release||'石頭少爺 Agent V50 正式版｜R5.3.2.9｜盤後波段風險與掃描穩定版';
   const triggerMeta=c=>{
     const close=F.number(c?.close),trigger=F.number(c?.trigger);
     const crossed=close!==null&&trigger!==null&&close>=trigger;
@@ -163,27 +163,17 @@
     if(meta)meta.textContent=`${statusTitle(scan)}｜市場日期 ${scan.dataDate}｜產生 ${scan.createdAt}｜來源：完整市場快照＋DAILY_ONLY 輕量完成日K｜掃描範圍 ${scan.total} 檔`;
     if(summary){
       const a=scan.audit;
-      summary.textContent=`波段續強把關：正式日K候選 ${scan.candidates.length}｜等待確認 ${scan.swingSelection?.watch.length||0}｜過熱／假突破擋下 ${scan.swingSelection?.blocked.length||0}｜日K不足 ${scan.swingSelection?.missing.length||0}；不等於已通過月線資格。｜${statusTitle(scan)}｜完整市場 ${scan.universe}｜快篩合格 ${scan.quick}｜深入規劃 ${scan.total}｜請求已處理 ${scan.done}｜有效判讀 ${scan.verified}｜同快照重用 ${scan.cacheHits}｜重試 ${scan.retries}｜範圍外未分析 ${scan.deferred}｜停止或資源限制後未分析 ${scan.pending}｜金融排除 ${a.financial}｜生技排除 ${a.biotech}｜營建排除 ${a.construction||0}｜全額交割 ${a.fullDelivery||0}｜DR ${a.dr||0}｜特殊商品 ${a.special||0}｜全額狀態未核 ${a.statusUnknown||0}｜產業未知 ${a.unknown}｜無法解析行情 ${scan.unparsed}｜無效報價 ${a.invalidQuote}｜成交金額缺失 ${a.missingLiquidity}｜流動性不足 ${a.illiquid}｜資料不足 ${scan.data}｜服務失敗 ${scan.failed}（CPU ${scan.cpuFailed}）｜確定不符 ${scan.rejected}｜已驗證候選 ${scan.candidates.length}（S ${scan.counts.S}／A ${scan.counts.A}／B ${scan.counts.B}）｜${scan.breaker?`資源熔斷：${scan.breaker}；其餘未分析。`:scan.fullMarketCertified?'全部範圍與資料驗證通過。':'不能宣稱全市場完整排名或全市場零候選。'}`;
+      summary.textContent=`${statusTitle(scan)}｜完整市場 ${scan.universe}｜快篩合格 ${scan.quick}｜深入規劃 ${scan.total}｜請求已處理 ${scan.done}｜有效判讀 ${scan.verified}｜同快照重用 ${scan.cacheHits}｜重試 ${scan.retries}｜範圍外未分析 ${scan.deferred}｜停止或資源限制後未分析 ${scan.pending}｜金融排除 ${a.financial}｜生技排除 ${a.biotech}｜營建排除 ${a.construction||0}｜全額交割 ${a.fullDelivery||0}｜DR ${a.dr||0}｜特殊商品 ${a.special||0}｜全額狀態未核 ${a.statusUnknown||0}｜產業未知 ${a.unknown}｜無法解析行情 ${scan.unparsed}｜無效報價 ${a.invalidQuote}｜成交金額缺失 ${a.missingLiquidity}｜流動性不足 ${a.illiquid}｜資料不足 ${scan.data}｜服務失敗 ${scan.failed}（CPU ${scan.cpuFailed}）｜確定不符 ${scan.rejected}｜已驗證候選 ${scan.candidates.length}（S ${scan.counts.S}／A ${scan.counts.A}／B ${scan.counts.B}）｜${scan.breaker?`資源熔斷：${scan.breaker}；其餘未分析。`:scan.fullMarketCertified?'全部範圍與資料驗證通過。':'不能宣稱全市場完整排名或全市場零候選。'}`;
     }
     if(list){
       if(!scan.candidates.length){list.textContent=scan.fullMarketCertified?'全市場通過驗證且未找到符合新版三盤＋量價＋均線條件的股票；不代表隔日不會上漲。':'目前沒有已驗證候選；尚有未分析或資料異常股票，不能視為全市場零候選。';}
       else list.innerHTML=scan.candidates.map((c,i)=>{const t=triggerMeta(c),course=c.courseV52;return `<div class="rule strong-stock-row"><div><strong>${scan.fullMarketCertified?'#':'暫列 #'}${i+1}　${html(c.name)}（${html(c.code)}）｜${html(c.status)} ${html(c.label)}</strong><br>收盤 <b>${fmt(c.close)}</b>｜教材條件覆蓋 <b>${fmt(c.courseSuitabilityScore,0)}/100</b>（非勝率）｜量價條件分 ${fmt(c.score,0)}｜${html(c.date)}｜<b>${html(root.ShitouScanPolicy5328.rsiText(c,true))}</b><br>${html(root.ShitouScanPolicy5328.volumeText(c))}<br><b>${t.icon} ${html(t.label)} ${fmt(c.trigger)}</b>｜<b>🛡️ 防守參考 ${fmt(c.support)}</b>｜今日量／前5日均量 ${fmt(c.wave?.threePanVolumeRatio)} 倍｜距強弱分界線 ${fmt(c.ma21GapPct??c.ma20GapPct)}%</div><div class="meta"><strong>${html(course?.threePan?.icon||'⚪')} 三盤白話：</strong>${html(course?.threePan?.plain||'資料不足')}<br>${html(c.phaseLabel||'量價階段待確認')}｜${html(c.reason)}<br><strong>價格三線：</strong>${html(c.maText||'資料不足')}<br><strong>量能三線：</strong>${html(c.mvText||'資料不足')}<br><strong>${html(fibLine(c))}</strong><br><strong>資料校正：</strong>${html(confidenceText(c))}<br>${scan.fullMarketCertified?'':'僅為已驗證樣本內排序，非全市場排名。'}教材條件覆蓋是條件完整度，不是上漲機率；仍須核對量價與防守。</div></div>`;}).join('');
     }
-    // 已驗證但未進正式榜的理由另列，避免資料不足被誤解為股價一定下跌。
-    const riskWrap=id('RiskAudit');if(riskWrap){riskWrap.remove();}
-    if(list&&scan.swingSelection){
-      const riskBox=document.createElement('div');riskBox.id='strongStockRiskAudit';riskBox.className='rule';
-      riskBox.style.cssText='margin:12px 0;padding:13px;line-height:1.65';
-      const examples=[...scan.swingSelection.watch,...scan.swingSelection.blocked,...scan.swingSelection.missing].slice(0,12);
-      riskBox.innerHTML=`<strong>🛡️ 原入選但未列正式波段名次：${scan.swingOriginalCount-scan.candidates.length} 檔</strong><div class="meta">等待確認 ${scan.swingSelection.watch.length}｜過熱／假突破 ${scan.swingSelection.blocked.length}｜資料不足 ${scan.swingSelection.missing.length}；以下僅列最多12個示例。</div>${examples.map(c=>`<div class="meta">${html(c.name||c.code)}（${html(c.code)}）｜${html(c.swingAfterClose?.status||'資料不足')}｜${html(c.swingAfterClose?.reasons?.[0]||'無法驗證')}</div>`).join('')}`;
-      list.appendChild(riskBox);
-    }
     const top=id('TopImage'),all=id('AllImage');if(top)top.disabled=!scan.candidates.length;if(all)all.disabled=!scan.candidates.length;
   }
   function buildText(scan){
     const lines=[`${RELEASE_R493}｜第三套「強勢飆股濾網」${statusTitle(scan)}`,`市場交易日：${scan.dataDate}｜產生：${scan.createdAt}`,
-      '先記分，再按查詢；請確認市場及個股日期一致。僅供波段研究，不是進場或獲利保證。',
-      `盤後波段風險閘 ${scan.swingSelection?.version||'未載入'}：原合格 ${scan.swingOriginalCount??scan.candidates.length}｜續強低熱候選 ${scan.candidates.length}｜等待 ${scan.swingSelection?.watch.length||0}｜風險擋下 ${scan.swingSelection?.blocked.length||0}｜資料不足 ${scan.swingSelection?.missing.length||0}。以已完成日K評估；並非確認真實隔日沖券商，也未替代月線資格。`,
+      '先記分，再按查詢；請確認市場及個股日期一致。僅供下一交易日觀察，不是進場或獲利保證。',
       `全市場${scan.universe}｜快篩${scan.quick}｜規劃深入${scan.total}｜已處理${scan.done}｜有效判讀${scan.verified}｜同快照重用${scan.cacheHits}｜重試${scan.retries}｜範圍外${scan.deferred}｜停止或熔斷後${scan.pending}`,
       `金融排除${scan.audit.financial}｜生技排除${scan.audit.biotech}｜營建${scan.audit.construction||0}｜全額交割${scan.audit.fullDelivery||0}｜DR${scan.audit.dr||0}｜特殊商品${scan.audit.special||0}｜狀態未核${scan.audit.statusUnknown||0}｜產業不明${scan.audit.unknown}｜未解析行情${scan.unparsed}｜報價無效${scan.audit.invalidQuote}｜成交金額缺失${scan.audit.missingLiquidity}｜流動性不足${scan.audit.illiquid}`,
       `資料不足${scan.data}｜服務失敗${scan.failed}（CPU ${scan.cpuFailed}）｜確定不符${scan.rejected}｜已驗證候選${scan.candidates.length}｜S${scan.counts.S}／A${scan.counts.A}／B${scan.counts.B}`,
@@ -266,12 +256,7 @@
       }
       persistCache(cache);
       candidates.sort(F.compare);
-      // R1 波段風險二次把關：只使用已驗證同日完整日K；原 S/A/B 評級與條件分維持不變。
-      const swingGuard=root.ShitouSwingAfterCloseGuardV1;
-      if(!swingGuard)throw new Error('盤後波段風險把關模組未載入，為避免誤列高風險股而停止掃描');
-      const swingSelection=swingGuard.filter(candidates,{marketDate:market.date,scanner:'strong'});
-      const waveCandidates=swingSelection.ready;
-      const counts={S:0,A:0,B:0};waveCandidates.forEach(x=>counts[x.status]++);
+      const counts={S:0,A:0,B:0};candidates.forEach(x=>counts[x.status]++);
       const verified=candidates.length+rejected;
       const snapshotDropped=Math.max(0,bundle.snapshotRows-bundle.map.size,bundle.snapshotDropped||0);
       const completed=!stopped&&done===total&&data===0&&failed===0;
@@ -280,7 +265,7 @@
       if(done!==verified+data+failed)throw new Error('本次逐檔數量帳不平衡，停止產生報告');
       last=Object.freeze({model:F.MODEL,profile:'DAILY_ONLY',dataDate:market.date,createdAt:taipeiStampV3762(),universe:bundle.snapshotRows,unparsed:snapshotDropped,
         quick:pool.quick,total,done,deferred:pool.deferred.length,pending:total-done,audit:pool.audit,
-        verified,cacheHits,retries,cpuFailed,breaker,data,failed,rejected,candidates:waveCandidates,issues,counts,completed,fullMarketCertified,swingSelection,swingOriginalCount:candidates.length,
+        verified,cacheHits,retries,cpuFailed,breaker,data,failed,rejected,candidates,issues,counts,completed,fullMarketCertified,
         scopeFinished:done===total});
       render(last);
       if(breaker){const pt=id('ProgressText');if(pt)pt.textContent=`⏸ 已暫停於 ${done}/${total}｜${breaker}｜剩餘 ${last.pending} 檔尚未分析；已完成結果已保存，再按查詢會重用。`;}
