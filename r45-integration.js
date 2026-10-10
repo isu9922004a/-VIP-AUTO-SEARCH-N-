@@ -2,8 +2,8 @@
 (function(){
 'use strict';
 
-const RELEASE='石頭少爺 Agent V50 正式版｜R5.3.2.8｜七類排除與RSI 5T清晰報告版';
-const FILE_VERSION='V50_R5.3.2.5.6.3.1_圖片統一排版完整版';
+const RELEASE=window.ShitouReleaseV50.release;
+const FILE_VERSION=window.ShitouReleaseV50.fileVersion;
 const E=window.ShitouTechnicalEvidenceR45;
 window.R45_RELEASE_LABEL=RELEASE;
 window.R45_FILE_VERSION=FILE_VERSION;
