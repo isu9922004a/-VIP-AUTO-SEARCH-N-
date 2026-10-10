@@ -14,14 +14,59 @@ const codeOf=c=>String(c?.report?.stock||c?.report?.code||c?.stock||c?.code||"")
 const candidateName=c=>String(c?.report?.name||c?.name||codeOf(c)||"-");
 
 async function fetchJson(url){const r=await fetch(url,{cache:"no-store",headers:{Accept:"application/json"}});if(!r.ok)throw new Error(`${url} HTTP ${r.status}`);return r.json();}
+// The original two /data/industry JSON files were missing from the deployable ZIP.
+// Build the same broad official industry member index from the already-shipped TWSE/TPEx
+// market snapshot. This never fabricates secondary/sub-industry classifications.
+function industryFromMarketSnapshot(source){
+  if(source?.marketCoverageReady!==true||!Array.isArray(source.rows)||!source.rows.length)return null;
+  const rawDate=String(source.tradeDate||'');
+  if(!/^\d{8}$/.test(rawDate))return null;
+  const dataDate=rawDate.slice(0,4)+'-'+rawDate.slice(4,6)+'-'+rawDate.slice(6);
+  const members={};const pcts=[];
+  for(const row of source.rows){
+    const code=String(row?.code||'');
+    if(!/^\d{4}$/.test(code)||!/^[0-9]{8}$/.test(String(row.quoteDate||''))||String(row.quoteDate)!==rawDate)continue;
+    const industryName=String(row.industryName||row.industry||'').trim();
+    if(!industryName)continue;
+    members[code]={code,name:row.name||code,market:row.market||null,industryCode:row.industryCode||'',industryName,
+      industryDataSource:'本地 TWSE／TPEx 同交易日市場快照',pct:number(row.pct),tradeValue:number(row.tradeValue),closePos:number(row.closePos)};
+    if(number(row.pct)!==null)pcts.push(Number(row.pct));
+  }
+  if(Object.keys(members).length<500)return null;
+  return {dataDate,source:'data/market/latest.json',marketMedianPct:median(pcts),members,industries:{}};
+}
+function industryFromCapturedBundle(bundle){
+  const m=bundle?.meta||{};
+  const tw=String(m.twseQuoteDate||'').replace(/\D/g,''),tp=String(m.tpexQuoteDate||'').replace(/\D/g,'');
+  if(m.marketCoverageReady!==true||!/^\d{8}$/.test(tw)||tw!==tp||!(bundle?.map instanceof Map))return null;
+  const rows=[];
+  for(const [code,q] of bundle.map){
+    const sector=bundle.sectorMap?.get(String(code))||{};
+    rows.push({...q,code:String(code),name:q.name||sector.name||code,
+      quoteDate:tw,industryName:sector.industryName||q.industryName||sector.industry||q.industry||'',industryCode:sector.industryCode||q.industryCode||''});
+  }
+  return industryFromMarketSnapshot({marketCoverageReady:true,tradeDate:tw,rows});
+}
 async function loadResources(){
   if(resourcesPromise)return resourcesPromise;
-  resourcesPromise=Promise.allSettled([
-    fetchJson("./data/industry/SHITO_INDUSTRY_MAPPING_V1.json"),
-    fetchJson("./data/industry/industry_snapshot.json")
-  ]).then(([m,s])=>({mapping:m.status==="fulfilled"?m.value:{mappingVersion:"SHITO_INDUSTRY_MAPPING_V1",mappings:{}},snapshot:s.status==="fulfilled"?s.value:{members:{},industries:{},dataDate:null}}));
+  resourcesPromise=(async()=>{
+    const [m,s]=await Promise.allSettled([
+      fetchJson('./data/industry/SHITO_INDUSTRY_MAPPING_V1.json'),
+      fetchJson('./data/industry/industry_snapshot.json')
+    ]);
+    let snapshot=s.status==='fulfilled'&&s.value?.members&&Object.keys(s.value.members).length?s.value:null;
+    // Prefer the exact Market Worker snapshot used by this scan, not a potentially stale
+    // GitHub Pages latest.json from a different trading day.
+    snapshot=industryFromCapturedBundle(capturedMarketBundle)||snapshot;
+    if(!snapshot){try{snapshot=industryFromMarketSnapshot(await fetchJson('./data/market/latest.json'));}catch(_){}}
+
+    return {mapping:m.status==='fulfilled'?m.value:{mappingVersion:'OFFICIAL_INDUSTRY_FROM_MARKET_SNAPSHOT',mappings:{}},
+      snapshot:snapshot||{members:{},industries:{},dataDate:null},ready:!!snapshot,
+      warning:snapshot?'':'未取得同日產業市場資料；不能推論沒有同產業共振'};
+  })();
   return resourcesPromise;
 }
+
 function mappedMember(code,resources){
   const official=resources.snapshot?.members?.[code]||{},mapped=resources.mapping?.mappings?.[code]||{};
   return {code,name:official.name||code,market:official.market||null,industryCode:String(official.industryCode||""),industryName:official.industryName||"官方產業資料不足",subIndustryCode:mapped.primarySubIndustry?`SUB_${mapped.primarySubIndustry}`:null,subIndustryName:mapped.primarySubIndustry||null,primarySubIndustry:mapped.primarySubIndustry||null,secondaryTags:Array.isArray(mapped.secondaryTags)?mapped.secondaryTags:[],displayIndustry:mapped.primarySubIndustry||official.industryName||"產業資料不足",industryDataSource:official.industryDataSource||resources.snapshot?.source||"TWSE／TPEx官方盤後資料",industryMappingVersion:resources.mapping?.mappingVersion||"SHITO_INDUSTRY_MAPPING_V1",pct:number(official.pct),tradeValue:number(official.tradeValue),closePos:number(official.closePos)};
@@ -57,13 +102,23 @@ function readRotation(){if(currentRotation)return currentRotation;try{return JSO
 function hotHtml(title,rows,type){return `<div class="ic-hot"><h3>${title}</h3>${rows.length?rows.map(x=>`<div><strong>${esc(x.industryName)}</strong><span>${type==="main"?`主升段 ${x.mainWaveCount}`:`當沖 ${x.dayTradeCount}`}｜${x.selectedUniqueCount}/${x.totalSample}（${fmt((x.selectionRatio||0)*100)}%）｜${esc(x.state)}</span></div>`).join(""):`<p>尚未執行這一種選股，沒有可統計的名單。</p>`}</div>`;}
 function ensureRadar(targetId){const parent=document.querySelector(`#${targetId} > .panel`);if(!parent)return null;let root=parent.querySelector(".industry-radar-v47");if(!root){root=document.createElement("section");root.className="industry-radar-v47";root.innerHTML='<div class="ic-title">🧭 少爺助理｜同產業有沒有一起變強</div><div class="ic-radar-grid"></div><details><summary>查看同產業同時出現在兩種名單的情況</summary><div class="ic-consensus"></div></details><div class="ic-date"></div>';parent.insertBefore(root,parent.querySelector(".momentum-list")||parent.lastElementChild);}return root;}
 function renderRadars(rotation){
-  for(const [id] of [["momentumResult"],["dayTradeResult"]]){const root=ensureRadar(id);if(!root)continue;root.querySelector(".ic-radar-grid").innerHTML=hotHtml("今日主升段熱門產業",rotation.mainHot,"main")+hotHtml("今日短線熱門產業",rotation.dayHot,"day");root.querySelector(".ic-consensus").innerHTML=rotation.industrySelectionConsensus.length?rotation.industrySelectionConsensus.map(x=>`<p><strong>${esc(x.industryName)}</strong>｜主升段 ${x.mainWaveCount}｜當沖 ${x.dayTradeCount}｜同一檔同時入選兩種名單 ${x.overlapCount}｜${esc(x.consensusState)}｜${esc(x.breadthState)}</p>`).join(""):"目前尚未同時完成兩種選股，或沒有形成同一產業同時出現在主升段與當沖名單。";root.querySelector(".ic-date").textContent=`產業資料日：${rotation.dataDate||"資料不足"}｜不改原榜分數、排序與候選數。`;}
+  for(const [id] of [["momentumResult"],["dayTradeResult"]]){const root=ensureRadar(id);if(!root)continue;root.querySelector(".ic-radar-grid").innerHTML=hotHtml("今日主升段熱門產業",rotation.mainHot,"main")+hotHtml("今日短線熱門產業",rotation.dayHot,"day");root.querySelector(".ic-consensus").innerHTML=rotation.dataUnavailable?`<p>${esc(rotation.warning||"產業資料尚未驗證")}</p>`:rotation.industrySelectionConsensus.length?rotation.industrySelectionConsensus.map(x=>`<p><strong>${esc(x.industryName)}</strong>｜主升段 ${x.mainWaveCount}｜當沖 ${x.dayTradeCount}｜同一檔同時入選兩種名單 ${x.overlapCount}｜${esc(x.consensusState)}｜${esc(x.breadthState)}</p>`).join(""):"目前尚未同時完成兩種選股，或沒有形成同一產業同時出現在主升段與當沖名單。";root.querySelector(".ic-date").textContent=`產業資料日：${rotation.dataDate||"資料不足"}｜不改原榜分數、排序與候選數。`;}
 }
 function candidateIndustryHtml(c){const x=c?.industryContext;if(!x)return '<div class="ic-candidate"><strong>產業資料：</strong>整理中</div>';return `<details class="ic-candidate"><summary><span class="ic-tag">${esc(x.displayIndustry)}</span><span class="ic-state" data-state="${esc(x.industryState)}">${esc(x.industryState)}</span></summary><div>官方產業：${esc(x.industryName)}${x.subIndustryName?`｜次產業：${esc(x.subIndustryName)}`:"｜次產業：未建立可信對照，不硬猜"}<br>同產業主升段：${x.mainWaveCount??"資料不足"}檔｜同產業當沖：${x.dayTradeCount??"資料不足"}檔｜同一檔同時入選兩種名單：${x.overlapCount??"資料不足"}檔<br>同產業上漲情況：${esc(x.breadthState)}<br><small>來源：${esc(x.industryDataSource)}｜對照版：${esc(x.industryMappingVersion)}</small></div></details>`;}
 function renderIndividual(context){const root=document.getElementById("industryEtfContextV47");if(!root)return;root.hidden=false;document.getElementById("icIndustryName").textContent=context.displayIndustry;document.getElementById("icOfficialIndustry").textContent=context.industryName;document.getElementById("icSubIndustry").textContent=context.subIndustryName||"沒有可信對照，不硬猜";document.getElementById("icIndustryState").textContent=context.industryState;document.getElementById("icCounts").textContent=context.mainWaveCount===null?"尚未完成本次兩種選股，暫無同產業入選統計":`主升段 ${context.mainWaveCount}檔｜當沖 ${context.dayTradeCount}檔｜同一檔同時入選兩種名單 ${context.overlapCount}檔`;document.getElementById("icBreadth").textContent=`同產業上漲情況：${context.breadthState}｜和大盤相比：${context.relativeStrength===null?"資料不足":`${fmt(context.relativeStrength)}個百分點`}`;document.getElementById("icPlainConclusion").textContent=context.mainWaveCount===null?`目前可確認 ${context.displayIndustry} 的官方產業與盤後廣度，但尚未同時完成主升段、當沖兩種選股，所以不硬說已形成兩種名單同時出現。本股仍要看自己的ABC與原有進場檢查。`:`目前 ${context.displayIndustry} 有主升段 ${context.mainWaveCount} 檔、短線 ${context.dayTradeCount} 檔；這是族群背景，不會讓本股自動變成可進場。`;document.getElementById("icDataDate").textContent=`產業資料日：${context.dataDate||"資料不足"}｜盤後整理，不是即時看盤`;}
 async function loadIndustryContextForStock(report){const resources=await loadResources(),member=mappedMember(String(report?.code||report?.stock||""),resources),rotation=readRotation(),g=rotation?.byIndustry?.[member.displayIndustry]||null,context={...member,dataTiming:"POST_CLOSE",role:"EVIDENCE_ONLY",industryState:g?.state||"產業觀察",mainWaveCount:g?.mainWaveCount??null,dayTradeCount:g?.dayTradeCount??null,overlapCount:g?.overlapCount??null,breadthState:g?.breadthState||((resources.snapshot?.industries?.[member.industryName]?.upRatio??0)>=.6?"多數上漲":resources.snapshot?.industries?.[member.industryName]?.upRatio===null?"資料不足":"漲跌互見"),relativeStrength:g?.relativeStrength??null,dataDate:g?.dataDate||resources.snapshot?.dataDate||null};report.industryContext=context;renderIndividual(context);return context;}
-async function enrichScans(){const resources=await loadResources(),main=typeof lastMomentumScanDataV3762!=="undefined"?(lastMomentumScanDataV3762?.candidates||[]):[],day=typeof lastDayTradeScanDataV1!=="undefined"?(lastDayTradeScanDataV1?.candidates||[]):[],rotation=buildIndustryRotation(main,day,resources);saveRotation(rotation);if(typeof lastMomentumScanDataV3762!=="undefined"&&lastMomentumScanDataV3762)lastMomentumScanDataV3762.industryContext=rotation;if(typeof lastDayTradeScanDataV1!=="undefined"&&lastDayTradeScanDataV1)lastDayTradeScanDataV1.industryContext=rotation;renderRadars(rotation);return rotation;}
-function industryText(rotation,type){if(!rotation)return "";const rows=type==="main"?rotation.mainHot:rotation.dayHot;return ["","━━━━━━━━━━━━━━━━━━","【少爺助理｜同產業有沒有一起變強】","━━━━━━━━━━━━━━━━━━",`${type==="main"?"主升段":"當沖"}熱門產業：${rows.map(x=>`${x.industryName} ${type==="main"?x.mainWaveCount:x.dayTradeCount}檔（${fmt((x.selectionRatio||0)*100)}%）`).join("｜")||"尚無"}`,`同一產業同時出現在主升段與當沖名單：${rotation.industrySelectionConsensus.map(x=>`${x.industryName} 主升${x.mainWaveCount}／當沖${x.dayTradeCount}／重疊${x.overlapCount}`).join("｜")||"尚未形成"}`,`產業資料日：${rotation.dataDate||"資料不足"}`,"提醒：產業背景只作輔助，不會改變原榜排名、原分數或原有進場檢查。"].join("\n");}
+async function enrichScans(){const resources=await loadResources(),main=typeof lastMomentumScanDataV3762!=="undefined"?(lastMomentumScanDataV3762?.candidates||[]):[],day=typeof lastDayTradeScanDataV1!=="undefined"?(lastDayTradeScanDataV1?.candidates||[]):[];
+  const reportDate=String((typeof lastDayTradeScanDataV1!=='undefined'?(lastDayTradeScanDataV1?.dataDate||lastDayTradeScanDataV1?.marketBundleMeta?.twseQuoteDate):null)||(typeof lastMomentumScanDataV3762!=='undefined'?(lastMomentumScanDataV3762?.dataDate||lastMomentumScanDataV3762?.marketBundleMeta?.twseQuoteDate):null)||'').replace(/\//g,'-');
+  const sourceDate=String(resources.snapshot?.dataDate||'');
+  const sameDate=!reportDate||!sourceDate||reportDate.replace(/\D/g,'')===sourceDate.replace(/\D/g,'');
+  const usable=resources.ready&&sameDate;
+  const rotation=usable?buildIndustryRotation(main,day,resources):{
+    schema:SHITO_INDUSTRY_CONTEXT_SCHEMA_V1,dataDate:null,mainHot:[],dayHot:[],industrySelectionConsensus:[],byIndustry:{},
+    dataUnavailable:true,warning:!sameDate?`產業資料交易日 ${sourceDate} 與選股 ${reportDate} 不一致；不提供產業共振結論`:resources.warning};
+  rotation.dataUnavailable=!usable;rotation.warning=rotation.warning||null;
+  rotation.bothScansReady=!!(typeof lastMomentumScanDataV3762!=='undefined'&&lastMomentumScanDataV3762?.completed&&typeof lastDayTradeScanDataV1!=='undefined'&&lastDayTradeScanDataV1?.completed);
+  saveRotation(rotation);if(typeof lastMomentumScanDataV3762!=="undefined"&&lastMomentumScanDataV3762)lastMomentumScanDataV3762.industryContext=rotation;if(typeof lastDayTradeScanDataV1!=="undefined"&&lastDayTradeScanDataV1)lastDayTradeScanDataV1.industryContext=rotation;renderRadars(rotation);return rotation;}
+function industryText(rotation,type){if(!rotation)return "";const rows=type==="main"?rotation.mainHot:rotation.dayHot;return ["","━━━━━━━━━━━━━━━━━━","【少爺助理｜同產業有沒有一起變強】","━━━━━━━━━━━━━━━━━━",`${type==="main"?"主升段":"當沖"}熱門產業：${rows.map(x=>`${x.industryName} ${type==="main"?x.mainWaveCount:x.dayTradeCount}檔（${fmt((x.selectionRatio||0)*100)}%）`).join("｜")||(rotation.dataUnavailable?"產業資料尚未驗證": "尚無")}`,`同一產業同時出現在主升段與當沖名單：${rotation.industrySelectionConsensus.map(x=>`${x.industryName} 主升${x.mainWaveCount}／當沖${x.dayTradeCount}／重疊${x.overlapCount}`).join("｜")||(rotation.dataUnavailable?"產業資料尚未驗證":!rotation.bothScansReady?"尚未同時完成兩套掃描":"未形成")}`,`產業資料日：${rotation.dataDate||"未驗證"}${rotation.warning?"｜"+rotation.warning:""}`,"提醒：產業背景只作輔助，不會改變原榜排名、原分數或原有進場檢查。"].join("\n");}
 function stockIndustryText(x){if(!x)return "";return ["","━━━━━━━━━━━━━━━━━━","【少爺助理｜同產業有沒有一起變強】","━━━━━━━━━━━━━━━━━━",`產業：${x.displayIndustry}`,`官方產業：${x.industryName}`,`次產業：${x.subIndustryName||"沒有可信對照，不硬猜"}`,`產業狀態：${x.industryState}`,`主升段同產業：${x.mainWaveCount??"資料不足"}｜當沖同產業：${x.dayTradeCount??"資料不足"}｜同一檔同時入選兩種名單：${x.overlapCount??"資料不足"}`,"產業背景只作輔助，實際進場仍須通過原有進場檢查。"].join("\n");}
 
 function appendIndustryCanvasV47(base,rotation,type){
@@ -95,5 +150,5 @@ if(typeof renderDayTradeInfographicV1==="function"){const base=renderDayTradeInf
 if(typeof buildDayTradeAllCandidatesImageV1==="function"){const base=buildDayTradeAllCandidatesImageV1;buildDayTradeAllCandidatesImageV1=scan=>appendIndustryCanvasV47(base(scan),scan?.industryContext||readRotation(),"day");}
 if(typeof window.loadShitoAssistantEvidenceV47==="function"){const base=window.loadShitoAssistantEvidenceV47;window.loadShitoAssistantEvidenceV47=async report=>{const e=await base(report);try{await loadIndustryContextForStock(report);}catch(err){console.warn("產業資料暫時無法載入：",err);}return e;};}
 
-window.ShitoIndustryContextV47={version:SHITO_INDUSTRY_CONTEXT_ACTIVE_VERSION_V53247,dataTiming:"POST_CLOSE",role:"EVIDENCE_ONLY",schemas:{industry:SHITO_INDUSTRY_CONTEXT_SCHEMA_V1},mappedMember,buildIndustryRotation,loadIndustryContextForStock};
+window.ShitoIndustryContextV47={version:SHITO_INDUSTRY_CONTEXT_ACTIVE_VERSION_V53247,dataTiming:"POST_CLOSE",role:"EVIDENCE_ONLY",schemas:{industry:SHITO_INDUSTRY_CONTEXT_SCHEMA_V1},mappedMember,buildIndustryRotation,loadIndustryContextForStock,enrichScans,snapshotFromMarket:industryFromMarketSnapshot};
 })();

@@ -1,8 +1,8 @@
 'use strict';
 
 (function(root){
-  const RELEASE='石頭少爺 Agent V50 正式版｜R5.3.2.9｜盤後波段風險與掃描穩定版';
-  const FILE_VERSION='V50_R5.3.2.9_盤後波段風險與掃描穩定版';
+  const RELEASE='石頭少爺 Agent V50 正式版｜R5.3.2.8.2｜手機免CMD自動同步版';
+  const FILE_VERSION='V50_R5.3.2.8.2_手機免CMD自動同步版';
   const VERSION=Object.freeze({
     major:50,
     release:RELEASE,
