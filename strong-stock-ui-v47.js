@@ -30,7 +30,7 @@
   const isCpuError=value=>/exceeded\s*CPU|CPU\s*time\s*limit|CPU.*(?:超限|用量)|1102|script.*exceeded/i.test(String(value||''));
   const isRetryable=value=>/CPU|1102|timeout|timed out|aborted|failed to fetch|network|HTTP\s*(?:429|5\d\d)|服務暫時|連線|逾時|分析未回傳/i.test(String(value||''));
   const statusTitle=scan=>scan.fullMarketCertified?'完整市場驗證報告':'部分驗證報告｜非全市場完整排名';
-  const RELEASE_R493=root.ShitouReleaseV50.release;
+  const RELEASE_R493='石頭少爺 Agent V50 正式版｜R5.3.2.8｜七類排除與RSI 5T清晰報告版';
   const triggerMeta=c=>{
     const close=F.number(c?.close),trigger=F.number(c?.trigger);
     const crossed=close!==null&&trigger!==null&&close>=trigger;
@@ -149,7 +149,6 @@
     const report=x.data,returned=String(report.stock||report.code||x.code||'');
     if(returned!==item.code)return {status:'DATA',reason:'回傳股票代號不符或缺失'};
     const result=F.evaluate(report,marketDate,item.q);
-    if(root.ShitouTowerIntegration)result.towerShadow=root.ShitouTowerIntegration.get(result.report||report,{asOf:marketDate,completed:true});
     if(result.eligible){result.code=item.code;result.name=LOCAL_NAME_MAP?.[item.code]||report.name||item.code;}
     return result;
   }
@@ -198,7 +197,6 @@
     if(scan.deferred)lines.push(`未深入分析：${scan.deferred} 檔，不能標記為不合格。`);
     if(scan.pending)lines.push(`掃描停止或資源熔斷後未分析：${scan.pending} 檔。`);
     lines.push(`END-OF-STRONG-STOCK-REPORT-R5327｜候選 ${scan.candidates.length}/${scan.candidates.length}`);
-    if(root.ShitouTowerIntegration)return root.ShitouTowerIntegration.appendScanText(lines.join('\n'),scan);
     return lines.join('\n');
   }
   async function run(){
